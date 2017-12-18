@@ -2,6 +2,7 @@ package de.florian_timm.aufgabenPlaner;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 import javax.swing.Icon;
 import javax.swing.JFrame;
@@ -16,6 +17,7 @@ public class AufgabenPlanerGUI extends JFrame implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	private DatenSpeicher data = null;
 	Person nutzer = null;
+	int nutzerid = 0;
 
 	public AufgabenPlanerGUI(String dateiname) {
 
@@ -26,6 +28,7 @@ public class AufgabenPlanerGUI extends JFrame implements ActionListener {
 		String username = System.getProperty("user.name");
 		try {
 			nutzer = data.getPerson(username);
+
 		} catch (PersonNotFoundException pnf) {
 			JTextField name = new JTextField();
 			JTextField email = new JTextField();
@@ -43,9 +46,14 @@ public class AufgabenPlanerGUI extends JFrame implements ActionListener {
 					e.printStackTrace();
 					System.exit(0);
 				}
+			} else {
+				System.exit(0);
 			}
 		}
-		Aufgabe[] aufgaben = data.getAufgaben(System.getProperty("user.name"));
+
+		nutzerid = nutzer.getId();
+		this.setTitle(this.getTitle() +  " für " + nutzer.getName());
+		List<Aufgabe> aufgaben = data.getAufgaben(System.getProperty("user.name"));
 
 		for (Aufgabe a : aufgaben) {
 			a.getBeschreibung();
@@ -59,7 +67,7 @@ public class AufgabenPlanerGUI extends JFrame implements ActionListener {
 
 	public static void main(String[] args) {
 
-		String dateiname = "test.db";
+		String dateiname = "aufgaben.db";
 		if (args.length > 0) {
 			dateiname = args[0];
 		}

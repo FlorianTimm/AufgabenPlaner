@@ -21,13 +21,17 @@ public class DatenSpeicher {
 		try {
 			stmt = c.createStatement();
 
-			String sql = "CREATE TABLE IF NOT EXISTS user (id INT PRIMARY KEY NOT NULL, username	TEXT NOT NULL, name TEXT NOT NULL, email TEXT);";
+			String sql = "CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username	TEXT NOT NULL, name TEXT NOT NULL, email TEXT); "+
+					"CREATE TABLE IF NOT EXISTS aufgaben (id INTEGER PRIMARY KEY, titel	TEXT NOT NULL, beschreibung TEXT NOT NULL, auftraggeber INTEGER); "+
+					"CREATE TABLE IF NOT EXISTS aufgabenzuordnung (id INTEGER PRIMARY KEY, aufgabenid INTEGER, userid INTEGER); ";
 			stmt.executeUpdate(sql);
 			stmt.close();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		
 
 	}
 
@@ -96,9 +100,25 @@ public class DatenSpeicher {
 		return person;
 	}
 
-	public Aufgabe[] getAufgaben(String username) {
-		Aufgabe[] aufgaben = null;
-		aufgaben = new Aufgabe[0];
+	public List<Aufgabe> getAufgaben(String userid) {
+		List<Aufgabe> aufgaben = new ArrayList<Aufgabe>(); 
+		try {
+			stmt = c.createStatement();
+			ResultSet rs = stmt.executeQuery("SELECT * FROM aufgaben, aufgabenzuordnung where aufgaben.id = aufgabenzuordnung.aufgabenid and aufgabenzuordnung.userid = '" + userid + "';");
+
+			while (rs.next()) {
+				int id = rs.getInt("id");
+				String titel = rs.getString("titel");
+				String beschreibung = rs.getString("beschreibung");
+				rs.close();
+				stmt.close();
+				aufgaben.add(new Aufgabe(titel, beschreibung, id));
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		return aufgaben;
 	}
 

@@ -4,8 +4,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Aufgabe {
-	private String beschreibung = "";
 	private List<Person> bearbeiter = new ArrayList<Person>();
+	private String titel = "";
+	private String beschreibung = "";
+	private int id = 0;
+	
+	
+	public Aufgabe (String titel, String beschreibung, int id) {
+		this.titel = titel;
+		this.beschreibung = beschreibung;
+		this.id = id;
+	}
+	
+	
+	public String getTitel() {
+		return titel;
+	}
+
+	public void setTitel(String titel) {
+		this.titel = titel;
+	}
 	
 	/**
 	 * @return the beschreibung
