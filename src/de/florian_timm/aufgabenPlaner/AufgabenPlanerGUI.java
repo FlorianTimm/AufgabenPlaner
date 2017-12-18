@@ -1,10 +1,12 @@
 package de.florian_timm.aufgabenPlaner;
 
+import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
 import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
@@ -52,13 +54,20 @@ public class AufgabenPlanerGUI extends JFrame implements ActionListener {
 		}
 
 		nutzerid = nutzer.getId();
-		this.setTitle(this.getTitle() +  " für " + nutzer.getName());
+		this.setTitle(this.getTitle() +  " fÃ¼r " + nutzer.getName());
 		List<Aufgabe> aufgaben = data.getAufgaben(System.getProperty("user.name"));
 
 		for (Aufgabe a : aufgaben) {
 			a.getBeschreibung();
 		}
 
+		Container cp = this.getContentPane();
+		
+		JButton neueAufgabe = new JButton("Neue Aufgabe");
+		neueAufgabe.setActionCommand("neueAufgabe");
+		neueAufgabe.addActionListener(this);
+		cp.add(neueAufgabe);
+		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.pack();
 		this.setVisible(true);
@@ -77,6 +86,13 @@ public class AufgabenPlanerGUI extends JFrame implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent ae) {
-
+		switch (ae.getActionCommand()) {
+		case "neueAufgabe":
+			neueAufgabe();
+		}
+	}
+	
+	private void neueAufgabe () {
+		NeueAufgabeGUI nag = new NeueAufgabeGUI(this, this.data);
 	}
 }

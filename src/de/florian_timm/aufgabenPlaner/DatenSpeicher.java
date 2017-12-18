@@ -35,7 +35,7 @@ public class DatenSpeicher {
 
 	}
 
-	public Person[] getPersonen() {
+	public List<Person> getPersonen() {
 		List<Person> personen = null;
 		try {
 			stmt = c.createStatement();
@@ -55,7 +55,7 @@ public class DatenSpeicher {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return (Person[]) personen.toArray();
+		return personen;
 	}
 
 	public Person newPerson(String username, String name, String email) throws PersonNotFoundException {
