@@ -1,6 +1,7 @@
 package de.florian_timm.aufgabenPlaner;
 
 public class Person {
+	private String username = "";
 	private String name = "";
 	private String email = "";
 	private int id = -1;
@@ -10,12 +11,20 @@ public class Person {
 	 * @param email
 	 * @param id
 	 */
-	public Person(String name, String email, int id) {
+	public Person(String username, String name, String email, int id) {
+		this.username = username;
 		this.name = name;
 		this.email = email;
 		this.id = id;
 	}
 
+	/**
+	 * @return the username
+	 */
+	public String getUserName() {
+		return username;
+	}
+	
 	/**
 	 * @return the name
 	 */
