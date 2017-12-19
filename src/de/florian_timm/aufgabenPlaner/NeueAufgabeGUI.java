@@ -1,10 +1,13 @@
 package de.florian_timm.aufgabenPlaner;
 
 import java.awt.Container;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
@@ -16,6 +19,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 public class NeueAufgabeGUI extends JDialog implements ActionListener {
+	private static final long serialVersionUID = 1L;
 	DatenSpeicher data = null;
 	
 	public NeueAufgabeGUI(JFrame frame, DatenSpeicher data) {
@@ -23,8 +27,8 @@ public class NeueAufgabeGUI extends JDialog implements ActionListener {
 		this.data = data;
 		Container cp = this.getContentPane();
 		cp.setLayout(new GridLayout(4,2));
-		
-		cp.add(new JLabel("Titel:"));
+		JLabel lTitel = new JLabel("Titel:");
+		cp.add(lTitel);
 		JTextField titel = new JTextField("");
 		cp.add(titel);
 		cp.add(new JLabel("Beschreibung:"));
@@ -38,7 +42,7 @@ public class NeueAufgabeGUI extends JDialog implements ActionListener {
 			auftraggeber.addItem(p);
 		}
 		cp.add(auftraggeber);
-		
+		cp.add(new JLabel());
 		JButton speichern = new JButton("Speichern");
 		speichern.addActionListener(this);
 		cp.add(speichern);

@@ -24,7 +24,7 @@ public class Person {
 	public String getUserName() {
 		return username;
 	}
-	
+
 	/**
 	 * @return the name
 	 */
@@ -33,7 +33,8 @@ public class Person {
 	}
 
 	/**
-	 * @param name the name to set
+	 * @param name
+	 *            the name to set
 	 */
 	public void setName(String name) {
 		this.name = name;
@@ -47,7 +48,8 @@ public class Person {
 	}
 
 	/**
-	 * @param email the email to set
+	 * @param email
+	 *            the email to set
 	 */
 	public void setEmail(String email) {
 		this.email = email;
@@ -61,13 +63,14 @@ public class Person {
 	}
 
 	/**
-	 * @param id the id to set
+	 * @param id
+	 *            the id to set
 	 */
 	public void setId(int id) {
 		this.id = id;
 	}
-	
+
 	public String toString() {
-		return getName();
+		return getName() + " <" + getEmail() + ">";
 	}
 }
