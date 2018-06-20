@@ -19,9 +19,7 @@ public class AufgabenPlanerGUI extends JFrame implements ActionListener {
 	 * GUI
 	 */
 	private static final long serialVersionUID = 1L;
-	private DatenhaltungS data = null;
 	Person nutzer = null;
-	int nutzerid = 0;
 
 	public AufgabenPlanerGUI(String dateiname) {
 
@@ -32,7 +30,6 @@ public class AufgabenPlanerGUI extends JFrame implements ActionListener {
 		String username = System.getProperty("user.name");
 		try {
 			nutzer = Person.getPerson(username);
-
 		} catch (PersonNotFoundException pnf) {
 			JTextField name = new JTextField();
 			JTextField email = new JTextField();
@@ -55,7 +52,6 @@ public class AufgabenPlanerGUI extends JFrame implements ActionListener {
 			}
 		}
 
-		nutzerid = nutzer.getId();
 		this.setTitle(this.getTitle() +  " für " + nutzer.getName());
 		List<Aufgabe> aufgaben = Aufgabe.getAufgaben(nutzer);
 
@@ -95,6 +91,6 @@ public class AufgabenPlanerGUI extends JFrame implements ActionListener {
 	}
 	
 	private void neueAufgabe () {
-		NeueAufgabeGUI nag = new NeueAufgabeGUI(this, this.data);
+		new NeueAufgabeGUI(this);
 	}
 }
