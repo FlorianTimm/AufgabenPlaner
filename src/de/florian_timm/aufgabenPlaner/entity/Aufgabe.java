@@ -10,16 +10,15 @@ import de.florian_timm.aufgabenPlaner.DatenhaltungS;
 
 public class Aufgabe {
 	private int dbId;
-	private List<Person> bearbeiter = new ArrayList<Person>();
-	private String titel = "";
-	private String beschreibung = "";
+	private Person bearbeiter;
+	private String titel;
+	private String beschreibung;
 	private Date erstellt;
 	private Date faelligkeit;
-	private int status;
+	private Status status;
 	private boolean storniert;
 
-	public Aufgabe(List<Person> bearbeiter, String titel, String beschreibung, Date erstellt, Date faelligkeit) {
-		super();
+	public Aufgabe(Person bearbeiter, String titel, String beschreibung, Date erstellt, Date faelligkeit) {
 		this.bearbeiter = bearbeiter;
 		this.titel = titel;
 		this.beschreibung = beschreibung;
@@ -27,9 +26,8 @@ public class Aufgabe {
 		this.faelligkeit = faelligkeit;
 	}
 
-	public Aufgabe(int dbId, List<Person> bearbeiter, String titel, String beschreibung, Date erstellt,
-			Date faelligkeit, int status, boolean storniert) {
-		super();
+	public Aufgabe(int dbId, Person bearbeiter, String titel, String beschreibung, Date erstellt, Date faelligkeit,
+			Status status, boolean storniert) {
 		this.dbId = dbId;
 		this.bearbeiter = bearbeiter;
 		this.titel = titel;
@@ -40,11 +38,11 @@ public class Aufgabe {
 		this.storniert = storniert;
 	}
 
-	public List<Person> getBearbeiter() {
+	public Person getBearbeiter() {
 		return bearbeiter;
 	}
 
-	public void setBearbeiter(List<Person> bearbeiter) {
+	public void setBearbeiter(Person bearbeiter) {
 		this.bearbeiter = bearbeiter;
 	}
 
@@ -80,11 +78,11 @@ public class Aufgabe {
 		this.faelligkeit = faelligkeit;
 	}
 
-	public int getStatus() {
+	public Status getStatus() {
 		return status;
 	}
 
-	public void setStatus(int status) {
+	public void setStatus(Status status) {
 		this.status = status;
 	}
 
@@ -100,19 +98,25 @@ public class Aufgabe {
 		return dbId;
 	}
 
-	public List<Aufgabe> getAufgaben(String userid) {
+	public static List<Aufgabe> getAufgaben(Person person) {
 		List<Aufgabe> aufgaben = new ArrayList<Aufgabe>();
 		try {
 			ResultSet rs = DatenhaltungS.query(
-					"SELECT * FROM aufgaben, aufgabenzuordnung where aufgaben.id = aufgabenzuordnung.aufgabenid and aufgabenzuordnung.userid = '"
-							+ userid + "';");
+					"SELECT * FROM aufgabe where aufgabe.bearbeiter = "
+							+ person.getId() + ";");
 
 			while (rs.next()) {
-				int id = rs.getInt("id");
+				int dbId = rs.getInt("id");
+				Person bearbeiter = person;
 				String titel = rs.getString("titel");
 				String beschreibung = rs.getString("beschreibung");
+				Date erstellt = rs.getDate("erstellt");
+				Date faelligkeit = rs.getDate("faelligkeit");
+				Status status = Status.getStatus(rs.getInt("status"));
+				boolean storniert = rs.getBoolean("storniert");
 				rs.close();
-				aufgaben.add(new Aufgabe(titel, beschreibung, id));
+				aufgaben.add(new Aufgabe(dbId, bearbeiter, titel, beschreibung, erstellt,
+						faelligkeit, status, storniert) );
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block

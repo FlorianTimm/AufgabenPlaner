@@ -2,13 +2,15 @@ package de.florian_timm.aufgabenPlaner.entity;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.florian_timm.aufgabenPlaner.DatenhaltungS;
 import de.florian_timm.aufgabenPlaner.PersonNotFoundException;
 
 public class Person {
-	private String username ;
+	private String username;
 	private String name;
 	private String email;
 	private int id;
@@ -56,40 +58,38 @@ public class Person {
 	public String toString() {
 		return getName() + " <" + getEmail() + ">";
 	}
-	
-	
-	public Person getPerson(String username) throws PersonNotFoundException {
+
+	public static Person getPerson(String username) throws PersonNotFoundException {
+		return getPersonSQL("username = '" + username + "'");
+	}
+
+	public static Person getPerson(int id) throws PersonNotFoundException {
+		return getPersonSQL("id = " + id);
+	}
+
+	public static Person getPersonSQL(String sql) throws PersonNotFoundException {
 		try {
-			stmt = c.createStatement();
-			ResultSet rs = stmt.executeQuery("SELECT * FROM user where username = '" + username + "';");
+			ResultSet rs = DatenhaltungS.query("SELECT * FROM user where " + sql + ";");
 
 			while (rs.next()) {
 				int id = rs.getInt("id");
+				String username = rs.getString("username");
 				String name = rs.getString("name");
 				String email = rs.getString("email");
 				rs.close();
-				stmt.close();
 				return new Person(username, name, email, id);
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 		throw new PersonNotFoundException("Person not found!");
 	}
 
-	public Person getPerson(int id) {
-		Person person = null;
-
-		return person;
-	}
-	
-	public List<Person> getPersonen() {
+	public static List<Person> getPersonen() {
 		List<Person> personen = null;
 		try {
-			stmt = c.createStatement();
-			ResultSet rs = stmt.executeQuery("SELECT * FROM user;");
+			ResultSet rs = DatenhaltungS.query("SELECT * FROM user;");
 
 			personen = new ArrayList<Person>();
 			while (rs.next()) {
@@ -100,24 +100,15 @@ public class Person {
 				personen.add(new Person(username, name, email, id));
 			}
 			rs.close();
-			stmt.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return personen;
 	}
 
-	public Person newPerson(String username, String name, String email) throws PersonNotFoundException {
-		try {
-			stmt = c.createStatement();
-			String sql = "INSERT INTO user (name, username, email) " + "VALUES ('" + name + "','" + username + "','"
-					+ email + "');";
-
-			stmt.executeUpdate(sql);
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
+	public static Person newPerson(String username, String name, String email) throws PersonNotFoundException {
+		DatenhaltungS.update("INSERT INTO user (name, username, email) VALUES ('" + name + "','" + username + "','"
+				+ email + "');");
 		return getPerson(username);
 	}
 }

@@ -40,7 +40,7 @@ public class NeueAufgabeGUI extends JDialog implements ActionListener {
 		cp.add(new JLabel("Auftraggeber:"));
 		
 		JComboBox<Person> auftraggeber = new JComboBox<Person>();
-		for(Person p:data.getPersonen()) {
+		for(Person p:Person.getPersonen()) {
 			auftraggeber.addItem(p);
 		}
 		cp.add(auftraggeber);

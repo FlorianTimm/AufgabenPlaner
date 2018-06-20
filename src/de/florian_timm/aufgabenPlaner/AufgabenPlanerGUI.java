@@ -5,7 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -28,11 +27,11 @@ public class AufgabenPlanerGUI extends JFrame implements ActionListener {
 
 		super("Aufgabenplaner");
 
-		data = new DatenhaltungS(dateiname);
+		DatenhaltungS.setSourceFile(dateiname);
 
 		String username = System.getProperty("user.name");
 		try {
-			nutzer = data.getPerson(username);
+			nutzer = Person.getPerson(username);
 
 		} catch (PersonNotFoundException pnf) {
 			JTextField name = new JTextField();
@@ -45,7 +44,7 @@ public class AufgabenPlanerGUI extends JFrame implements ActionListener {
 			// If a string was returned, say so.
 			if ((name.getText() != null) && (name.getText().length() > 0)) {
 				try {
-					nutzer = data.newPerson(username, name.getText(), email.getText());
+					nutzer = Person.newPerson(username, name.getText(), email.getText());
 				} catch (PersonNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -57,8 +56,8 @@ public class AufgabenPlanerGUI extends JFrame implements ActionListener {
 		}
 
 		nutzerid = nutzer.getId();
-		this.setTitle(this.getTitle() +  " für " + nutzer.getName());
-		List<Aufgabe> aufgaben = data.getAufgaben(System.getProperty("user.name"));
+		this.setTitle(this.getTitle() +  " fÃ¼r " + nutzer.getName());
+		List<Aufgabe> aufgaben = Aufgabe.getAufgaben(nutzer);
 
 		for (Aufgabe a : aufgaben) {
 			a.getBeschreibung();
