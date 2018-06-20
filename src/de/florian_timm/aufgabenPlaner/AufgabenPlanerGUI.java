@@ -11,13 +11,16 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
+import de.florian_timm.aufgabenPlaner.entity.Aufgabe;
+import de.florian_timm.aufgabenPlaner.entity.Person;
+
 public class AufgabenPlanerGUI extends JFrame implements ActionListener {
 
 	/**
 	 * GUI
 	 */
 	private static final long serialVersionUID = 1L;
-	private DatenSpeicher data = null;
+	private DatenhaltungS data = null;
 	Person nutzer = null;
 	int nutzerid = 0;
 
@@ -25,7 +28,7 @@ public class AufgabenPlanerGUI extends JFrame implements ActionListener {
 
 		super("Aufgabenplaner");
 
-		data = new DatenSpeicher(dateiname);
+		data = new DatenhaltungS(dateiname);
 
 		String username = System.getProperty("user.name");
 		try {
@@ -54,7 +57,7 @@ public class AufgabenPlanerGUI extends JFrame implements ActionListener {
 		}
 
 		nutzerid = nutzer.getId();
-		this.setTitle(this.getTitle() +  " fÃ¼r " + nutzer.getName());
+		this.setTitle(this.getTitle() +  " für " + nutzer.getName());
 		List<Aufgabe> aufgaben = data.getAufgaben(System.getProperty("user.name"));
 
 		for (Aufgabe a : aufgaben) {

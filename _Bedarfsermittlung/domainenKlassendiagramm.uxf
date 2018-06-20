@@ -1,0 +1,337 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.2">
+  <zoom_level>9</zoom_level>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>450</x>
+      <y>423</y>
+      <w>171</w>
+      <h>126</h>
+    </coordinates>
+    <panel_attributes>Aufgabe
+--
+bearbeiter: List&lt;Person&gt;
+titel: String
+beschreibung: String
+erstellt: Date
+faelligkeit: Date
+status: int
+storniert: boolean</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>837</x>
+      <y>378</y>
+      <w>153</w>
+      <h>108</h>
+    </coordinates>
+    <panel_attributes>Person
+--
+username: String
+name: String
+email: String
+telefon: String
+dienststelle: Dienststelle</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>450</x>
+      <y>144</y>
+      <w>171</w>
+      <h>171</h>
+    </coordinates>
+    <panel_attributes>Projekt
+--
+titel: String
+beschreibung: String
+auftraggeber: Person
+zustaendig: Person
+prioritaet: Prioritaet
+erstellt: Date
+faelligkeit: Date
+kostentraeger: Kostentraeger
+archiviert: boolean
+/status: int
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>522</x>
+      <y>306</y>
+      <w>90</w>
+      <h>135</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+r1=teilaufgabe
+m2=*
+
+</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;130.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>612</x>
+      <y>216</y>
+      <w>243</w>
+      <h>189</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=*
+r1=auftraggeber
+m2=1
+
+</panel_attributes>
+    <additional_attributes>10.0;10.0;250.0;190.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>612</x>
+      <y>423</y>
+      <w>243</w>
+      <h>45</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1..*
+r1=bearbeiter
+m2=*
+
+</panel_attributes>
+    <additional_attributes>10.0;20.0;250.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>612</x>
+      <y>270</y>
+      <w>243</w>
+      <h>162</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=*
+r1=zustaendig
+m2=1
+
+</panel_attributes>
+    <additional_attributes>10.0;10.0;250.0;160.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>837</x>
+      <y>216</y>
+      <w>153</w>
+      <h>54</h>
+    </coordinates>
+    <panel_attributes>Dienststelle
+--
+name: String</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>900</x>
+      <y>261</y>
+      <w>27</w>
+      <h>135</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=*
+
+</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;130.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>180</x>
+      <y>153</y>
+      <w>153</w>
+      <h>63</h>
+    </coordinates>
+    <panel_attributes>Prioritaet
+--
+bezeichnung: String
+sortierung: int</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>324</x>
+      <y>162</y>
+      <w>144</w>
+      <h>36</h>
+    </coordinates>
+    <panel_attributes>lt=-
+</panel_attributes>
+    <additional_attributes>140.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>450</x>
+      <y>630</y>
+      <w>171</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>Bearbeitung
+--
+datum: Date
+zeit: Interval
+bearbeiter: Person
+beschreibung: String</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>180</x>
+      <y>243</y>
+      <w>153</w>
+      <h>63</h>
+    </coordinates>
+    <panel_attributes>Kostentraeger
+--
+bezeichnung: String
+sapname: String</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>324</x>
+      <y>252</y>
+      <w>144</w>
+      <h>45</h>
+    </coordinates>
+    <panel_attributes>lt=-
+
+</panel_attributes>
+    <additional_attributes>140.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>522</x>
+      <y>540</y>
+      <w>27</w>
+      <h>108</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1
+m2=*
+
+</panel_attributes>
+    <additional_attributes>10.0;10.0;10.0;100.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>612</x>
+      <y>459</y>
+      <w>243</w>
+      <h>234</h>
+    </coordinates>
+    <panel_attributes>lt=-
+m1=1..*
+r1=bearbeiter
+m2=*
+
+</panel_attributes>
+    <additional_attributes>10.0;240.0;250.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>180</x>
+      <y>351</y>
+      <w>153</w>
+      <h>81</h>
+    </coordinates>
+    <panel_attributes>Datei
+--
+datum: Date
+beschreibung: String
+url: Url</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>324</x>
+      <y>288</y>
+      <w>144</w>
+      <h>126</h>
+    </coordinates>
+    <panel_attributes>lt=-
+
+</panel_attributes>
+    <additional_attributes>140.0;10.0;10.0;120.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>324</x>
+      <y>387</y>
+      <w>144</w>
+      <h>90</h>
+    </coordinates>
+    <panel_attributes>lt=-
+
+</panel_attributes>
+    <additional_attributes>140.0;80.0;10.0;10.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>180</x>
+      <y>486</y>
+      <w>153</w>
+      <h>63</h>
+    </coordinates>
+    <panel_attributes>Status
+--
+bezeichnung: String
+sortierung: int</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>324</x>
+      <y>495</y>
+      <w>144</w>
+      <h>45</h>
+    </coordinates>
+    <panel_attributes>lt=-
+
+</panel_attributes>
+    <additional_attributes>140.0;20.0;10.0;20.0</additional_attributes>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>981</x>
+      <y>27</y>
+      <w>153</w>
+      <h>54</h>
+    </coordinates>
+    <panel_attributes>&lt;&lt;Singleton&gt;&gt;
+Datenhaltung
+--
+instanz: Datenhaltung</panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>

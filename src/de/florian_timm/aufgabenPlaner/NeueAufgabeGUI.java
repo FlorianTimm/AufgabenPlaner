@@ -18,11 +18,13 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import de.florian_timm.aufgabenPlaner.entity.Person;
+
 public class NeueAufgabeGUI extends JDialog implements ActionListener {
 	private static final long serialVersionUID = 1L;
-	DatenSpeicher data = null;
+	DatenhaltungS data = null;
 	
-	public NeueAufgabeGUI(JFrame frame, DatenSpeicher data) {
+	public NeueAufgabeGUI(JFrame frame, DatenhaltungS data) {
 		super(frame, "Neue Aufgabe");
 		this.data = data;
 		Container cp = this.getContentPane();

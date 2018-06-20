@@ -1,0 +1,18 @@
+Projekt anlegen
+Aufgaben anlegen
+Bearbeitung anlegen
+Person anlegen
+Dienststelle/Firma anlegen
+Datei anlegen
+Kostenträger anlegen
+
+Projekt bearbeiten
+Aufgaben bearbeiten
+Bearbeitung bearbeiten
+Person bearbeiten
+Datei bearbeiten
+Dienststelle/Firma bearbeiten
+
+Projekt archivieren
+Aufgabe stornieren
+Datei löschen
