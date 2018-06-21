@@ -3,6 +3,7 @@ package de.florian_timm.aufgabenPlaner.entity;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import de.florian_timm.aufgabenPlaner.DatenhaltungS;
@@ -14,21 +15,21 @@ public class Status {
 
 	private static Map<Integer, Status> alle = new HashMap<Integer, Status>();
 
-
-
 	public Status(int dbId, String bezeichnung, int sortierung) {
 		this.dbId = dbId;
 		this.bezeichnung = bezeichnung;
 		this.sortierung = sortierung;
 	}
-	
-	
 
 	public static Status getStatus(int id) {
+		checkStatus();
+		return alle.get(id);
+	}
+
+	private static void checkStatus() {
 		if (alle.size() == 0) {
 			loadStatus();
 		}
-		return alle.get(id);
 	}
 
 	private static void loadStatus() {
@@ -44,45 +45,53 @@ public class Status {
 				alle.put(dbId, new Status(dbId, bezeichnung, sortierung));
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
-
-
 
 	public int getDbId() {
 		return dbId;
 	}
 
-
-
 	public void setDbId(int dbId) {
 		this.dbId = dbId;
 	}
 
-
-
-	public String getBezeichnung() {
+	public String toString() {
 		return bezeichnung;
 	}
-
-
 
 	public void setBezeichnung(String bezeichnung) {
 		this.bezeichnung = bezeichnung;
 	}
 
-
-
 	public int getSortierung() {
 		return sortierung;
 	}
 
-
-
 	public void setSortierung(int sortierung) {
 		this.sortierung = sortierung;
+	}
+
+	public static void createTable() {
+		DatenhaltungS.update("CREATE TABLE IF NOT EXISTS status (id INTEGER PRIMARY KEY, "
+				+ "bezeichnung TEXT UNIQUE NOT NULL, sortierung INTEGER);");
+
+		DatenhaltungS.update(
+				"INSERT INTO status (bezeichnung, sortierung) VALUES ('fertig', 100), ('nicht angefangen', 0), ('halbfertig',50);");
+	}
+
+	public static Status[] getAll() {
+		checkStatus();
+		Status[] a = new Status[alle.size()];
+		int i = 0;
+		Iterator<?> it = alle.entrySet().iterator();
+	    while (it.hasNext()) {
+	    	@SuppressWarnings("unchecked")
+			Map.Entry<Integer, Status> pair = (Map.Entry<Integer, Status>) it.next();
+			a[i++] = (Status) pair.getValue();
+		}
+		return a;
 	}
 
 }

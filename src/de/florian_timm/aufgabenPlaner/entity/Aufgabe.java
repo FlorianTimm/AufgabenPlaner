@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 import de.florian_timm.aufgabenPlaner.DatenhaltungS;
+import de.florian_timm.aufgabenPlaner.entity.Status;
 
 public class Aufgabe {
 	private int dbId;
@@ -98,16 +99,16 @@ public class Aufgabe {
 		return dbId;
 	}
 
-	public static List<Aufgabe> getAufgaben(Person person) {
+	public static List<Aufgabe> getAufgaben(Projekt projekt) {
 		List<Aufgabe> aufgaben = new ArrayList<Aufgabe>();
 		try {
 			ResultSet rs = DatenhaltungS.query(
-					"SELECT * FROM aufgabe where aufgabe.bearbeiter = "
-							+ person.getId() + ";");
+					"SELECT * FROM aufgabe where projekt = "
+							+ projekt.getId() + ";");
 
 			while (rs.next()) {
 				int dbId = rs.getInt("id");
-				Person bearbeiter = person;
+				Person bearbeiter = Person.getPerson(rs.getInt("person"));;
 				String titel = rs.getString("titel");
 				String beschreibung = rs.getString("beschreibung");
 				Date erstellt = rs.getDate("erstellt");
@@ -124,5 +125,20 @@ public class Aufgabe {
 		}
 		return aufgaben;
 	}
-
+ 
+	public static void createTable () {
+		DatenhaltungS.update("CREATE TABLE IF NOT EXISTS aufgabe ("
+				+ "id INTEGER PRIMARY KEY, "
+				+ "projekt INTEGER NOT NULL,"
+				+ "person INTEGER,"
+				+ "titel	TEXT NOT NULL, "
+				+ "beschreibung TEXT NOT NULL, "
+				+ "faelligkeit DATE,"
+				+ "status INTEGER,"
+				+ "storniert BOOLEAN,"
+				+ "FOREIGN KEY (person) REFERENCES person(id),"
+				+ "FOREIGN KEY (projekt) REFERENCES projekt(id),"
+				+ "FOREIGN KEY (status) REFERENCES status(id)"
+				+ ");");
+	}
 }

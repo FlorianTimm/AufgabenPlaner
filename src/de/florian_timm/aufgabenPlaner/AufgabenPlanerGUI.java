@@ -1,16 +1,18 @@
 package de.florian_timm.aufgabenPlaner;
 
+import java.awt.BorderLayout;
+
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.List;
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
 
-import de.florian_timm.aufgabenPlaner.entity.Aufgabe;
+import de.florian_timm.aufgabenPlaner.Kontroll.NeuesProjektGUI;
 import de.florian_timm.aufgabenPlaner.entity.Person;
 
 public class AufgabenPlanerGUI extends JFrame implements ActionListener {
@@ -28,9 +30,7 @@ public class AufgabenPlanerGUI extends JFrame implements ActionListener {
 		DatenhaltungS.setSourceFile(dateiname);
 
 		String username = System.getProperty("user.name");
-		try {
-			nutzer = Person.getPerson(username);
-		} catch (PersonNotFoundException pnf) {
+		if ((nutzer = Person.getPerson(username)) == null) {
 			JTextField name = new JTextField();
 			JTextField email = new JTextField();
 			Object[] message = { "Name", name, "Email", email };
@@ -40,32 +40,27 @@ public class AufgabenPlanerGUI extends JFrame implements ActionListener {
 
 			// If a string was returned, say so.
 			if ((name.getText() != null) && (name.getText().length() > 0)) {
-				try {
-					nutzer = Person.newPerson(username, name.getText(), email.getText());
-				} catch (PersonNotFoundException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-					System.exit(0);
-				}
+				nutzer = Person.newPerson(username, name.getText(), email.getText());
 			} else {
 				System.exit(0);
 			}
 		}
-
-		this.setTitle(this.getTitle() +  " fÃ¼r " + nutzer.getName());
-		List<Aufgabe> aufgaben = Aufgabe.getAufgaben(nutzer);
-
-		for (Aufgabe a : aufgaben) {
-			a.getBeschreibung();
-		}
-
+		
 		Container cp = this.getContentPane();
+		cp.setLayout(new BorderLayout());
+
+		this.setTitle(this.getTitle() + " für " + nutzer.getName());
+		JTable projektTable = new JTable(new ProjektTable());
+		JScrollPane jsp2 = new JScrollPane(projektTable);
+		cp.add(jsp2, BorderLayout.CENTER);
+
 		
-		JButton neueAufgabe = new JButton("Neue Aufgabe");
-		neueAufgabe.setActionCommand("neueAufgabe");
+
+		JButton neueAufgabe = new JButton("Neues Projekt");
+		neueAufgabe.setActionCommand("neuesProjekt");
 		neueAufgabe.addActionListener(this);
-		cp.add(neueAufgabe);
-		
+		cp.add(neueAufgabe, BorderLayout.NORTH);
+
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.pack();
 		this.setVisible(true);
@@ -85,12 +80,12 @@ public class AufgabenPlanerGUI extends JFrame implements ActionListener {
 	@Override
 	public void actionPerformed(ActionEvent ae) {
 		switch (ae.getActionCommand()) {
-		case "neueAufgabe":
-			neueAufgabe();
+		case "neuesProjekt":
+			neuesProjekt();
 		}
 	}
-	
-	private void neueAufgabe () {
-		new NeueAufgabeGUI(this);
+
+	private void neuesProjekt() {
+		new NeuesProjektGUI(this);
 	}
 }

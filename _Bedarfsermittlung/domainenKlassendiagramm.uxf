@@ -172,9 +172,11 @@ sortierung: int</panel_attributes>
       <x>324</x>
       <y>162</y>
       <w>144</w>
-      <h>36</h>
+      <h>45</h>
     </coordinates>
     <panel_attributes>lt=-
+m1=*
+m2=1
 </panel_attributes>
     <additional_attributes>140.0;20.0;10.0;20.0</additional_attributes>
   </element>
@@ -212,14 +214,14 @@ sapname: String</panel_attributes>
     <id>Relation</id>
     <coordinates>
       <x>324</x>
-      <y>252</y>
+      <y>261</y>
       <w>144</w>
-      <h>45</h>
+      <h>36</h>
     </coordinates>
     <panel_attributes>lt=-
-
-</panel_attributes>
-    <additional_attributes>140.0;20.0;10.0;20.0</additional_attributes>
+m1=*
+m2=1</panel_attributes>
+    <additional_attributes>140.0;10.0;10.0;10.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
@@ -255,8 +257,8 @@ m2=*
   <element>
     <id>UMLClass</id>
     <coordinates>
-      <x>180</x>
-      <y>351</y>
+      <x>0</x>
+      <y>369</y>
       <w>153</w>
       <h>81</h>
     </coordinates>
@@ -270,28 +272,29 @@ url: Url</panel_attributes>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>324</x>
-      <y>288</y>
-      <w>144</w>
-      <h>126</h>
+      <x>144</x>
+      <y>360</y>
+      <w>99</w>
+      <h>54</h>
     </coordinates>
-    <panel_attributes>lt=-
-
-</panel_attributes>
-    <additional_attributes>140.0;10.0;10.0;120.0</additional_attributes>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m1=*
+m2=1</panel_attributes>
+    <additional_attributes>90.0;10.0;10.0;40.0</additional_attributes>
   </element>
   <element>
     <id>Relation</id>
     <coordinates>
-      <x>324</x>
-      <y>387</y>
-      <w>144</w>
-      <h>90</h>
+      <x>144</x>
+      <y>414</y>
+      <w>324</w>
+      <h>72</h>
     </coordinates>
     <panel_attributes>lt=-
-
+m1=1
+m2=*
 </panel_attributes>
-    <additional_attributes>140.0;80.0;10.0;10.0</additional_attributes>
+    <additional_attributes>340.0;50.0;10.0;10.0</additional_attributes>
   </element>
   <element>
     <id>UMLClass</id>
@@ -316,7 +319,8 @@ sortierung: int</panel_attributes>
       <h>45</h>
     </coordinates>
     <panel_attributes>lt=-
-
+m1=*
+m2=1
 </panel_attributes>
     <additional_attributes>140.0;20.0;10.0;20.0</additional_attributes>
   </element>
@@ -333,5 +337,32 @@ Datenhaltung
 --
 instanz: Datenhaltung</panel_attributes>
     <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>225</x>
+      <y>324</y>
+      <w>153</w>
+      <h>81</h>
+    </coordinates>
+    <panel_attributes>DateiProjekt
+--
+projektId
+dateiId</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>369</x>
+      <y>288</y>
+      <w>99</w>
+      <h>99</h>
+    </coordinates>
+    <panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m1=*
+m2=1</panel_attributes>
+    <additional_attributes>10.0;90.0;90.0;10.0</additional_attributes>
   </element>
 </diagram>

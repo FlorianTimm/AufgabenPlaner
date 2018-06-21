@@ -1,6 +1,14 @@
 package de.florian_timm.aufgabenPlaner;
 
+import java.io.File;
 import java.sql.*;
+
+import de.florian_timm.aufgabenPlaner.entity.Aufgabe;
+import de.florian_timm.aufgabenPlaner.entity.Kostentraeger;
+import de.florian_timm.aufgabenPlaner.entity.Person;
+import de.florian_timm.aufgabenPlaner.entity.Prioritaet;
+import de.florian_timm.aufgabenPlaner.entity.Projekt;
+import de.florian_timm.aufgabenPlaner.entity.Status;
 
 public class DatenhaltungS {
 	private static Connection c = null;
@@ -28,28 +36,31 @@ public class DatenhaltungS {
 		}
 		System.out.println("Opened database successfully");
 
-		try {
-			Statement stmt = c.createStatement();
-
-			String sql = "CREATE TABLE IF NOT EXISTS user (id INTEGER PRIMARY KEY, username	TEXT NOT NULL, name TEXT NOT NULL, email TEXT); "
-					+ "CREATE TABLE IF NOT EXISTS aufgaben (id INTEGER PRIMARY KEY, titel	TEXT NOT NULL, beschreibung TEXT NOT NULL, auftraggeber INTEGER); "
-					+ "CREATE TABLE IF NOT EXISTS aufgabenzuordnung (id INTEGER PRIMARY KEY, aufgabenid INTEGER, userid INTEGER); ";
-			stmt.executeUpdate(sql);
-			stmt.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
 		instanz = this;
 	}
 
-	public static ResultSet query(String sql) {
+	private static void checkDB() {
+		boolean exists = (new File(sourceFile)).exists();
 		if (instanz == null) {
 			instanz = new DatenhaltungS();
+
+			if (!exists) {
+				Kostentraeger.createTable();
+				Prioritaet.createTable();
+				Person.createTable();
+				Status.createTable();
+				Projekt.createTable();
+				Aufgabe.createTable();
+			}
 		}
+	}
+
+	public static ResultSet query(String sql) {
+		checkDB();
 		try {
 			Statement stmt = c.createStatement();
 			ResultSet rs = stmt.executeQuery(sql);
-			stmt.close();
+			// stmt.close();
 			return rs;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -58,11 +69,9 @@ public class DatenhaltungS {
 		}
 
 	}
-	
-	public static void update (String sql) {
-		if (instanz == null) {
-			instanz = new DatenhaltungS();
-		}
+
+	public static void update(String sql) {
+		checkDB();
 		try {
 			Statement stmt = c.createStatement();
 			stmt.executeUpdate(sql);

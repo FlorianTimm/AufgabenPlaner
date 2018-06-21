@@ -2,12 +2,10 @@ package de.florian_timm.aufgabenPlaner.entity;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 import de.florian_timm.aufgabenPlaner.DatenhaltungS;
-import de.florian_timm.aufgabenPlaner.PersonNotFoundException;
 
 public class Person {
 	private String username;
@@ -59,17 +57,19 @@ public class Person {
 		return getName() + " <" + getEmail() + ">";
 	}
 
-	public static Person getPerson(String username) throws PersonNotFoundException {
+	public static Person getPerson(String username) {
 		return getPersonSQL("username = '" + username + "'");
 	}
 
-	public static Person getPerson(int id) throws PersonNotFoundException {
+	public static Person getPerson(int id) {
 		return getPersonSQL("id = " + id);
 	}
 
-	public static Person getPersonSQL(String sql) throws PersonNotFoundException {
+	public static Person getPersonSQL(String sql) {
 		try {
-			ResultSet rs = DatenhaltungS.query("SELECT * FROM user where " + sql + ";");
+			sql = "SELECT * FROM person where " + sql + ";";
+			System.out.println(sql);
+			ResultSet rs = DatenhaltungS.query(sql);
 
 			while (rs.next()) {
 				int id = rs.getInt("id");
@@ -83,13 +83,13 @@ public class Person {
 			e.printStackTrace();
 		}
 
-		throw new PersonNotFoundException("Person not found!");
+		return null;
 	}
 
 	public static List<Person> getPersonen() {
 		List<Person> personen = null;
 		try {
-			ResultSet rs = DatenhaltungS.query("SELECT * FROM user;");
+			ResultSet rs = DatenhaltungS.query("SELECT * FROM person;");
 
 			personen = new ArrayList<Person>();
 			while (rs.next()) {
@@ -106,9 +106,18 @@ public class Person {
 		return personen;
 	}
 
-	public static Person newPerson(String username, String name, String email) throws PersonNotFoundException {
-		DatenhaltungS.update("INSERT INTO user (name, username, email) VALUES ('" + name + "','" + username + "','"
+	public static Person newPerson(String username, String name, String email) {
+		DatenhaltungS.update("INSERT INTO person (name, username, email) VALUES ('" + name + "','" + username + "','"
 				+ email + "');");
 		return getPerson(username);
+	}
+	
+	public static void createTable() {
+		DatenhaltungS.update(
+				"CREATE TABLE IF NOT EXISTS person ("
+				+ "id INTEGER PRIMARY KEY, "
+				+ "username	TEXT NOT NULL, "
+				+ "name TEXT NOT NULL, "
+				+ "email TEXT);");
 	}
 }
