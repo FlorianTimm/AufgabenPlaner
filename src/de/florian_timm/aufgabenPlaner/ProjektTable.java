@@ -11,7 +11,7 @@ public class ProjektTable extends AbstractTableModel {
 	private static final long serialVersionUID = 1L;
 	private List<Projekt> projekte = new ArrayList<Projekt>();
 
-	private String[] spalten = { "Auftraggeber", "Titel", "Zust‰ndig", "F‰lligkeit", "Status" };
+	private String[] spalten = { "Auftraggeber", "Titel", "Zust√§ndig", "F√§lligkeit", "Status" };
 
 	public ProjektTable() {
 		this.projekte = Projekt.getProjekte();

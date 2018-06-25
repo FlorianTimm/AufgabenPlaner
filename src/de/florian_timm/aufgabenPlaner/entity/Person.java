@@ -3,11 +3,14 @@ package de.florian_timm.aufgabenPlaner.entity;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+
+import javax.swing.ComboBoxModel;
 
 import de.florian_timm.aufgabenPlaner.DatenhaltungS;
 
-public class Person {
+public class Person implements Comparable<Person>{
 	private String username;
 	private String name;
 	private String email;
@@ -119,5 +122,17 @@ public class Person {
 				+ "username	TEXT NOT NULL, "
 				+ "name TEXT NOT NULL, "
 				+ "email TEXT);");
+	}
+
+	public static Person[] getArray() {
+		// TODO Auto-generated method stub
+		Person[] p = (Person[]) getPersonen().toArray(new Person[0]);
+		Arrays.sort(p);
+		return p;
+	}
+
+	@Override
+	public int compareTo(Person other) {
+		return this.getName().compareTo(other.getName());
 	}
 }

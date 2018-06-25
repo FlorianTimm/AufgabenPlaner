@@ -3,8 +3,12 @@ package de.florian_timm.aufgabenPlaner;
 import java.awt.BorderLayout;
 
 import java.awt.Container;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -49,12 +53,21 @@ public class AufgabenPlanerGUI extends JFrame implements ActionListener {
 		Container cp = this.getContentPane();
 		cp.setLayout(new BorderLayout());
 
-		this.setTitle(this.getTitle() + " für " + nutzer.getName());
+		this.setTitle(this.getTitle() + " fÃ¼r " + nutzer.getName());
 		JTable projektTable = new JTable(new ProjektTable());
 		JScrollPane jsp2 = new JScrollPane(projektTable);
 		cp.add(jsp2, BorderLayout.CENTER);
 
-		
+		projektTable.addMouseListener(new MouseAdapter() {
+		    public void mousePressed(MouseEvent mouseEvent) {
+		        JTable table =(JTable) mouseEvent.getSource();
+		        Point point = mouseEvent.getPoint();
+		        int row = table.rowAtPoint(point);
+		        if (mouseEvent.getClickCount() == 2 && table.getSelectedRow() != -1) {
+		            new JOptionPane("Zeile:" + row, JOptionPane.OK_OPTION);
+		        }
+		    }
+		});
 
 		JButton neueAufgabe = new JButton("Neues Projekt");
 		neueAufgabe.setActionCommand("neuesProjekt");
