@@ -6,17 +6,15 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-import de.florian_timm.aufgabenPlaner.DatenhaltungS;
+import de.florian_timm.aufgabenPlaner.schnittstelle.DatenhaltungS;
 
-public class Status {
-	private int dbId;
+public class Status extends Entity {
 	private String bezeichnung;
 	private int sortierung;
 
 	private static Map<Integer, Status> alle = new HashMap<Integer, Status>();
 
 	public Status(int dbId, String bezeichnung, int sortierung) {
-		this.dbId = dbId;
 		this.bezeichnung = bezeichnung;
 		this.sortierung = sortierung;
 	}
@@ -49,14 +47,6 @@ public class Status {
 		}
 	}
 
-	public int getDbId() {
-		return dbId;
-	}
-
-	public void setDbId(int dbId) {
-		this.dbId = dbId;
-	}
-
 	public String toString() {
 		return bezeichnung;
 	}
@@ -81,7 +71,7 @@ public class Status {
 				"INSERT INTO status (bezeichnung, sortierung) VALUES ('fertig', 100), ('nicht angefangen', 0), ('halbfertig',50);");
 	}
 
-	public static Status[] getAll() {
+	public static Status[] getArray() {
 		checkStatus();
 		Status[] a = new Status[alle.size()];
 		int i = 0;

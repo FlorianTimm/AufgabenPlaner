@@ -3,7 +3,7 @@ package de.florian_timm.aufgabenPlaner.entity;
 import java.net.URL;
 import java.util.Date;
 
-public class Datei {
+public class Datei extends Entity  {
 	private Date datum;
 	private String beschreibung;
 	private URL url;
@@ -32,7 +32,5 @@ public class Datei {
 	}
 	public void setUrl(URL url) {
 		this.url = url;
-	}
-	
-	
+	}	
 }

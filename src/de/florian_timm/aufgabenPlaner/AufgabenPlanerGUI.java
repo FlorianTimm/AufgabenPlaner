@@ -8,6 +8,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -16,16 +18,22 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 
-import de.florian_timm.aufgabenPlaner.Kontroll.NeuesProjektGUI;
 import de.florian_timm.aufgabenPlaner.entity.Person;
+import de.florian_timm.aufgabenPlaner.entity.Projekt;
+import de.florian_timm.aufgabenPlaner.gui.NeuesProjektGUI;
+import de.florian_timm.aufgabenPlaner.gui.ProjektTable;
+import de.florian_timm.aufgabenPlaner.gui.ProjektWindow;
+import de.florian_timm.aufgabenPlaner.kontroll.Listener;
+import de.florian_timm.aufgabenPlaner.schnittstelle.DatenhaltungS;
 
-public class AufgabenPlanerGUI extends JFrame implements ActionListener {
+public class AufgabenPlanerGUI extends JFrame implements ActionListener, Listener {
 
 	/**
 	 * GUI
 	 */
 	private static final long serialVersionUID = 1L;
 	Person nutzer = null;
+	JTable projektTable;
 
 	public AufgabenPlanerGUI(String dateiname) {
 
@@ -44,7 +52,7 @@ public class AufgabenPlanerGUI extends JFrame implements ActionListener {
 
 			// If a string was returned, say so.
 			if ((name.getText() != null) && (name.getText().length() > 0)) {
-				nutzer = Person.newPerson(username, name.getText(), email.getText());
+				nutzer = Person.makePerson(username, name.getText(), email.getText());
 			} else {
 				System.exit(0);
 			}
@@ -54,9 +62,10 @@ public class AufgabenPlanerGUI extends JFrame implements ActionListener {
 		cp.setLayout(new BorderLayout());
 
 		this.setTitle(this.getTitle() + " für " + nutzer.getName());
-		JTable projektTable = new JTable(new ProjektTable());
+		projektTable = new JTable(new ProjektTable());
 		JScrollPane jsp2 = new JScrollPane(projektTable);
 		cp.add(jsp2, BorderLayout.CENTER);
+		Projekt.addListener(this);
 
 		projektTable.addMouseListener(new MouseAdapter() {
 		    public void mousePressed(MouseEvent mouseEvent) {
@@ -65,6 +74,7 @@ public class AufgabenPlanerGUI extends JFrame implements ActionListener {
 		        int row = table.rowAtPoint(point);
 		        if (mouseEvent.getClickCount() == 2 && table.getSelectedRow() != -1) {
 		            new JOptionPane("Zeile:" + row, JOptionPane.OK_OPTION);
+		            openProjekt(Projekt.getArray()[row]);
 		        }
 		    }
 		});
@@ -73,8 +83,20 @@ public class AufgabenPlanerGUI extends JFrame implements ActionListener {
 		neueAufgabe.setActionCommand("neuesProjekt");
 		neueAufgabe.addActionListener(this);
 		cp.add(neueAufgabe, BorderLayout.NORTH);
+		
+		 this.addWindowListener(new WindowAdapter() {
+		        @Override
+		        public void windowClosing(WindowEvent e) {
 
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		            DatenhaltungS.close();
+		            
+		            JFrame frame = (JFrame) e.getSource();
+		            frame.setVisible(false);
+		            frame.dispose();
+		        }
+		    });
+
+		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		this.pack();
 		this.setVisible(true);
 
@@ -101,4 +123,15 @@ public class AufgabenPlanerGUI extends JFrame implements ActionListener {
 	private void neuesProjekt() {
 		new NeuesProjektGUI(this);
 	}
+	
+	private void openProjekt(Projekt projekt) {
+		new ProjektWindow(this, projekt);
+	}
+
+	public void dataChanged() {
+		System.out.println("dataChanged");
+		projektTable.setModel(new ProjektTable());
+	}
+	
+	
 }

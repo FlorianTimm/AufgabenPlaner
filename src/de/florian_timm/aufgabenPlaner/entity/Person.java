@@ -4,28 +4,23 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import javax.swing.ComboBoxModel;
+import de.florian_timm.aufgabenPlaner.schnittstelle.DatenhaltungS;
 
-import de.florian_timm.aufgabenPlaner.DatenhaltungS;
-
-public class Person implements Comparable<Person>{
+public class Person extends Entity implements Comparable<Person> {
+	private static Map<Integer, Person> alle = new HashMap<Integer, Person>();
 	private String username;
 	private String name;
 	private String email;
-	private int id;
 
-	/**
-	 * @param name
-	 * @param email
-	 * @param id
-	 */
 	public Person(String username, String name, String email, int id) {
 		this.username = username;
 		this.name = name;
 		this.email = email;
-		this.id = id;
+		this.dbId = id;
 	}
 
 	public String getUserName() {
@@ -44,44 +39,32 @@ public class Person implements Comparable<Person>{
 		return email;
 	}
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
-
 	public String toString() {
 		return getName() + " <" + getEmail() + ">";
 	}
 
 	public static Person getPerson(String username) {
-		return getPersonSQL("username = '" + username + "'");
+		return loadPersonFromDB("username = '" + username + "'");
 	}
 
 	public static Person getPerson(int id) {
-		return getPersonSQL("id = " + id);
+		if (alle.containsKey(id)) {
+			return alle.get(id);
+		} else {
+			return loadPersonFromDB("id = " + id);
+		}
 	}
 
-	public static Person getPersonSQL(String sql) {
+	public static Person loadPersonFromDB(String filter) {
 		try {
-			sql = "SELECT * FROM person where " + sql + ";";
+			String sql = "SELECT * FROM person where " + filter + ";";
 			System.out.println(sql);
 			ResultSet rs = DatenhaltungS.query(sql);
 
-			while (rs.next()) {
-				int id = rs.getInt("id");
-				String username = rs.getString("username");
-				String name = rs.getString("name");
-				String email = rs.getString("email");
-				rs.close();
-				return new Person(username, name, email, id);
+			if (rs.next()) {
+				return getPersonFromResult(rs);
 			}
+			rs.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -89,50 +72,60 @@ public class Person implements Comparable<Person>{
 		return null;
 	}
 
-	public static List<Person> getPersonen() {
-		List<Person> personen = null;
+	private static Person getPersonFromResult(ResultSet rs) {
+		try {
+			int id = rs.getInt("id");
+			String name = rs.getString("name");
+			String username = rs.getString("username");
+			String email = rs.getString("email");
+			Person p = new Person(username, name, email, id);
+			alle.put(id, p);
+			return p;
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	private static void loadData() {
+		alle.clear();
 		try {
 			ResultSet rs = DatenhaltungS.query("SELECT * FROM person;");
-
-			personen = new ArrayList<Person>();
 			while (rs.next()) {
-				int id = rs.getInt("id");
-				String name = rs.getString("name");
-				String username = rs.getString("username");
-				String email = rs.getString("email");
-				personen.add(new Person(username, name, email, id));
+				getPersonFromResult(rs);
 			}
 			rs.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		return personen;
 	}
 
-	public static Person newPerson(String username, String name, String email) {
+	public static Person makePerson(String username, String name, String email) {
 		DatenhaltungS.update("INSERT INTO person (name, username, email) VALUES ('" + name + "','" + username + "','"
 				+ email + "');");
 		return getPerson(username);
 	}
-	
-	public static void createTable() {
-		DatenhaltungS.update(
-				"CREATE TABLE IF NOT EXISTS person ("
-				+ "id INTEGER PRIMARY KEY, "
-				+ "username	TEXT NOT NULL, "
-				+ "name TEXT NOT NULL, "
-				+ "email TEXT);");
-	}
 
-	public static Person[] getArray() {
-		// TODO Auto-generated method stub
-		Person[] p = (Person[]) getPersonen().toArray(new Person[0]);
-		Arrays.sort(p);
-		return p;
+	public static void createTable() {
+		DatenhaltungS.update("CREATE TABLE IF NOT EXISTS person (" + "id INTEGER PRIMARY KEY, "
+				+ "username	TEXT NOT NULL, " + "name TEXT NOT NULL, " + "email TEXT);");
 	}
 
 	@Override
 	public int compareTo(Person other) {
 		return this.getName().compareTo(other.getName());
+	}
+
+	public static Person[] getArray() {
+		checkLoading();
+		Person[] p = (Person[]) alle.values().toArray(new Person[0]);
+		// Arrays.sort(k);
+		return p;
+	}
+
+	protected static void checkLoading() {
+		// da unsicher, ob alle Einträge immer vorhanden sind, wird immer neu geladen
+		loadData();
 	}
 }

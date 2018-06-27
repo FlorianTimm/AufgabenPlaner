@@ -7,5 +7,10 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="sqlite-jdbc-3.21.0.jar"/>
+	<classpathentry kind="lib" path="G:/AG_Verkehrsdaten/DV-System/Eigenentwicklungen/Java-Programme/_Bibliotheken/jdatepicker-2.0.3.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:file:/G:/AG_Verkehrsdaten/DV-System/Eigenentwicklungen/Java-Programme/_Bibliotheken/jdatepicker-2.0.3-javadoc.jar!/org"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

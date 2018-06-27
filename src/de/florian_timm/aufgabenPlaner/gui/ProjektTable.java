@@ -1,23 +1,25 @@
-package de.florian_timm.aufgabenPlaner;
+package de.florian_timm.aufgabenPlaner.gui;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import java.text.DateFormat;
 import javax.swing.table.AbstractTableModel;
 
 import de.florian_timm.aufgabenPlaner.entity.Projekt;
 
 public class ProjektTable extends AbstractTableModel {
 	private static final long serialVersionUID = 1L;
-	private List<Projekt> projekte = new ArrayList<Projekt>();
+	private Projekt[] projekte;
 
 	private String[] spalten = { "Auftraggeber", "Titel", "Zuständig", "Fälligkeit", "Status" };
 
 	public ProjektTable() {
-		this.projekte = Projekt.getProjekte();
+		setTableSource(Projekt.getArray());
 	}
 
-	public ProjektTable(List<Projekt> projekte) {
+	public ProjektTable(Projekt[] projekte) {
+		setTableSource(projekte);
+	}
+
+	private void setTableSource(Projekt[] projekte) {
 		this.projekte = projekte;
 	}
 
@@ -28,14 +30,14 @@ public class ProjektTable extends AbstractTableModel {
 
 	@Override
 	public int getRowCount() {
-		return projekte.size();
+		return projekte.length;
+
 	}
 
 	@Override
 	public Object getValueAt(int reihe, int spalte) {
-		// TODO Auto-generated method stub
 
-		Projekt projekt = projekte.get(reihe);
+		Projekt projekt = projekte[reihe];
 
 		switch (spalte) {
 		case 0:
@@ -49,7 +51,10 @@ public class ProjektTable extends AbstractTableModel {
 		case 2:
 			return projekt.getZustaendig().getName();
 		case 3:
-			return projekt.getFaelligkeit().toString();
+			if (projekt.getFaelligkeit() == null) {
+				return null;
+			}
+			return DateFormat.getDateInstance().format(projekt.getFaelligkeit());
 		case 4:
 			return projekt.getStatus();
 		}

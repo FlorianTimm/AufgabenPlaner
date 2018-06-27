@@ -1,4 +1,4 @@
-package de.florian_timm.aufgabenPlaner;
+package de.florian_timm.aufgabenPlaner.schnittstelle;
 
 import java.io.File;
 import java.sql.*;
@@ -81,5 +81,18 @@ public class DatenhaltungS {
 			e.printStackTrace();
 		}
 
+	}
+	
+	public static Connection getConnection () {
+		return c;
+	}
+
+	public static void close() {
+		try {
+			c.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

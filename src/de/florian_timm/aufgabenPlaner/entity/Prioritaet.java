@@ -6,12 +6,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.swing.ComboBoxModel;
+import de.florian_timm.aufgabenPlaner.schnittstelle.DatenhaltungS;
 
-import de.florian_timm.aufgabenPlaner.DatenhaltungS;
-
-public class Prioritaet implements Comparable<Prioritaet> {
-	private int dbId;
+public class Prioritaet extends Entity implements Comparable<Prioritaet> {
 	private String bezeichnung;
 	private int sortierung;
 	private static Map<Integer, Prioritaet> alle = new HashMap<Integer, Prioritaet>();
@@ -20,10 +17,6 @@ public class Prioritaet implements Comparable<Prioritaet> {
 		this.dbId = dbId;
 		this.bezeichnung = bezeichnung;
 		this.sortierung = sortierung;
-	}
-
-	public int getId() {
-		return dbId;
 	}
 
 	public String toString() {
@@ -35,13 +28,11 @@ public class Prioritaet implements Comparable<Prioritaet> {
 	}
 
 	public static Prioritaet getPrio(int id) {
-		if (alle.size() == 0) {
-			loadPrio();
-		}
+		checkLoading();
 		return alle.get(id);
 	}
 
-	private static void loadPrio() {
+	private static void loadData() {
 		alle.clear();
 		try {
 			ResultSet rs = DatenhaltungS.query("SELECT * FROM prioritaet;");
@@ -69,6 +60,7 @@ public class Prioritaet implements Comparable<Prioritaet> {
 
 	public static Prioritaet[] getArray() {
 		// TODO Auto-generated method stub
+		checkLoading();
 		Prioritaet[] p = (Prioritaet[]) alle.values().toArray(new Prioritaet[0]);
 		Arrays.sort(p);
 		return p;
@@ -85,6 +77,12 @@ public class Prioritaet implements Comparable<Prioritaet> {
 			return -1;
 		} else {
 			return 0;
+		}
+	}
+	
+	protected static void checkLoading() {
+		if (alle.size() == 0) {
+			loadData();
 		}
 	}
 
