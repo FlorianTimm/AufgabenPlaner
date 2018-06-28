@@ -1,89 +1,75 @@
 package de.florian_timm.aufgabenPlaner.entity;
 
+import de.florian_timm.aufgabenPlaner.schnittstelle.DatenhaltungS;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import de.florian_timm.aufgabenPlaner.schnittstelle.DatenhaltungS;
+public class Prioritaet extends EntitySortierung {
+    private static Map<Integer, Prioritaet> alle = new HashMap<Integer, Prioritaet>();
+    private String bezeichnung;
+    private int sortierung;
 
-public class Prioritaet extends Entity implements Comparable<Prioritaet> {
-	private String bezeichnung;
-	private int sortierung;
-	private static Map<Integer, Prioritaet> alle = new HashMap<Integer, Prioritaet>();
+    public Prioritaet(int dbId, String bezeichnung, int sortierung) {
+        this.dbId = dbId;
+        this.bezeichnung = bezeichnung;
+        this.sortierung = sortierung;
+    }
 
-	public Prioritaet(int dbId, String bezeichnung, int sortierung) {
-		this.dbId = dbId;
-		this.bezeichnung = bezeichnung;
-		this.sortierung = sortierung;
-	}
+    public static Prioritaet getPrio(int id) {
+        checkLoading();
+        return alle.get(id);
+    }
 
-	public String toString() {
-		return bezeichnung;
-	}
+    private static void loadData() {
+        alle.clear();
+        try {
+            ResultSet rs = DatenhaltungS.query("SELECT * FROM prioritaet;");
 
-	public int getSortierung() {
-		return sortierung;
-	}
+            while (rs.next()) {
+                int dbId = rs.getInt("id");
+                String bezeichnung = rs.getString("bezeichnung");
+                int sortierung = rs.getInt("sortierung");
+                alle.put(dbId, new Prioritaet(dbId, bezeichnung, sortierung));
+                System.out.println(alle.size());
+            }
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
-	public static Prioritaet getPrio(int id) {
-		checkLoading();
-		return alle.get(id);
-	}
+    public static void createTable() {
+        DatenhaltungS.update("CREATE TABLE IF NOT EXISTS prioritaet (id INTEGER PRIMARY KEY, "
+                + "bezeichnung TEXT UNIQUE NOT NULL, sortierung INTEGER);");
 
-	private static void loadData() {
-		alle.clear();
-		try {
-			ResultSet rs = DatenhaltungS.query("SELECT * FROM prioritaet;");
+        DatenhaltungS.update(
+                "INSERT INTO prioritaet (bezeichnung, sortierung) VALUES ('hoch', 100), ('niedrig', 0), ('mittel',50);");
+    }
 
-			while (rs.next()) {
-				int dbId = rs.getInt("id");
-				String bezeichnung = rs.getString("bezeichnung");
-				int sortierung = rs.getInt("sortierung");
-				alle.put(dbId, new Prioritaet(dbId, bezeichnung, sortierung));
-				System.out.println(alle.size());
-			}
-			rs.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
+    public static Prioritaet[] getArray() {
+        // TODO Auto-generated method stub
+        checkLoading();
+        Prioritaet[] p = alle.values().toArray(new Prioritaet[0]);
+        Arrays.sort(p);
+        return p;
+    }
 
-	public static void createTable() {
-		DatenhaltungS.update("CREATE TABLE IF NOT EXISTS prioritaet (id INTEGER PRIMARY KEY, "
-				+ "bezeichnung TEXT UNIQUE NOT NULL, sortierung INTEGER);");
+    protected static void checkLoading() {
+        if (alle.size() == 0) {
+            loadData();
+        }
+    }
 
-		DatenhaltungS.update(
-				"INSERT INTO prioritaet (bezeichnung, sortierung) VALUES ('hoch', 100), ('niedrig', 0), ('mittel',50);");
-	}
+    public String toString() {
+        return bezeichnung;
+    }
 
-	public static Prioritaet[] getArray() {
-		// TODO Auto-generated method stub
-		checkLoading();
-		Prioritaet[] p = (Prioritaet[]) alle.values().toArray(new Prioritaet[0]);
-		Arrays.sort(p);
-		return p;
-	}
-
-	@Override
-	public int compareTo(Prioritaet other) {
-		// TODO Auto-generated method stub
-		int t = this.getSortierung();
-		int o = other.getSortierung();
-		if (t > o) {
-			return 1;
-		} else if (o > t) {
-			return -1;
-		} else {
-			return 0;
-		}
-	}
-	
-	protected static void checkLoading() {
-		if (alle.size() == 0) {
-			loadData();
-		}
-	}
+    public int getSortierung() {
+        return sortierung;
+    }
 
 }
