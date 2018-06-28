@@ -17,7 +17,7 @@ public class ProjektGUI extends JDialog {
         Container cp = this.getContentPane();
         cp.setLayout(new BorderLayout());
 
-        ProjektPanel projektPanel = new ProjektPanel();
+        ProjektPanel projektPanel = new ProjektPanel(this);
         projektPanel.setWindow2Close(this);
         cp.add(projektPanel, BorderLayout.CENTER);
 

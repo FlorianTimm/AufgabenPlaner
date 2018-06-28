@@ -77,7 +77,7 @@ public class Aufgabe extends Entity {
 
     }
 
-    public static void createTable() {
+    public static void createTable() throws SQLException {
         DatenhaltungS.update("CREATE TABLE IF NOT EXISTS aufgabe (" + "id INTEGER PRIMARY KEY, "
                 + "projekt INTEGER NOT NULL," + "person INTEGER NOT NULL," + "titel	TEXT NOT NULL, "
                 + "beschreibung TEXT NOT NULL, " + "faelligkeit DATE," + "erstellt DATE NOT NULL,"

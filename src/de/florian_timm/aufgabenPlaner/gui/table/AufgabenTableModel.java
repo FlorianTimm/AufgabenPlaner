@@ -26,8 +26,8 @@ public class AufgabenTableModel extends TableModel {
         for (int i = 0; i < aufgaben.length; i++) {
             Aufgabe aufgabe = (Aufgabe) aufgaben[i];
 
-            this.data[i][0] = aufgabe.getBearbeiter().getName();
-            this.data[i][1] = aufgabe.toString();
+            this.data[i][0] = aufgabe.getBearbeiter();
+            this.data[i][1] = aufgabe;
             if (aufgabe.getFaelligkeit() != null)
                 this.data[i][2] = DateFormat.getDateInstance().format(aufgabe.getFaelligkeit());
             this.data[i][3] = aufgabe.getStatus();

@@ -24,7 +24,7 @@ public class ProjektViewGUI extends JDialog implements ActionListener, MouseList
         Container cp = this.getContentPane();
         cp.setLayout(new BorderLayout());
 
-        projektPanel = new ProjektPanel(projekt);
+        projektPanel = new ProjektPanel(this, projekt);
         cp.add(projektPanel, BorderLayout.NORTH);
 
         aufgabenTable = new Table();

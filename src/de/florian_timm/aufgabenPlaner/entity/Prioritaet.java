@@ -42,7 +42,7 @@ public class Prioritaet extends EntitySortierung {
         }
     }
 
-    public static void createTable() {
+    public static void createTable() throws SQLException {
         DatenhaltungS.update("CREATE TABLE IF NOT EXISTS prioritaet (id INTEGER PRIMARY KEY, "
                 + "bezeichnung TEXT UNIQUE NOT NULL, sortierung INTEGER);");
 

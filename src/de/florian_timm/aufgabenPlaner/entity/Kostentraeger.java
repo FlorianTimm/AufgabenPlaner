@@ -41,7 +41,7 @@ public class Kostentraeger extends Entity {
         }
     }
 
-    public static void createTable() {
+    public static void createTable() throws SQLException {
         DatenhaltungS.update("CREATE TABLE IF NOT EXISTS kostentraeger (id INTEGER PRIMARY KEY, "
                 + "bezeichnung TEXT UNIQUE NOT NULL, sapname TEXT);");
 

@@ -26,9 +26,9 @@ public class ProjektTableModel extends TableModel {
             Projekt projekt = (Projekt) projekte[i];
 
             if (projekt.getAuftraggeber() != null)
-                this.data[i][0] = projekt.getAuftraggeber().getName();
+                this.data[i][0] = projekt.getAuftraggeber();
             this.data[i][1] = projekt.getTitel();
-            this.data[i][2] = projekt.getZustaendig().getName();
+            this.data[i][2] = projekt.getZustaendig();
             if (projekt.getFaelligkeit() != null)
                 this.data[i][3] = DateFormat.getDateInstance().format(projekt.getFaelligkeit());
             this.data[i][4] = projekt.getStatus();

@@ -111,7 +111,7 @@ public class Projekt extends Entity {
         return p;
     }
 
-    public static void createTable() {
+    public static void createTable() throws SQLException {
         DatenhaltungS.update("CREATE TABLE IF NOT EXISTS projekt (" + "id INTEGER PRIMARY KEY, "
                 + "titel	TEXT NOT NULL, " + "beschreibung TEXT NOT NULL, " + "zustaendig INTEGER,"
                 + "prioritaet INTEGER," + "erstellt DATE," + "faelligkeit DATE," + "kostentraeger INTEGER,"

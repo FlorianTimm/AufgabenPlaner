@@ -49,7 +49,7 @@ public class Status extends EntitySortierung {
         }
     }
 
-    public static void createTable() {
+    public static void createTable() throws SQLException {
         DatenhaltungS.update("CREATE TABLE IF NOT EXISTS status (id INTEGER PRIMARY KEY, "
                 + "bezeichnung TEXT UNIQUE NOT NULL, sortierung INTEGER);");
 
