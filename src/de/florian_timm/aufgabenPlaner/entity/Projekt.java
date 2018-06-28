@@ -107,6 +107,39 @@ public class Projekt extends Entity {
 		return status;
 	}
 
+	public void reload() {
+		try {
+			ResultSet rs = DatenhaltungS.query(
+					"SELECT p.*, AVG(s.sortierung) as status FROM projekt as p LEFT JOIN aufgabe as a ON p.id = a.projekt LEFT JOIN status as s ON a.status = s.id WHERE p.id = "
+							+ this.dbId + " GROUP BY p.id ;");
+
+			if (rs != null && rs.next()) {
+				Projekt p = getProjektFromResult(rs);
+				alle.put(p.getId(), p);
+				this.setAll(p);
+			}
+			rs.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		informListener();
+	}
+
+	private void setAll(Projekt p) {
+		this.dbId = p.dbId;
+		this.titel = p.titel;
+		this.auftraggeber = p.auftraggeber;
+		this.beschreibung = p.beschreibung;
+		this.zustaendig = p.zustaendig;
+		this.kostentraeger = p.kostentraeger;
+		this.prioritaet = p.prioritaet;
+		this.erstellt = p.erstellt;
+		this.faelligkeit = p.faelligkeit;
+		this.status = p.status;
+		this.aufgaben = p.aufgaben;
+	}
+
 	private static void loadData() {
 		alle.clear();
 		try {
@@ -114,36 +147,41 @@ public class Projekt extends Entity {
 					"SELECT p.*, AVG(s.sortierung) as status FROM projekt as p LEFT JOIN aufgabe as a ON p.id = a.projekt LEFT JOIN status as s ON a.status = s.id GROUP BY p.id;");
 
 			while (rs.next()) {
-				System.out.println(rs.getString("titel"));
-				int dbId = rs.getInt("id");
-				String titel = rs.getString("titel");
-				String beschreibung = rs.getString("beschreibung");
-				Person zustaendig = Person.getPerson(rs.getInt("zustaendig"));
-				Prioritaet prioritaet = Prioritaet.getPrio(rs.getInt("prioritaet"));
-				DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-				Date erstellt = null;
-				Date faelligkeit = null;
-				try {
-					if (rs.getString("erstellt") != null)
-						erstellt = df.parse(rs.getString("erstellt"));
-					if (rs.getString("faelligkeit") != null)
-						faelligkeit = df.parse(rs.getString("faelligkeit"));
-				} catch (NullPointerException | ParseException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				Kostentraeger kostentraeger = Kostentraeger.get(rs.getInt("kostentraeger"));
-				boolean archiviert = rs.getBoolean("archiviert");
-				Person auftraggeber = Person.getPerson(rs.getInt("auftraggeber"));
-				int status = rs.getInt("status");
-				alle.put(dbId, new Projekt(dbId, titel, beschreibung, zustaendig, prioritaet, erstellt, faelligkeit,
-						kostentraeger, archiviert, auftraggeber, status));
+				Projekt p = getProjektFromResult(rs);
+				alle.put(p.getId(), p);
 			}
 			rs.close();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+
+	private static Projekt getProjektFromResult(ResultSet rs) throws SQLException {
+		int dbId = rs.getInt("id");
+		String titel = rs.getString("titel");
+		String beschreibung = rs.getString("beschreibung");
+		Person zustaendig = Person.getPerson(rs.getInt("zustaendig"));
+		Prioritaet prioritaet = Prioritaet.getPrio(rs.getInt("prioritaet"));
+		DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+		Date erstellt = null;
+		Date faelligkeit = null;
+		try {
+			if (rs.getString("erstellt") != null)
+				erstellt = df.parse(rs.getString("erstellt"));
+			if (rs.getString("faelligkeit") != null)
+				faelligkeit = df.parse(rs.getString("faelligkeit"));
+		} catch (NullPointerException | ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Kostentraeger kostentraeger = Kostentraeger.get(rs.getInt("kostentraeger"));
+		boolean archiviert = rs.getBoolean("archiviert");
+		Person auftraggeber = Person.getPerson(rs.getInt("auftraggeber"));
+		int status = rs.getInt("status");
+		Projekt p = new Projekt(dbId, titel, beschreibung, zustaendig, prioritaet, erstellt, faelligkeit, kostentraeger,
+				archiviert, auftraggeber, status);
+		return p;
 	}
 
 	public static void createTable() {
@@ -169,21 +207,49 @@ public class Projekt extends Entity {
 		}
 	}
 
-	void loadAufgaben() {
+	public void loadAufgaben() {
 		this.aufgaben = Aufgabe.getAufgaben(this);
 	}
-	
+
 	private void checkAufgabenLoading() {
 		if (aufgaben.size() == 0) {
 			loadAufgaben();
 		}
 	}
-	
+
 	public Aufgabe[] getAufgaben() {
 		checkAufgabenLoading();
 		Aufgabe[] a = (Aufgabe[]) aufgaben.values().toArray(new Aufgabe[0]);
 		// Arrays.sort(k);
 		return a;
+	}
+
+	public void update(String titel, String beschreibung, Prioritaet prio, Person zustaendig,
+			Kostentraeger kostentraeger, Date faelligkeit, Person auftraggeber) {
+
+		String sql = "UPDATE projekt SET titel = ?, beschreibung = ?, zustaendig = ?, prioritaet = ?, faelligkeit = ?, kostentraeger = ?, auftraggeber = ? WHERE id = ?;";
+
+		Connection c = DatenhaltungS.getConnection();
+		try {
+			PreparedStatement stmt = c.prepareStatement(sql);
+			stmt.setString(1, titel);
+			stmt.setString(2, beschreibung);
+			stmt.setInt(3, zustaendig.getId());
+			stmt.setInt(4, prio.getId());
+			stmt.setString(5, new SimpleDateFormat("yyyy-MM-dd").format(faelligkeit));
+			stmt.setInt(6, kostentraeger.getId());
+			stmt.setInt(7, auftraggeber.getId());
+			stmt.setInt(8, this.getId());
+			stmt.executeUpdate();
+			stmt.close();
+
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		this.reload();
+		informListener();
+
 	}
 
 }

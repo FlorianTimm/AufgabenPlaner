@@ -2,19 +2,21 @@ package de.florian_timm.aufgabenPlaner.entity;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
 import de.florian_timm.aufgabenPlaner.schnittstelle.DatenhaltungS;
 
-public class Status extends Entity {
+public class Status extends Entity implements Comparable<Status> {
 	private String bezeichnung;
 	private int sortierung;
 
 	private static Map<Integer, Status> alle = new HashMap<Integer, Status>();
 
 	public Status(int dbId, String bezeichnung, int sortierung) {
+		this.dbId = dbId;
 		this.bezeichnung = bezeichnung;
 		this.sortierung = sortierung;
 	}
@@ -39,9 +41,10 @@ public class Status extends Entity {
 				int dbId = rs.getInt("id");
 				String bezeichnung = rs.getString("bezeichnung");
 				int sortierung = rs.getInt("sortierung");
-				rs.close();
+				
 				alle.put(dbId, new Status(dbId, bezeichnung, sortierung));
 			}
+			rs.close();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -81,7 +84,22 @@ public class Status extends Entity {
 			Map.Entry<Integer, Status> pair = (Map.Entry<Integer, Status>) it.next();
 			a[i++] = (Status) pair.getValue();
 		}
+	    Arrays.sort(a);
 		return a;
+	}
+
+	@Override
+	public int compareTo(Status other) {
+		// TODO Auto-generated method stub
+		int t = this.getSortierung();
+		int o = other.getSortierung();
+		if (t > o) {
+			return 1;
+		} else if (o > t) {
+			return -1;
+		} else {
+			return 0;
+		}
 	}
 
 }

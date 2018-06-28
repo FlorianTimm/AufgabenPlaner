@@ -2,10 +2,7 @@ package de.florian_timm.aufgabenPlaner.entity;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import de.florian_timm.aufgabenPlaner.schnittstelle.DatenhaltungS;
@@ -39,6 +36,7 @@ public class Person extends Entity implements Comparable<Person> {
 		return email;
 	}
 
+	@Override
 	public String toString() {
 		return getName() + " <" + getEmail() + ">";
 	}
@@ -119,7 +117,7 @@ public class Person extends Entity implements Comparable<Person> {
 
 	public static Person[] getArray() {
 		checkLoading();
-		Person[] p = (Person[]) alle.values().toArray(new Person[0]);
+		Person[] p = alle.values().toArray(new Person[0]);
 		// Arrays.sort(k);
 		return p;
 	}
