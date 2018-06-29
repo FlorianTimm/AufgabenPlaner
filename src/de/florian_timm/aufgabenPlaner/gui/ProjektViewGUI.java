@@ -11,110 +11,151 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class ProjektViewGUI extends JDialog implements ActionListener, MouseListener, EntityListener {
-    private static final long serialVersionUID = 1L;
-    private Projekt projekt;
-    private Table aufgabenTable;
-    private ProjektPanel projektPanel;
+public class ProjektViewGUI extends JDialog implements ActionListener, MouseListener, EntityListener, WindowListener {
+	private static final long serialVersionUID = 1L;
+	private Projekt projekt;
+	private Table aufgabenTable;
+	private ProjektPanel projektPanel;
 
-    public ProjektViewGUI(Window window, Projekt projekt) {
-        super(window, projekt.toString(), Dialog.ModalityType.DOCUMENT_MODAL);
-        this.setTitle(projekt.getTitel());
-        this.projekt = projekt;
+	public ProjektViewGUI(Window window, Projekt projekt) {
+		super(window, projekt.toString(), Dialog.ModalityType.DOCUMENT_MODAL);
+		this.setTitle(projekt.getTitel());
+		this.projekt = projekt;
 
-        Container cp = this.getContentPane();
-        cp.setLayout(new BorderLayout());
+		Container cp = this.getContentPane();
+		cp.setLayout(new BorderLayout());
 
-        projektPanel = new ProjektPanel(this, projekt);
-        cp.add(projektPanel, BorderLayout.NORTH);
+		projektPanel = new ProjektPanel(this, projekt);
+		cp.add(projektPanel, BorderLayout.NORTH);
 
-        aufgabenTable = new Table();
-        JScrollPane jsp = new JScrollPane(aufgabenTable);
-        dataChanged();
-        cp.add(jsp, BorderLayout.CENTER);
+		aufgabenTable = new Table();
+		JScrollPane jsp = new JScrollPane(aufgabenTable);
+		dataChanged();
+		cp.add(jsp, BorderLayout.CENTER);
 
-        aufgabenTable.addMouseListener(this);
+		aufgabenTable.addMouseListener(this);
 
-        JButton neu = new JButton("neue Aufgabe");
-        neu.addActionListener(this);
-        cp.add(neu, BorderLayout.SOUTH);
+		JButton neu = new JButton("neue Aufgabe");
+		neu.addActionListener(this);
+		cp.add(neu, BorderLayout.SOUTH);
 
-        this.setPreferredSize(new Dimension(500, 500));
-        this.pack();
-        this.setVisible(true);
+		this.setPreferredSize(new Dimension(500, 500));
+		this.pack();
+		this.setVisible(true);
 
-        Aufgabe.addListener(this);
-    }
+		Aufgabe.addListener(this);
+	}
 
-    protected void openAufgabe(Aufgabe aufgabe) {
-        AufgabenGUI agui = new AufgabenGUI(this, aufgabe);
+	protected void openAufgabe(Aufgabe aufgabe) {
+		AufgabenGUI agui = new AufgabenGUI(this, aufgabe);
 
-        agui.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosed(WindowEvent e) {
-                projekt.reload();
-                dataChanged();
-            }
-        });
-        agui.setVisible(true);
+		agui.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosed(WindowEvent e) {
+				projekt.reload();
+				dataChanged();
+			}
+		});
+		agui.setVisible(true);
 
-    }
+	}
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        AufgabenGUI agui = new AufgabenGUI(this, projekt);
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		AufgabenGUI agui = new AufgabenGUI(this, projekt);
 
-        agui.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosed(WindowEvent e) {
-                projekt.reload();
-                dataChanged();
-            }
-        });
-        agui.setVisible(true);
-    }
+		agui.addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosed(WindowEvent e) {
+				projekt.reload();
+				dataChanged();
+			}
+		});
+		agui.setVisible(true);
+	}
 
-    @Override
-    public void dataChanged() {
-        System.out.println("dataChanged ProjektWindow");
-        aufgabenTable.setModel(new AufgabenTableModel(this.projekt));
-    }
+	@Override
+	public void dataChanged() {
+		aufgabenTable.setModel(new AufgabenTableModel(this.projekt));
+	}
 
-    @Override
-    public void mouseClicked(MouseEvent arg0) {
-        // TODO Auto-generated method stub
+	@Override
+	public void mouseClicked(MouseEvent arg0) {
+		// TODO Auto-generated method stub
 
-    }
+	}
 
-    @Override
-    public void mouseEntered(MouseEvent arg0) {
-        // TODO Auto-generated method stub
+	@Override
+	public void mouseEntered(MouseEvent arg0) {
+		// TODO Auto-generated method stub
 
-    }
+	}
 
-    @Override
-    public void mouseExited(MouseEvent arg0) {
-        // TODO Auto-generated method stub
+	@Override
+	public void mouseExited(MouseEvent arg0) {
+		// TODO Auto-generated method stub
 
-    }
+	}
 
-    @Override
-    public void mousePressed(MouseEvent mouseEvent) {
+	@Override
+	public void mousePressed(MouseEvent mouseEvent) {
 
-        JTable table = (JTable) mouseEvent.getSource();
-        Point point = mouseEvent.getPoint();
-        int row = table.rowAtPoint(point);
-        if (mouseEvent.getClickCount() == 2 && table.getSelectedRow() != -1) {
-            Aufgabe a = (Aufgabe) aufgabenTable.getData(row);
-            System.out.println("Zeile:" + row + "(" + a.toString() + ")");
-            openAufgabe(a);
+		JTable table = (JTable) mouseEvent.getSource();
+		Point point = mouseEvent.getPoint();
+		int row = table.rowAtPoint(point);
+		if (mouseEvent.getClickCount() == 2 && table.getSelectedRow() != -1) {
+			Aufgabe a = (Aufgabe) aufgabenTable.getData(row);
+			System.out.println("Zeile:" + row + "(" + a.toString() + ")");
+			openAufgabe(a);
 
-        }
-    }
+		}
+	}
 
-    @Override
-    public void mouseReleased(MouseEvent arg0) {
-        // TODO Auto-generated method stub
+	@Override
+	public void mouseReleased(MouseEvent arg0) {
+		// TODO Auto-generated method stub
 
-    }
+	}
+
+	@Override
+	public void windowActivated(WindowEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowClosed(WindowEvent arg0) {
+		Aufgabe.removeListener(this);
+		
+	}
+
+	@Override
+	public void windowClosing(WindowEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowDeactivated(WindowEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowDeiconified(WindowEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowIconified(WindowEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void windowOpened(WindowEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
 }

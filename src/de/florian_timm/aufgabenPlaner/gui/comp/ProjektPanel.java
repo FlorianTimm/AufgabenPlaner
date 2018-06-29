@@ -64,6 +64,7 @@ public class ProjektPanel extends JPanel implements ActionListener {
 
 		JLabel zustaendigLabel = new JLabel("Zuständig");
 		zustaendigField = new PersonChooser();
+		
 		JButton neuPerson = new JButton("neu...");
 		neuPerson.addActionListener(this);
 		neuPerson.setActionCommand("neuePerson");

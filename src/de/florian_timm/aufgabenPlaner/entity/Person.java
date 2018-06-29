@@ -36,7 +36,7 @@ public class Person extends Entity implements Comparable<Person> {
 	}
 
 	public static Person getPerson(String username) {
-		return loadPersonFromDB("username = '" + username + "'");
+		return loadPersonFromDB("upper(username) == upper('" + username + "')");
 	}
 
 	public static Person getPerson(int id) {
@@ -116,7 +116,7 @@ public class Person extends Entity implements Comparable<Person> {
 	}
 
 	protected static void checkLoading() {
-		// da unsicher, ob alle Einträge immer vorhanden sind, wird immer neu geladen
+		// if (alle.size() == 0)
 		loadData();
 	}
 

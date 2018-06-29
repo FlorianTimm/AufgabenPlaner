@@ -248,7 +248,7 @@ public class Projekt extends Entity {
             e.printStackTrace();
         }
         this.reload();
-        informListener();
+        Projekt.informListener();
 
     }
 

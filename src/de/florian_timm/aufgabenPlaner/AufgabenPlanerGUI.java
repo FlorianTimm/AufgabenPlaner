@@ -18,7 +18,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class AufgabenPlanerGUI extends JFrame implements ActionListener, MouseListener, EntityListener, WindowListener, ErrorListener {
+public class AufgabenPlanerGUI extends JFrame
+		implements ActionListener, MouseListener, EntityListener, WindowListener, ErrorListener {
 
 	/**
 	 * GUI
@@ -36,7 +37,7 @@ public class AufgabenPlanerGUI extends JFrame implements ActionListener, MouseLi
 		String username = System.getProperty("user.name");
 		int counter = 0;
 		Person nutzer = null;
-		while ((nutzer  = Person.getPerson(username)) == null) {
+		while ((nutzer = Person.getPerson(username)) == null) {
 			PersonGUI pgui = new PersonGUI(this, username);
 			pgui.setModal(true);
 			pgui.setVisible(true);
@@ -70,6 +71,21 @@ public class AufgabenPlanerGUI extends JFrame implements ActionListener, MouseLi
 		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		this.setPreferredSize(new Dimension(600, 400));
 		this.setLocationRelativeTo(null);
+
+		JMenuBar menuBar = new JMenuBar();
+		JMenu mDatei = new JMenu("Datei");
+		menuBar.add(mDatei);
+		JMenu mHilfe = new JMenu("?");
+		menuBar.add(mHilfe);
+		JMenuItem miBeenden = new JMenuItem("Beenden");
+		miBeenden.addActionListener(this);
+		JMenuItem miUeber = new JMenuItem("Über...");
+		miUeber.setActionCommand("ueber");
+		miUeber.addActionListener(this);
+		mDatei.add(miBeenden);
+		mHilfe.add(miUeber);
+		this.setJMenuBar(menuBar);
+
 		this.pack();
 		this.setVisible(true);
 
@@ -91,6 +107,12 @@ public class AufgabenPlanerGUI extends JFrame implements ActionListener, MouseLi
 		case "neuesProjekt":
 			neuesProjekt();
 			break;
+		case "Beenden":
+			close();
+			break;
+		case "ueber":
+			JOptionPane.showMessageDialog(this, "Florian Timm\nLandesbetrieb Geoinformation und Vermessung", "AufgabenPlaner", JOptionPane.INFORMATION_MESSAGE);
+			break;
 		}
 	}
 
@@ -105,7 +127,7 @@ public class AufgabenPlanerGUI extends JFrame implements ActionListener, MouseLi
 	}
 
 	public void dataChanged() {
-		System.out.println("dataChanged AufgabenPlanerGUI");
+		// System.out.println("dataChanged AufgabenPlanerGUI");
 		projektTable.setModel(new ProjektTableModel());
 		projektTable.getColumn("Status").setCellRenderer(new ProgressCellRender());
 	}
@@ -135,10 +157,10 @@ public class AufgabenPlanerGUI extends JFrame implements ActionListener, MouseLi
 		DatenhaltungS.close();
 		System.exit(0);
 	}
-	
+
 	@Override
 	public void errorInformation(Exception e) {
-		JOptionPane.showMessageDialog(this, e.getLocalizedMessage(), "Fehler", JOptionPane.ERROR_MESSAGE); 
+		JOptionPane.showMessageDialog(this, e.getLocalizedMessage(), "Fehler", JOptionPane.ERROR_MESSAGE);
 	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -184,7 +206,5 @@ public class AufgabenPlanerGUI extends JFrame implements ActionListener, MouseLi
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
 	}
-
-
 
 }

@@ -9,28 +9,26 @@ import de.florian_timm.aufgabenPlaner.kontroll.EntityListener;
 public class PersonChooser extends JComboBox<Person> implements EntityListener {
 
 	public PersonChooser() {
-		this(Person.getNutzer());
-	}
-
-	public PersonChooser(Person p) {
 		super(Person.getArray());
-		this.setSelectedItem(Person.getPerson(p.getId()));
+		this.setSelectedItem(Person.getNutzer());
 
 		Person.addListener(this);
 	}
 
 	@Override
 	public void dataChanged() {
-		if (this.getItemCount() > 0) {
-			int selection = ((Person) this.getSelectedItem()).getId();
-			this.removeAllItems();
-			for (Person p : Person.getArray()) {
-				this.addItem(p);
-				if (p.getId() == selection) {
-					this.setSelectedItem(p);
-				}
-			}
+
+		if (this.isShowing()) {
+			/*
+			 * int selection = -1; if (this.getItemCount() > 0) { selection = ((Person)
+			 * this.getSelectedItem()).getId(); } this.removeAllItems(); for (Person p :
+			 * Person.getArray()) { this.addItem(p); if (p.getId() == selection) {
+			 * this.setSelectedItem(p); } }
+			 */
+		} else {
+			Person.removeListener(this);
 		}
+
 	}
 
 }
