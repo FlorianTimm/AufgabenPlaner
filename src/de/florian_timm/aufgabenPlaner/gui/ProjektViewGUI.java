@@ -2,6 +2,7 @@ package de.florian_timm.aufgabenPlaner.gui;
 
 import de.florian_timm.aufgabenPlaner.entity.Aufgabe;
 import de.florian_timm.aufgabenPlaner.entity.Projekt;
+import de.florian_timm.aufgabenPlaner.gui.comp.ProjektPanel;
 import de.florian_timm.aufgabenPlaner.gui.table.AufgabenTableModel;
 import de.florian_timm.aufgabenPlaner.gui.table.Table;
 import de.florian_timm.aufgabenPlaner.kontroll.EntityListener;

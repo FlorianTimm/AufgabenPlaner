@@ -1,10 +1,13 @@
 package de.florian_timm.aufgabenPlaner.gui;
 
 import de.florian_timm.aufgabenPlaner.entity.Person;
+import de.florian_timm.aufgabenPlaner.kontroll.ErrorHub;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
 
 public class PersonGUI extends JDialog implements ActionListener {
 	private static final long serialVersionUID = 1L;
@@ -15,7 +18,7 @@ public class PersonGUI extends JDialog implements ActionListener {
 		super(window, "Person");
 		makeWindow();
 	}
-	
+
 	public PersonGUI(Window window, String username) {
 		super(window, "Person");
 		makeWindow();
@@ -56,14 +59,15 @@ public class PersonGUI extends JDialog implements ActionListener {
 
 		GroupLayout layout = new GroupLayout(cp);
 		cp.setLayout(layout);
+		layout.setAutoCreateGaps(true);
+		layout.setAutoCreateContainerGaps(true);
 
 		layout.setHorizontalGroup(layout.createSequentialGroup()
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(usernameLabel)
 						.addComponent(nameLabel).addComponent(vornameLabel).addComponent(emailLabel))
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(usernameField)
 						.addComponent(nameField).addComponent(vornameField).addComponent(emailField)
-						.addComponent(okButton))
-				);
+						.addComponent(okButton)));
 
 		layout.setVerticalGroup(layout.createSequentialGroup()
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(usernameLabel)
@@ -84,7 +88,13 @@ public class PersonGUI extends JDialog implements ActionListener {
 		String name = this.nameField.getText();
 		String vorname = this.vornameField.getText();
 		String email = this.emailField.getText();
-		Person.makePerson(username, name, vorname, email);
+		try {
+			Person.makePerson(username, name, vorname, email);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			ErrorHub.log(e);
+
+		}
 	}
 
 	@Override

@@ -10,30 +10,33 @@ import de.florian_timm.aufgabenPlaner.gui.table.ProgressCellRender;
 import de.florian_timm.aufgabenPlaner.gui.table.ProjektTableModel;
 import de.florian_timm.aufgabenPlaner.gui.table.Table;
 import de.florian_timm.aufgabenPlaner.kontroll.EntityListener;
+import de.florian_timm.aufgabenPlaner.kontroll.ErrorHub;
+import de.florian_timm.aufgabenPlaner.kontroll.ErrorListener;
 import de.florian_timm.aufgabenPlaner.schnittstelle.DatenhaltungS;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class AufgabenPlanerGUI extends JFrame implements ActionListener, MouseListener, EntityListener, WindowListener {
+public class AufgabenPlanerGUI extends JFrame implements ActionListener, MouseListener, EntityListener, WindowListener, ErrorListener {
 
 	/**
 	 * GUI
 	 */
 	private static final long serialVersionUID = 1L;
-	Person nutzer = null;
 	Table projektTable;
 
 	public AufgabenPlanerGUI(String dateiname) {
 
 		super("Aufgabenplaner");
+		ErrorHub.addListener(this);
 
 		DatenhaltungS.setSourceFile(dateiname);
 
 		String username = System.getProperty("user.name");
 		int counter = 0;
-		while ((nutzer = Person.getPerson(username)) == null) {
+		Person nutzer = null;
+		while ((nutzer  = Person.getPerson(username)) == null) {
 			PersonGUI pgui = new PersonGUI(this, username);
 			pgui.setModal(true);
 			pgui.setVisible(true);
@@ -42,6 +45,7 @@ public class AufgabenPlanerGUI extends JFrame implements ActionListener, MouseLi
 				close();
 			}
 		}
+		Person.setNutzer(nutzer);
 
 		Container cp = this.getContentPane();
 		cp.setLayout(new BorderLayout());
@@ -131,6 +135,11 @@ public class AufgabenPlanerGUI extends JFrame implements ActionListener, MouseLi
 		DatenhaltungS.close();
 		System.exit(0);
 	}
+	
+	@Override
+	public void errorInformation(Exception e) {
+		JOptionPane.showMessageDialog(this, e.getLocalizedMessage(), "Fehler", JOptionPane.ERROR_MESSAGE); 
+	}
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////////// Nicht benötigte Listener ////////////////////////
@@ -175,5 +184,7 @@ public class AufgabenPlanerGUI extends JFrame implements ActionListener, MouseLi
 	@Override
 	public void mouseReleased(MouseEvent arg0) {
 	}
+
+
 
 }

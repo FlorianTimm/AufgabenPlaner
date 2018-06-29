@@ -1,6 +1,9 @@
 package de.florian_timm.aufgabenPlaner.gui;
 
 import javax.swing.*;
+
+import de.florian_timm.aufgabenPlaner.gui.comp.ProjektPanel;
+
 import java.awt.*;
 
 public class ProjektGUI extends JDialog {

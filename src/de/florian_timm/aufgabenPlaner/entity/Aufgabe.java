@@ -1,5 +1,6 @@
 package de.florian_timm.aufgabenPlaner.entity;
 
+import de.florian_timm.aufgabenPlaner.kontroll.ErrorHub;
 import de.florian_timm.aufgabenPlaner.schnittstelle.DatenhaltungS;
 
 import java.sql.Connection;
@@ -12,6 +13,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.swing.JOptionPane;
 
 public class Aufgabe extends Entity {
     private Person bearbeiter;
@@ -48,7 +51,7 @@ public class Aufgabe extends Entity {
             rs.close();
         } catch (SQLException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, e.getLocalizedMessage(), "Fehler", JOptionPane.ERROR_MESSAGE); 
         }
         System.out.println("Anzahl Aufgaben: " + aufgaben.size());
         return aufgaben;
@@ -66,8 +69,7 @@ public class Aufgabe extends Entity {
             if (rs.getString("faelligkeit") != null)
                 faelligkeit = df.parse(rs.getString("faelligkeit"));
         } catch (NullPointerException | ParseException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            ErrorHub.log(e);
         }
         Status status = Status.getStatus(rs.getInt("status"));
         boolean storniert = rs.getBoolean("storniert");
@@ -105,7 +107,7 @@ public class Aufgabe extends Entity {
 
         } catch (SQLException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            ErrorHub.log(e);
         }
         informListener();
     }
@@ -167,7 +169,7 @@ public class Aufgabe extends Entity {
 
         } catch (SQLException e) {
             // TODO Auto-generated catch block
-            e.printStackTrace();
+            ErrorHub.log(e);
         }
         informListener();
     }

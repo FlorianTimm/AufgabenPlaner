@@ -1,11 +1,13 @@
 package de.florian_timm.aufgabenPlaner.entity;
 
+import de.florian_timm.aufgabenPlaner.kontroll.ErrorHub;
 import de.florian_timm.aufgabenPlaner.schnittstelle.DatenhaltungS;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,6 +17,15 @@ public class Person extends Entity implements Comparable<Person> {
 	private String name;
 	private String email;
 	private String vorname;
+	private static int nutzerId;
+
+	public static Person getNutzer() {
+		return getPerson(nutzerId);
+	}
+
+	public static void setNutzer(Person nutzer) {
+		Person.nutzerId = nutzer.getId();
+	}
 
 	public Person(String username, String name, String vorname, String email, int id) {
 		this.username = username;
@@ -32,7 +43,10 @@ public class Person extends Entity implements Comparable<Person> {
 		if (alle.containsKey(id)) {
 			return alle.get(id);
 		} else {
-			return loadPersonFromDB("id = " + id);
+			Person p = loadPersonFromDB("id = " + id);
+			Person.informListener();
+			return p;
+
 		}
 	}
 
@@ -47,7 +61,7 @@ public class Person extends Entity implements Comparable<Person> {
 			}
 			rs.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			ErrorHub.log(e);
 		}
 
 		return null;
@@ -73,30 +87,31 @@ public class Person extends Entity implements Comparable<Person> {
 			}
 			rs.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			ErrorHub.log(e);
 		}
+		informListener();
 	}
 
-	public static Person makePerson(String username, String name, String vorname, String email) {
-		try {
-			DatenhaltungS.update("INSERT INTO person (name, vorname, username, email) VALUES ('" + name + "','"
-					+ vorname + "','" + username + "','" + email + "');");
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return getPerson(username);
+	public static Person makePerson(String username, String name, String vorname, String email) throws SQLException {
+
+		DatenhaltungS.update("INSERT INTO person (name, vorname, username, email) VALUES ('" + name + "','" + vorname
+				+ "','" + username + "','" + email + "');");
+
+		Person p = getPerson(username);
+		informListener();
+		return p;
+
 	}
 
 	public static void createTable() throws SQLException {
 		DatenhaltungS.update("CREATE TABLE IF NOT EXISTS person (" + "id INTEGER PRIMARY KEY, "
-				+ "username	TEXT NOT NULL, name TEXT NOT NULL, vorname TEXT, email TEXT);");
+				+ "username	TEXT UNIQUE, name TEXT NOT NULL, vorname TEXT, email TEXT, CONSTRAINT nameEinzigartig UNIQUE(name, vorname));");
 	}
 
 	public static Person[] getArray() {
 		checkLoading();
 		Person[] p = alle.values().toArray(new Person[0]);
-		// Arrays.sort(k);
+		Arrays.sort(p);
 		return p;
 	}
 
@@ -146,7 +161,7 @@ public class Person extends Entity implements Comparable<Person> {
 			stmt.close();
 
 		} catch (SQLException e) {
-			e.printStackTrace();
+			ErrorHub.log(e);
 		}
 		informListener();
 	}

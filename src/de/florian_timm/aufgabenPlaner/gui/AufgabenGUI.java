@@ -72,6 +72,8 @@ public class AufgabenGUI extends JDialog implements ActionListener {
 
         GroupLayout layout = new GroupLayout(cp);
         cp.setLayout(layout);
+        layout.setAutoCreateGaps(true);
+        layout.setAutoCreateContainerGaps(true);
 
         layout.setHorizontalGroup(layout.createSequentialGroup()
                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(titelLabel)

@@ -5,6 +5,8 @@ import de.florian_timm.aufgabenPlaner.entity.*;
 import java.io.File;
 import java.sql.*;
 
+import javax.swing.JOptionPane;
+
 public class DatenhaltungS {
 	private static Connection c = null;
 	private static String sourceFile;
@@ -48,7 +50,7 @@ public class DatenhaltungS {
 					Projekt.createTable();
 					Aufgabe.createTable();
 				} catch (SQLException e) {
-					e.printStackTrace();
+					JOptionPane.showMessageDialog(null, e.getLocalizedMessage(), "Fehler", JOptionPane.ERROR_MESSAGE); 
 				}
 				
 			}
@@ -81,7 +83,7 @@ public class DatenhaltungS {
 			c.close();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, e.getLocalizedMessage(), "Fehler", JOptionPane.ERROR_MESSAGE); 
 		}
 	}
 }
