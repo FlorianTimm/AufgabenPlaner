@@ -1,6 +1,7 @@
 package de.florian_timm.aufgabenPlaner.gui.table;
 
 import de.florian_timm.aufgabenPlaner.entity.Entity;
+import de.florian_timm.aufgabenPlaner.entity.Person;
 import de.florian_timm.aufgabenPlaner.entity.Projekt;
 
 import java.text.DateFormat;
@@ -9,16 +10,25 @@ public class ProjektTableModel extends TableModel {
     private static final long serialVersionUID = 1L;
 
     public ProjektTableModel() {
+    	makeColumns();
+        this.setDataSource(Projekt.getArray());
+    }
+
+    public ProjektTableModel(Person person) {
+		makeColumns();
+		this.setDataSource(Projekt.getByUser(person));
+	}
+    
+    private void makeColumns() {
         this.spalten = new String[5];
         this.spalten[0] = "Auftraggeber";
         this.spalten[1] = "Titel";
         this.spalten[2] = "Zuständig";
         this.spalten[3] = "Fälligkeit";
         this.spalten[4] = "Status";
-        this.setDataSource(Projekt.getArray());
     }
 
-    protected void setDataSource(Entity[] projekte) {
+	protected void setDataSource(Entity[] projekte) {
         this.dataSource = projekte;
         this.data = new Object[projekte.length][5];
 

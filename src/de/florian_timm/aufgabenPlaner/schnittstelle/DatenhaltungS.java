@@ -1,47 +1,231 @@
 package de.florian_timm.aufgabenPlaner.schnittstelle;
 
 import de.florian_timm.aufgabenPlaner.entity.*;
+import de.florian_timm.aufgabenPlaner.kontroll.ErrorHub;
 
 import java.io.File;
 import java.sql.*;
 
-import javax.swing.JOptionPane;
+import org.sqlite.SQLiteConfig;
 
 public class DatenhaltungS {
-	private static Connection c = null;
 	private static String sourceFile;
-	private static DatenhaltungS instanz = null;
+	private static boolean geprueft = false;
 
-	private DatenhaltungS() {
-		try {
-			Class.forName("org.sqlite.JDBC");
-			c = DriverManager.getConnection("jdbc:sqlite:" + sourceFile);
-		} catch (Exception e) {
-			System.err.println(e.getClass().getName() + ": " + e.getMessage());
-			System.exit(0);
-		}
-		System.out.println("Opened database successfully");
-
-		instanz = this;
-	}
-
-	// public static DatenhaltungS getInstanz() {
-	// if (instanz == null) {
-	// instanz = new DatenhaltungS();
-	// }
-	// return instanz;
-	// }
+	private Connection c = null;
+	private Statement stmt = null;
+	private PreparedStatement ppst = null;
+	private ResultSet resultset = null;
+	private boolean writable = false;
 
 	public static void setSourceFile(String file) {
 		sourceFile = file;
 	}
 
-	private static void checkDB() {
-		boolean exists = (new File(sourceFile)).exists();
-		if (instanz == null) {
-			instanz = new DatenhaltungS();
+	public DatenhaltungS() {
+		this(false);
+	}
 
-			if (!exists) {
+	public DatenhaltungS(boolean writable) {
+		this.writable = writable;
+		try {
+			Class.forName("org.sqlite.JDBC");
+
+			SQLiteConfig config = new SQLiteConfig();
+			config.setReadOnly(!writable);
+			checkDB();
+			c = DriverManager.getConnection("jdbc:sqlite:" + sourceFile, config.toProperties());
+		} catch (ClassNotFoundException | SQLException e) {
+			// TODO Auto-generated catch block
+			ErrorHub.log(e);
+		}
+	}
+
+	public void update(String sql) {
+
+		try {
+			stmt = c.createStatement();
+			stmt.execute(sql);
+		} catch (SQLException e) {
+			ErrorHub.log(e);
+		} finally {
+			close();
+		}
+
+	}
+	
+	public void update () {
+		try {
+			ppst.execute();
+		} catch (SQLException e) {
+			ErrorHub.log(e);
+		} finally {
+			close();
+		}
+	}
+
+	public void prepareStatement(String sql) {
+		try {
+			ppst = c.prepareStatement(sql);
+		} catch (SQLException e) {
+			ErrorHub.log(e);
+			close();
+		}
+	}
+
+	public void setInt(int i, int zahl) {
+		try {
+			ppst.setInt(i, zahl);
+		} catch (SQLException e) {
+			ErrorHub.log(e);
+			close();
+		}
+	}
+
+	public void setString(int i, String text) {
+		try {
+			ppst.setString(i, text);
+		} catch (SQLException e) {
+			ErrorHub.log(e);
+			close();
+		}
+	}
+	
+	public void query(String sql) {
+		try {
+			stmt = c.createStatement();
+			resultset = stmt.executeQuery(sql);
+		} catch (SQLException e) {
+			ErrorHub.log(e);
+		}
+	}
+
+	public boolean next() {
+		try {
+			if (resultset == null && !writable && ppst != null) {
+				resultset = ppst.executeQuery();
+			} 
+			boolean r = resultset.next();
+			if (!r) {
+				close();
+				return false;
+			}
+			return r;
+		} catch (SQLException e) {
+			ErrorHub.log(e);
+			return false;
+		}
+	}
+	
+	public String getString(int i) {
+		try {
+			return resultset.getString(i);
+		} catch (SQLException e) {
+			ErrorHub.log(e);
+			close();
+			return null;
+		}
+	}
+	
+	public int getInt(int i) {
+		try {
+			return resultset.getInt(i);
+		} catch (SQLException e) {
+			ErrorHub.log(e);
+			close();
+			return -1;
+		}
+	}
+	
+	public double getDouble(int i) {
+		try {
+			return resultset.getDouble(i);
+		} catch (SQLException e) {
+			ErrorHub.log(e);
+			close();
+			return -1;
+		}
+	}
+
+	public String getString(String s) {
+		try {
+			return resultset.getString(s);
+		} catch (SQLException e) {
+			ErrorHub.log(e);
+			close();
+			return null;
+		}
+	}
+	
+	public int getInt(String s) {
+		try {
+			return resultset.getInt(s);
+		} catch (SQLException e) {
+			ErrorHub.log(e);
+			close();
+			return -1;
+		}
+	}
+	
+	public double getDouble(String s) {
+		try {
+			return resultset.getDouble(s);
+		} catch (SQLException e) {
+			ErrorHub.log(e);
+			close();
+			return -1;
+		}
+	}
+	
+	public boolean getBoolean(String s) {
+		try {
+			return resultset.getBoolean(s);
+		} catch (SQLException e) {
+			ErrorHub.log(e);
+			close();
+			return false;
+		}
+	}
+	
+	public void close() {
+		if (ppst != null) {
+			try {
+				ppst.close();
+			} catch (SQLException e) {
+				ErrorHub.log(e);
+			}
+		}
+
+		if (stmt != null) {
+			try {
+				stmt.close();
+			} catch (SQLException e) {
+				ErrorHub.log(e);
+			}
+		}
+
+		if (resultset != null) {
+			try {
+				resultset.close();
+			} catch (SQLException e) {
+				ErrorHub.log(e);
+			}
+		}
+
+		if (c != null) {
+			try {
+				c.close();
+			} catch (SQLException e) {
+
+				ErrorHub.log(e);
+			}
+		}
+	}
+
+	public static void checkDB() {
+		if (!geprueft) {
+			geprueft = true;
+			if (!(new File(sourceFile)).exists()) {
 				try {
 					Kostentraeger.createTable();
 					Prioritaet.createTable();
@@ -50,40 +234,9 @@ public class DatenhaltungS {
 					Projekt.createTable();
 					Aufgabe.createTable();
 				} catch (SQLException e) {
-					JOptionPane.showMessageDialog(null, e.getLocalizedMessage(), "Fehler", JOptionPane.ERROR_MESSAGE); 
+					ErrorHub.log(e);
 				}
-				
 			}
-		}
-	}
-
-	public static ResultSet query(String sql) throws SQLException {
-		checkDB();
-		Statement stmt = c.createStatement();
-		ResultSet rs = stmt.executeQuery(sql);
-		// stmt.close();
-		return rs;
-
-	}
-
-	public static void update(String sql) throws SQLException {
-		checkDB();
-		Statement stmt = c.createStatement();
-		stmt.executeUpdate(sql);
-		stmt.close();
-
-	}
-
-	public static Connection getConnection() {
-		return c;
-	}
-
-	public static void close() {
-		try {
-			c.close();
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			JOptionPane.showMessageDialog(null, e.getLocalizedMessage(), "Fehler", JOptionPane.ERROR_MESSAGE); 
 		}
 	}
 }

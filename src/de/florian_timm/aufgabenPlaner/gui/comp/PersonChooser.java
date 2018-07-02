@@ -1,34 +1,75 @@
 package de.florian_timm.aufgabenPlaner.gui.comp;
 
+import java.awt.Window;
+import javax.swing.ComboBoxModel;
 import javax.swing.JComboBox;
+import javax.swing.SwingUtilities;
 
 import de.florian_timm.aufgabenPlaner.entity.Person;
 import de.florian_timm.aufgabenPlaner.kontroll.EntityListener;
 
 @SuppressWarnings("serial")
 public class PersonChooser extends JComboBox<Person> implements EntityListener {
+	private boolean active = false;
+	private int preSelect = -1;
 
 	public PersonChooser() {
-		super(Person.getArray());
-		this.setSelectedItem(Person.getNutzer());
+		this(Person.getNutzer());
+	}
 
+	public PersonChooser(Person person) {
+		this(person.getId());
+	}
+
+	public PersonChooser(int personId) {
+		super();
+		preSelect = personId;
+		addAll(personId);
 		Person.addListener(this);
+	}
+
+	private void addAll(int personId) {
+		this.removeAllItems();
+		for (Person p : Person.getArray()) {
+			this.addItem(p);
+			if (p.getId() == personId) {
+				super.setSelectedItem(p);
+			}
+		}
+
 	}
 
 	@Override
 	public void dataChanged() {
-
-		if (this.isShowing()) {
-			/*
-			 * int selection = -1; if (this.getItemCount() > 0) { selection = ((Person)
-			 * this.getSelectedItem()).getId(); } this.removeAllItems(); for (Person p :
-			 * Person.getArray()) { this.addItem(p); if (p.getId() == selection) {
-			 * this.setSelectedItem(p); } }
-			 */
-		} else {
-			Person.removeListener(this);
+		Window topFrame = SwingUtilities.windowForComponent(this);
+		if (topFrame != null && topFrame.isVisible() && this.isShowing()) {
+			System.out.println("PersonChooser dataChanged");
+			Person p = (Person) this.getSelectedItem();
+			int pid = preSelect;
+			if (p != null)
+				pid = p.getId();
+			addAll(pid);
+			active = true;
+		} else if (topFrame != null && !topFrame.isVisible() && active) {
+			close();
 		}
 
+	}
+
+	public void setSelectedItem(Person s) {
+		preSelect = s.getId();
+		ComboBoxModel<Person> model = this.getModel();
+		for (int i = 0; i < model.getSize(); i++) {
+			Person p = model.getElementAt(i);
+			if (p.getId() == s.getId()) {
+				this.setSelectedIndex(i);
+				return;
+			}
+		}
+	}
+
+	public void close() {
+		Person.removeListener(this);
 	}
 
 }

@@ -2,7 +2,7 @@ package de.florian_timm.aufgabenPlaner.gui;
 
 import de.florian_timm.aufgabenPlaner.entity.Aufgabe;
 import de.florian_timm.aufgabenPlaner.entity.Projekt;
-import de.florian_timm.aufgabenPlaner.gui.comp.ProjektPanel;
+import de.florian_timm.aufgabenPlaner.gui.panels.ProjektPanel;
 import de.florian_timm.aufgabenPlaner.gui.table.AufgabenTableModel;
 import de.florian_timm.aufgabenPlaner.gui.table.Table;
 import de.florian_timm.aufgabenPlaner.kontroll.EntityListener;
@@ -41,9 +41,13 @@ public class ProjektViewGUI extends JDialog implements ActionListener, MouseList
 
 		this.setPreferredSize(new Dimension(500, 500));
 		this.pack();
+		this.setLocationRelativeTo(window);
 		this.setVisible(true);
 
 		Aufgabe.addListener(this);
+		this.addWindowListener(this);
+
+		this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 	}
 
 	protected void openAufgabe(Aufgabe aufgabe) {
@@ -58,6 +62,11 @@ public class ProjektViewGUI extends JDialog implements ActionListener, MouseList
 		});
 		agui.setVisible(true);
 
+	}
+
+	public void close() {
+		projektPanel.close();
+		Aufgabe.removeListener(this);
 	}
 
 	@Override
@@ -76,6 +85,7 @@ public class ProjektViewGUI extends JDialog implements ActionListener, MouseList
 
 	@Override
 	public void dataChanged() {
+		System.out.println("ProjektGUI dataChanged");
 		aufgabenTable.setModel(new AufgabenTableModel(this.projekt));
 	}
 
@@ -120,42 +130,42 @@ public class ProjektViewGUI extends JDialog implements ActionListener, MouseList
 	@Override
 	public void windowActivated(WindowEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void windowClosed(WindowEvent arg0) {
-		Aufgabe.removeListener(this);
-		
+
 	}
 
 	@Override
 	public void windowClosing(WindowEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
+		this.close();
 	}
 
 	@Override
 	public void windowDeactivated(WindowEvent arg0) {
 		// TODO Auto-generated method stub
-		
+		this.close();
 	}
 
 	@Override
 	public void windowDeiconified(WindowEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void windowIconified(WindowEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void windowOpened(WindowEvent arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 }

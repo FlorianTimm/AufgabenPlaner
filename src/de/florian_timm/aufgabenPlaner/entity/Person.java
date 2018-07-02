@@ -1,15 +1,14 @@
 package de.florian_timm.aufgabenPlaner.entity;
 
-import de.florian_timm.aufgabenPlaner.kontroll.ErrorHub;
+import de.florian_timm.aufgabenPlaner.kontroll.EntityListener;
 import de.florian_timm.aufgabenPlaner.schnittstelle.DatenhaltungS;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class Person extends Entity implements Comparable<Person> {
 	private static Map<Integer, Person> alle = new HashMap<Integer, Person>();
@@ -18,6 +17,27 @@ public class Person extends Entity implements Comparable<Person> {
 	private String email;
 	private String vorname;
 	private static int nutzerId;
+	private static boolean geladen = false;
+
+	private static Set<EntityListener> listener = new HashSet<EntityListener>();
+
+	public static void addListener(EntityListener newListener) {
+		listener.add(newListener);
+		System.out.println(
+				"PersonListener: " + listener.size() + " (neu: " + newListener.getClass().getSimpleName() + ")");
+	}
+
+	public static void removeListener(EntityListener el) {
+		listener.remove(el);
+		System.out.println("PersonListener: " + listener.size() + " (entf: " + el.getClass().getSimpleName() + ")");
+	}
+
+	public static void informListener() {
+		EntityListener[] ls = listener.toArray(new EntityListener[0]);
+		for (EntityListener el : ls) {
+			el.dataChanged();
+		}
+	}
 
 	public static Person getNutzer() {
 		return getPerson(nutzerId);
@@ -51,23 +71,18 @@ public class Person extends Entity implements Comparable<Person> {
 	}
 
 	public static Person loadPersonFromDB(String filter) {
-		try {
-			String sql = "SELECT * FROM person where " + filter + ";";
-			System.out.println(sql);
-			ResultSet rs = DatenhaltungS.query(sql);
+		String sql = "SELECT * FROM person where " + filter + ";";
+		DatenhaltungS d = new DatenhaltungS();
+		d.query(sql);
 
-			if (rs != null && rs.next()) {
-				return getPersonFromResult(rs);
-			}
-			rs.close();
-		} catch (SQLException e) {
-			ErrorHub.log(e);
+		if (d.next()) {
+			return getPersonFromResult(d);
 		}
 
 		return null;
 	}
 
-	private static Person getPersonFromResult(ResultSet rs) throws SQLException {
+	private static Person getPersonFromResult(DatenhaltungS rs) {
 		int id = rs.getInt("id");
 		String name = rs.getString("name");
 		String vorname = rs.getString("vorname");
@@ -80,22 +95,19 @@ public class Person extends Entity implements Comparable<Person> {
 
 	private static void loadData() {
 		alle.clear();
-		try {
-			ResultSet rs = DatenhaltungS.query("SELECT * FROM person;");
-			while (rs.next()) {
-				getPersonFromResult(rs);
-			}
-			rs.close();
-		} catch (SQLException e) {
-			ErrorHub.log(e);
+		DatenhaltungS d = new DatenhaltungS();
+		d.query("SELECT * FROM person;");
+		while (d.next()) {
+			getPersonFromResult(d);
 		}
+		geladen = true;
 		informListener();
 	}
 
 	public static Person makePerson(String username, String name, String vorname, String email) throws SQLException {
 
-		DatenhaltungS.update("INSERT INTO person (name, vorname, username, email) VALUES ('" + name + "','" + vorname
-				+ "','" + username + "','" + email + "');");
+		new DatenhaltungS(true).update("INSERT INTO person (name, vorname, username, email) VALUES ('" + name + "','"
+				+ vorname + "','" + username + "','" + email + "');");
 
 		Person p = getPerson(username);
 		informListener();
@@ -104,7 +116,7 @@ public class Person extends Entity implements Comparable<Person> {
 	}
 
 	public static void createTable() throws SQLException {
-		DatenhaltungS.update("CREATE TABLE IF NOT EXISTS person (" + "id INTEGER PRIMARY KEY, "
+		new DatenhaltungS(true).update("CREATE TABLE IF NOT EXISTS person (" + "id INTEGER PRIMARY KEY, "
 				+ "username	TEXT UNIQUE, name TEXT NOT NULL, vorname TEXT, email TEXT, CONSTRAINT nameEinzigartig UNIQUE(name, vorname));");
 	}
 
@@ -116,8 +128,8 @@ public class Person extends Entity implements Comparable<Person> {
 	}
 
 	protected static void checkLoading() {
-		// if (alle.size() == 0)
-		loadData();
+		if (!geladen)
+			loadData();
 	}
 
 	public String getUserName() {
@@ -149,20 +161,15 @@ public class Person extends Entity implements Comparable<Person> {
 	public void update(String username, String name, String vorname, String email) {
 		String sql = "UPDATE person SET username = ?, name = ?, vorname = ?, email = ? WHERE id = ?;";
 
-		Connection c = DatenhaltungS.getConnection();
-		try {
-			PreparedStatement stmt = c.prepareStatement(sql);
-			stmt.setString(1, username);
-			stmt.setString(2, name);
-			stmt.setString(3, vorname);
-			stmt.setString(4, email);
-			stmt.setInt(5, this.getId());
-			stmt.executeUpdate();
-			stmt.close();
+		DatenhaltungS d = new DatenhaltungS(true);
+		d.prepareStatement(sql);
+		d.setString(1, username);
+		d.setString(2, name);
+		d.setString(3, vorname);
+		d.setString(4, email);
+		d.setInt(5, this.getId());
+		d.update();
 
-		} catch (SQLException e) {
-			ErrorHub.log(e);
-		}
 		informListener();
 	}
 }

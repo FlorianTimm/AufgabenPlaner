@@ -1,6 +1,7 @@
 package de.florian_timm.aufgabenPlaner.kontroll;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Date;
@@ -14,11 +15,14 @@ public class ErrorHub {
 		for (ErrorListener el : listener) {
 			el.errorInformation(e);
 		}
-
+		
 		try {
-			PrintWriter pw = new PrintWriter(new File("log.txt"));
+			PrintWriter pw = new PrintWriter(new FileOutputStream(
+				    new File("log.txt"), 
+				    true /* append = true */)); 
 			pw.print((new Date()).toString() + "\t" + System.getProperty("user.name") + ":\n");
 		    e.printStackTrace(pw);
+		    pw.print("\n\n");
 		    pw.close();
 
 		} catch (IOException ioe) {

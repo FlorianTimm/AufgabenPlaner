@@ -56,7 +56,8 @@ public class AufgabenGUI extends JDialog implements ActionListener {
 		titelField = new JTextField();
 
 		JLabel beschreibungLabel = new JLabel("Beschreibung");
-		beschreibungField = new JTextArea(3, 20);
+		beschreibungField = new JTextArea(6, 30);
+		JScrollPane jsp = new JScrollPane(beschreibungField);
 
 		JLabel bearbeiterLabel = new JLabel("Bearbeiter");
 		bearbeiterField = new PersonChooser();
@@ -84,7 +85,7 @@ public class AufgabenGUI extends JDialog implements ActionListener {
 						.addComponent(beschreibungLabel).addComponent(bearbeiterLabel).addComponent(faelligkeitLabel)
 						.addComponent(statusLabel))
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(titelField)
-						.addComponent(beschreibungField).addComponent(bearbeiterField).addComponent(faelligkeitField)
+						.addComponent(jsp).addComponent(bearbeiterField).addComponent(faelligkeitField)
 						.addComponent(statusField).addComponent(okButton))
 				.addComponent(neuPerson));
 
@@ -92,7 +93,7 @@ public class AufgabenGUI extends JDialog implements ActionListener {
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(titelLabel)
 						.addComponent(titelField))
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(beschreibungLabel)
-						.addComponent(beschreibungField))
+						.addComponent(jsp))
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(bearbeiterLabel)
 						.addComponent(bearbeiterField).addComponent(neuPerson))
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(faelligkeitLabel)
