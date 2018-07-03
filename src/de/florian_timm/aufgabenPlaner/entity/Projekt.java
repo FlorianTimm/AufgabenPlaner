@@ -270,4 +270,9 @@ public class Projekt extends Entity {
 		return projekte.toArray(new Projekt[0]);
 	}
 
+	public static Projekt get(int projektId) {
+		checkLoading();
+		return alle.get(projektId);
+	}
+
 }

@@ -7,6 +7,7 @@ import java.awt.event.MouseListener;
 
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
+import javax.swing.table.TableRowSorter;
 
 import de.florian_timm.aufgabenPlaner.entity.Aufgabe;
 import de.florian_timm.aufgabenPlaner.entity.Person;
@@ -18,6 +19,7 @@ import de.florian_timm.aufgabenPlaner.kontroll.EntityListener;
 public class ProjektTable extends Table implements MouseListener, EntityListener {
 
 	private Person person = null;
+	private TableRowSorter<ProjektTableModel> sorter;
 
 	public ProjektTable() {
 		super();
@@ -32,10 +34,13 @@ public class ProjektTable extends Table implements MouseListener, EntityListener
 
 	private void makeTable() {
 		this.addMouseListener(this);
-		dataChanged();
 
 		Projekt.addListener(this);
 		Aufgabe.addListener(this);
+		
+		sorter = new TableRowSorter<ProjektTableModel>();
+		this.setRowSorter(sorter);
+		dataChanged();
 	}
 
 	@Override
@@ -64,10 +69,13 @@ public class ProjektTable extends Table implements MouseListener, EntityListener
 
 	public void dataChanged() {
 		// System.out.println("dataChanged AufgabenPlanerGUI");
+		ProjektTableModel model = null;
 		if (person == null)
-			this.setModel(new ProjektTableModel());
+			model = new ProjektTableModel();
 		else 
-			this.setModel(new ProjektTableModel(person));
+			model = new ProjektTableModel(person);
+		this.setModel(model);
+		sorter.setModel(model);
 		this.getColumn("Status").setCellRenderer(new ProgressCellRender());
 	}
 

@@ -27,14 +27,18 @@ public class AufgabenGUI extends JDialog implements ActionListener {
 	private Aufgabe aufgabe = null;
 
 	public AufgabenGUI(Window window, Projekt projekt) {
-		super(window, "Aufgabe");
+		super(window, "Neue Aufgabe");
+		makeWindow(window);
 		this.projekt = projekt;
-		makeWindow();
+		this.setModal(true);
 	}
 
 	public AufgabenGUI(Window window, Aufgabe aufgabe) {
-		this(window, aufgabe.getProjekt());
-		this.aufgabe = aufgabe;
+		super(window, "Aufgabe bearbeiten");
+		makeWindow(window);
+		this.aufgabe = aufgabe;	
+		
+		System.out.println(aufgabe);
 
 		titelField.setText(aufgabe.toString());
 		beschreibungField.setText(aufgabe.getBeschreibung());
@@ -46,9 +50,10 @@ public class AufgabenGUI extends JDialog implements ActionListener {
 		m.setYear(d.get(Calendar.YEAR));
 		m.setMonth(d.get(Calendar.MONTH));
 		m.setDay(d.get(Calendar.DATE));
+		this.setModal(true);
 	}
 
-	private void makeWindow() {
+	private void makeWindow(Window window) {
 
 		Container cp = this.getContentPane();
 
@@ -103,6 +108,8 @@ public class AufgabenGUI extends JDialog implements ActionListener {
 				.addComponent(okButton));
 
 		this.pack();
+		this.setLocationRelativeTo(window);
+		this.setVisible(true);
 	}
 
 	public void makeAufgabe() {

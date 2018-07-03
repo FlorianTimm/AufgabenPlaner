@@ -8,7 +8,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
-import de.florian_timm.aufgabenPlaner.AufgabenPlanerGUI;
+import de.florian_timm.aufgabenPlaner.gui.AufgabenPlanerGUI;
 import de.florian_timm.aufgabenPlaner.gui.ProjektGUI;
 
 @SuppressWarnings("serial")
@@ -45,7 +45,7 @@ public class MenuBar extends JMenuBar implements ActionListener {
 	public void actionPerformed(ActionEvent ae) {
 		switch (ae.getActionCommand()) {
 		case "Beenden":
-			apgui.dispose();
+			apgui.exit();
 			break;
 		case "ueber":
 			JOptionPane.showMessageDialog(this, "Florian Timm\nLandesbetrieb Geoinformation und Vermessung",

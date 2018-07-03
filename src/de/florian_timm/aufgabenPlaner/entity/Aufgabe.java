@@ -52,19 +52,36 @@ public class Aufgabe extends Entity {
 		this.faelligkeit = faelligkeit;
 		this.status = status;
 		this.storniert = storniert;
+		this.projekt = projekt;
 	}
 
 	public static Map<Integer, Aufgabe> getAufgaben(Projekt projekt) {
 		Map<Integer, Aufgabe> aufgaben = new HashMap<Integer, Aufgabe>();
-			String sql = "SELECT * FROM aufgabe where projekt = ?;";
-			DatenhaltungS c = new DatenhaltungS();
-			c.prepareStatement(sql);
-			c.setInt(1, projekt.getId());
+		String sql = "SELECT * FROM aufgabe where projekt = ?;";
+		DatenhaltungS c = new DatenhaltungS();
+		c.prepareStatement(sql);
+		c.setInt(1, projekt.getId());
 
-			while (c.next()) {
-				Aufgabe a = getAufgabeFromResult(projekt, c);
-				aufgaben.put(a.getId(), a);
-			}
+		while (c.next()) {
+			Aufgabe a = getAufgabeFromResult(projekt, c);
+			aufgaben.put(a.getId(), a);
+		}
+		System.out.println("Anzahl Aufgaben: " + aufgaben.size());
+		return aufgaben;
+	}
+
+	public static Map<Integer, Aufgabe> getOffeneAufgaben(Person person) {
+		Map<Integer, Aufgabe> aufgaben = new HashMap<Integer, Aufgabe>();
+		String sql = "SELECT aufgabe.* FROM aufgabe LEFT JOIN status ON aufgabe.status = status.id where status.sortierung < 100 AND person = ?;";
+		DatenhaltungS c = new DatenhaltungS();
+		c.prepareStatement(sql);
+		c.setInt(1, person.getId());
+
+		while (c.next()) {
+			int projektId = c.getInt("projekt");
+			Aufgabe a = getAufgabeFromResult(Projekt.get(projektId), c);
+			aufgaben.put(a.getId(), a);
+		}
 		System.out.println("Anzahl Aufgaben: " + aufgaben.size());
 		return aufgaben;
 	}
@@ -172,4 +189,5 @@ public class Aufgabe extends Entity {
 		d.update();
 		informListener();
 	}
+
 }

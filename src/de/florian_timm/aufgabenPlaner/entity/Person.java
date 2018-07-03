@@ -172,4 +172,9 @@ public class Person extends Entity implements Comparable<Person> {
 
 		informListener();
 	}
+
+	public Aufgabe[] getAufgaben() {
+		Map<Integer, Aufgabe> list = Aufgabe.getOffeneAufgaben(this);
+		return list.values().toArray(new Aufgabe[0]);
+	}
 }

@@ -2,35 +2,60 @@ package de.florian_timm.aufgabenPlaner.gui.table;
 
 import de.florian_timm.aufgabenPlaner.entity.Aufgabe;
 import de.florian_timm.aufgabenPlaner.entity.Entity;
+import de.florian_timm.aufgabenPlaner.entity.Person;
 import de.florian_timm.aufgabenPlaner.entity.Projekt;
 
 import java.text.DateFormat;
 
+@SuppressWarnings("serial")
 public class AufgabenTableModel extends TableModel {
-    private static final long serialVersionUID = 1L;
+	private Projekt projekt = null;
+	private Person person = null;
 
-    public AufgabenTableModel(Projekt projekt) {
-        this.spalten = new String[4];
-        this.spalten[0] = "Bearbeiter";
-        this.spalten[1] = "Titel";
-        this.spalten[2] = "Fälligkeit";
-        this.spalten[3] = "Status";
+	public AufgabenTableModel(Projekt projekt) {
+		this.projekt = projekt;
+		makeModel();
+		this.setDataSource(projekt.getAufgaben());
+	}
 
-        this.setDataSource(projekt.getAufgaben());
-    }
+	public AufgabenTableModel(Person person) {
+		this.person = person;
+		makeModel();
+		this.setDataSource(person.getAufgaben());
+	}
 
-    protected void setDataSource(Entity[] aufgaben) {
-        this.dataSource = aufgaben;
-        this.data = new Object[aufgaben.length][4];
+	private void makeModel() {
+		int a = 0;
+		if (projekt != null) {
+			this.spalten = new String[4];
+			this.spalten[a++] = "Bearbeiter";
+		} else if (person != null) {
+			this.spalten = new String[5];
+			this.spalten[a++] = "Projekt";
+			this.spalten[a++] = "Prio";
+		}
+		this.spalten[a++] = "Titel";
+		this.spalten[a++] = "Fälligkeit";
+		this.spalten[a++] = "Status";
+	}
 
-        for (int i = 0; i < aufgaben.length; i++) {
-            Aufgabe aufgabe = (Aufgabe) aufgaben[i];
+	protected void setDataSource(Entity[] aufgaben) {
+		this.dataSource = aufgaben;
+		this.data = new Object[aufgaben.length][spalten.length];
 
-            this.data[i][0] = aufgabe.getBearbeiter();
-            this.data[i][1] = aufgabe;
-            if (aufgabe.getFaelligkeit() != null)
-                this.data[i][2] = DateFormat.getDateInstance().format(aufgabe.getFaelligkeit());
-            this.data[i][3] = aufgabe.getStatus();
-        }
-    }
+		for (int i = 0; i < aufgaben.length; i++) {
+			Aufgabe aufgabe = (Aufgabe) aufgaben[i];
+			int a = 0;
+			if (projekt != null) {
+				this.data[i][a++] = aufgabe.getBearbeiter();
+			} else if (person != null) {
+				this.data[i][a++] = aufgabe.getProjekt().getTitel();
+				this.data[i][a++] = aufgabe.getProjekt().getPrioritaet();
+			}
+			this.data[i][a++] = aufgabe;
+			if (aufgabe.getFaelligkeit() != null)
+				this.data[i][a++] = DateFormat.getDateInstance().format(aufgabe.getFaelligkeit());
+			this.data[i][a++] = aufgabe.getStatus();
+		}
+	}
 }
