@@ -1,6 +1,6 @@
 package de.florian_timm.aufgabenPlaner.entity;
 
-import de.florian_timm.aufgabenPlaner.schnittstelle.DatenhaltungS;
+import de.florian_timm.aufgabenPlaner.schnittstelle.DatenHaltung;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -32,7 +32,7 @@ public class Status extends EntitySortierung {
 	private static void loadStatus() {
 		alle.clear();
 
-		DatenhaltungS d = new DatenhaltungS();
+		DatenHaltung d = new DatenHaltung();
 		d.query("SELECT * FROM status;");
 
 		while (d.next()) {
@@ -45,10 +45,10 @@ public class Status extends EntitySortierung {
 	}
 
 	public static void createTable() {
-		new DatenhaltungS(true).update("CREATE TABLE IF NOT EXISTS status (id INTEGER PRIMARY KEY, "
+		new DatenHaltung(true).update("CREATE TABLE IF NOT EXISTS status (id INTEGER PRIMARY KEY, "
 				+ "bezeichnung TEXT UNIQUE NOT NULL, sortierung INTEGER);");
 
-		new DatenhaltungS(true).update(
+		new DatenHaltung(true).update(
 				"INSERT INTO status (bezeichnung, sortierung) VALUES ('fertig', 100), ('nicht angefangen', 0), ('halbfertig',50);");
 	}
 
@@ -81,5 +81,41 @@ public class Status extends EntitySortierung {
 	public void setSortierung(int sortierung) {
 		this.sortierung = sortierung;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((bezeichnung == null) ? 0 : bezeichnung.hashCode());
+		result = prime * result + sortierung;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Status other = (Status) obj;
+		if (bezeichnung == null) {
+			if (other.bezeichnung != null)
+				return false;
+		} else if (!bezeichnung.equals(other.bezeichnung))
+			return false;
+		if (sortierung != other.sortierung)
+			return false;
+		return true;
+	}
+
+	@Override
+	public void update(Entity neu) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	
 
 }

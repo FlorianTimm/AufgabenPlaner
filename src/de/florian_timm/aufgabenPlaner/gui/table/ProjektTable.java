@@ -9,11 +9,12 @@ import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.table.TableRowSorter;
 
-import de.florian_timm.aufgabenPlaner.entity.Aufgabe;
 import de.florian_timm.aufgabenPlaner.entity.Person;
 import de.florian_timm.aufgabenPlaner.entity.Projekt;
 import de.florian_timm.aufgabenPlaner.gui.ProjektViewGUI;
+import de.florian_timm.aufgabenPlaner.kontroll.AufgabenNotifier;
 import de.florian_timm.aufgabenPlaner.kontroll.EntityListener;
+import de.florian_timm.aufgabenPlaner.kontroll.ProjektNotifier;
 
 @SuppressWarnings("serial")
 public class ProjektTable extends Table implements MouseListener, EntityListener {
@@ -35,8 +36,8 @@ public class ProjektTable extends Table implements MouseListener, EntityListener
 	private void makeTable() {
 		this.addMouseListener(this);
 
-		Projekt.addListener(this);
-		Aufgabe.addListener(this);
+		ProjektNotifier.getInstanz().addListener(this);
+		AufgabenNotifier.getInstanz().addListener(this);
 		
 		sorter = new TableRowSorter<ProjektTableModel>();
 		this.setRowSorter(sorter);
@@ -58,8 +59,8 @@ public class ProjektTable extends Table implements MouseListener, EntityListener
 	}
 
 	public void close() {
-		Projekt.removeListener(this);
-		Aufgabe.removeListener(this);
+		ProjektNotifier.getInstanz().removeListener(this);
+		AufgabenNotifier.getInstanz().removeListener(this);
 	}
 
 	private void openProjekt(Projekt projekt) {

@@ -1,6 +1,6 @@
 package de.florian_timm.aufgabenPlaner.entity;
 
-import de.florian_timm.aufgabenPlaner.schnittstelle.DatenhaltungS;
+import de.florian_timm.aufgabenPlaner.schnittstelle.DatenHaltung;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -24,7 +24,7 @@ public class Kostentraeger extends Entity {
 
 	private static void loadData() {
 		alle.clear();
-		DatenhaltungS d = new DatenhaltungS();
+		DatenHaltung d = new DatenHaltung();
 		d.query("SELECT * FROM kostentraeger;");
 
 		while (d.next()) {
@@ -37,10 +37,10 @@ public class Kostentraeger extends Entity {
 	}
 
 	public static void createTable() {
-		new DatenhaltungS(true).update("CREATE TABLE IF NOT EXISTS kostentraeger (id INTEGER PRIMARY KEY, "
+		new DatenHaltung(true).update("CREATE TABLE IF NOT EXISTS kostentraeger (id INTEGER PRIMARY KEY, "
 				+ "bezeichnung TEXT UNIQUE NOT NULL, sapname TEXT);");
 
-		new DatenhaltungS(true).update("INSERT INTO kostentraeger (bezeichnung) VALUES ('- keiner -');");
+		new DatenHaltung(true).update("INSERT INTO kostentraeger (bezeichnung) VALUES ('- keiner -');");
 	}
 
 	public static Kostentraeger[] getArray() {
@@ -75,4 +75,43 @@ public class Kostentraeger extends Entity {
 	public String toString() {
 		return bezeichnung;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + ((bezeichnung == null) ? 0 : bezeichnung.hashCode());
+		result = prime * result + ((sapName == null) ? 0 : sapName.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Kostentraeger other = (Kostentraeger) obj;
+		if (bezeichnung == null) {
+			if (other.bezeichnung != null)
+				return false;
+		} else if (!bezeichnung.equals(other.bezeichnung))
+			return false;
+		if (sapName == null) {
+			if (other.sapName != null)
+				return false;
+		} else if (!sapName.equals(other.sapName))
+			return false;
+		return true;
+	}
+
+	@Override
+	public void update(Entity neu) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	
 }

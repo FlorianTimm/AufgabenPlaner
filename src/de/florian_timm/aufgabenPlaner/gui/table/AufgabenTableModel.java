@@ -15,7 +15,7 @@ public class AufgabenTableModel extends TableModel {
 	public AufgabenTableModel(Projekt projekt) {
 		this.projekt = projekt;
 		makeModel();
-		this.setDataSource(projekt.getAufgaben());
+		this.setDataSource(projekt.getAufgaben().values().toArray(new Entity[0]));
 	}
 
 	public AufgabenTableModel(Person person) {
@@ -39,12 +39,12 @@ public class AufgabenTableModel extends TableModel {
 		this.spalten[a++] = "Status";
 	}
 
-	protected void setDataSource(Entity[] aufgaben) {
-		this.dataSource = aufgaben;
-		this.data = new Object[aufgaben.length][spalten.length];
+	protected void setDataSource(Entity[] map) {
+		this.dataSource = map;
+		this.data = new Object[map.length][spalten.length];
 
-		for (int i = 0; i < aufgaben.length; i++) {
-			Aufgabe aufgabe = (Aufgabe) aufgaben[i];
+		for (int i = 0; i < dataSource.length; i++) {
+			Aufgabe aufgabe = (Aufgabe) dataSource[i];
 			int a = 0;
 			if (projekt != null) {
 				this.data[i][a++] = aufgabe.getBearbeiter();

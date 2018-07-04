@@ -4,7 +4,9 @@ import de.florian_timm.aufgabenPlaner.entity.Aufgabe;
 import de.florian_timm.aufgabenPlaner.entity.Person;
 import de.florian_timm.aufgabenPlaner.entity.Projekt;
 import de.florian_timm.aufgabenPlaner.entity.Status;
+import de.florian_timm.aufgabenPlaner.entity.ordner.AufgabenOrdner;
 import de.florian_timm.aufgabenPlaner.gui.comp.PersonChooser;
+import de.florian_timm.aufgabenPlaner.kontroll.PersonenNotifier;
 
 import org.jdatepicker.DateModel;
 import org.jdatepicker.JDatePicker;
@@ -118,7 +120,7 @@ public class AufgabenGUI extends JDialog implements ActionListener {
 		Person bearbeiter = (Person) this.bearbeiterField.getSelectedItem();
 		Date faelligkeit = (Date) this.faelligkeitField.getModel().getValue();
 		Status status = (Status) this.statusField.getSelectedItem();
-		Aufgabe.makeAufgabe(projekt, titel, beschreibung, bearbeiter, faelligkeit, status);
+		AufgabenOrdner.getInstanz(projekt).makeAufgabe(projekt, titel, beschreibung, bearbeiter, faelligkeit, status);
 	}
 
 	@Override
@@ -130,7 +132,7 @@ public class AufgabenGUI extends JDialog implements ActionListener {
 				updateAufgabe();
 			this.setVisible(false);
 			this.dispose();
-			Person.removeListener(bearbeiterField);
+			PersonenNotifier.getInstanz().removeListener(bearbeiterField);
 
 		} else {
 			PersonGUI pgui = new PersonGUI(this);
@@ -144,6 +146,6 @@ public class AufgabenGUI extends JDialog implements ActionListener {
 		Person bearbeiter = (Person) this.bearbeiterField.getSelectedItem();
 		Date faelligkeit = (Date) this.faelligkeitField.getModel().getValue();
 		Status status = (Status) this.statusField.getSelectedItem();
-		aufgabe.update(titel, beschreibung, bearbeiter, faelligkeit, status);
+		aufgabe.updateDB(titel, beschreibung, bearbeiter, faelligkeit, status);
 	}
 }

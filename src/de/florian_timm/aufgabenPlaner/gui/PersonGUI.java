@@ -1,7 +1,8 @@
 package de.florian_timm.aufgabenPlaner.gui;
 
 import de.florian_timm.aufgabenPlaner.entity.Person;
-import de.florian_timm.aufgabenPlaner.kontroll.ErrorHub;
+import de.florian_timm.aufgabenPlaner.entity.ordner.PersonenOrdner;
+import de.florian_timm.aufgabenPlaner.kontroll.ErrorNotifier;
 
 import javax.swing.*;
 import java.awt.*;
@@ -89,10 +90,10 @@ public class PersonGUI extends JDialog implements ActionListener {
 		String vorname = this.vornameField.getText();
 		String email = this.emailField.getText();
 		try {
-			Person.makePerson(username, name, vorname, email);
+			PersonenOrdner.getInstanz().makePerson(username, name, vorname, email);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
-			ErrorHub.log(e);
+			ErrorNotifier.log(e);
 
 		}
 	}
@@ -112,6 +113,6 @@ public class PersonGUI extends JDialog implements ActionListener {
 		String name = this.nameField.getText();
 		String vorname = this.vornameField.getText();
 		String email = this.nameField.getText();
-		person.update(username, name, vorname, email);
+		person.updateDB(name, vorname, email);
 	}
 }

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.2">
+  <zoom_level>11</zoom_level>
+  <element>
+    <id>UMLSequenceAllInOne</id>
+    <coordinates>
+      <x>0</x>
+      <y>132</y>
+      <w>1122</w>
+      <h>770</h>
+    </coordinates>
+    <panel_attributes>title=Persistente Daten am Beispiel der Klasse Projekt
+autoTick=false
+obj=k:Kontroll~k
+obj=g:GUI~g
+obj=pdb1:ProjektDB~pdb
+obj=po:ProjektOrdner~po
+obj=db:DatenHaltung~db
+obj=p:Projekt~p
+
+on=k
+tick=
+k-&gt;po: po = create()
+on=po
+tick=
+k-&gt;po: loadAll()
+tick=
+po-&gt;db: db = create()
+on=db
+tick=
+po-&gt;db: query(sql)
+tick=
+db.&gt;po: resultset
+tick=
+po-&gt;p: p = create(resultset)
+on=p
+tick=
+po-&gt;db: close()
+off=db
+tick=
+k-&gt;g: g = create()
+on=g
+tick=
+g-&gt;po : getProjekt(1);
+tick=
+po-&gt;pdb: pdb1 = create(1)
+on=pdb
+tick=
+po.&gt;g : pdb1;
+tick=
+g-&gt;pdb: getTitle()
+tick=
+pdb-&gt;po : p=getProjekt(1)
+tick=
+pdb-&gt;p: getTitle()
+
+tick=
+pdb-&gt;db </panel_attributes>
+    <additional_attributes/>
+  </element>
+</diagram>

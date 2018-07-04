@@ -30,8 +30,6 @@ public class ProjektGUI extends JDialog implements WindowListener {
         projektPanel = new ProjektPanel(this);
         projektPanel.setWindow2Close(this);
         cp.add(projektPanel, BorderLayout.CENTER);
-
-     
     }
 
 	@Override

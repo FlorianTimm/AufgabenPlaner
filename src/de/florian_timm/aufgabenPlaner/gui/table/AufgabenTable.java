@@ -12,7 +12,9 @@ import de.florian_timm.aufgabenPlaner.entity.Person;
 import de.florian_timm.aufgabenPlaner.entity.Projekt;
 import de.florian_timm.aufgabenPlaner.gui.AufgabenGUI;
 import de.florian_timm.aufgabenPlaner.gui.ProjektViewGUI;
+import de.florian_timm.aufgabenPlaner.kontroll.AufgabenNotifier;
 import de.florian_timm.aufgabenPlaner.kontroll.EntityListener;
+import de.florian_timm.aufgabenPlaner.kontroll.ProjektNotifier;
 
 @SuppressWarnings("serial")
 public class AufgabenTable extends Table implements MouseListener, EntityListener {
@@ -40,8 +42,8 @@ public class AufgabenTable extends Table implements MouseListener, EntityListene
 		this.window = window;
 
 		this.addMouseListener(this);
-		Aufgabe.addListener(this);
-		Projekt.addListener(this);
+		AufgabenNotifier.getInstanz().addListener(this);
+		ProjektNotifier.getInstanz().addListener(this);
 
 		sorter = new TableRowSorter<AufgabenTableModel>();
 		this.setRowSorter(sorter);
@@ -53,8 +55,8 @@ public class AufgabenTable extends Table implements MouseListener, EntityListene
 	}
 
 	public void close() {
-		Aufgabe.removeListener(this);
-		Projekt.removeListener(this);
+		AufgabenNotifier.getInstanz().removeListener(this);
+		ProjektNotifier.getInstanz().removeListener(this);
 	}
 
 	@Override

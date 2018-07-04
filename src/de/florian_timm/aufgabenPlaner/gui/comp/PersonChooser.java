@@ -6,7 +6,9 @@ import javax.swing.JComboBox;
 import javax.swing.SwingUtilities;
 
 import de.florian_timm.aufgabenPlaner.entity.Person;
+import de.florian_timm.aufgabenPlaner.entity.ordner.PersonenOrdner;
 import de.florian_timm.aufgabenPlaner.kontroll.EntityListener;
+import de.florian_timm.aufgabenPlaner.kontroll.PersonenNotifier;
 
 @SuppressWarnings("serial")
 public class PersonChooser extends JComboBox<Person> implements EntityListener {
@@ -14,7 +16,7 @@ public class PersonChooser extends JComboBox<Person> implements EntityListener {
 	private int preSelect = -1;
 
 	public PersonChooser() {
-		this(Person.getNutzer());
+		this(PersonenOrdner.getInstanz().getNutzer());
 	}
 
 	public PersonChooser(Person person) {
@@ -25,12 +27,12 @@ public class PersonChooser extends JComboBox<Person> implements EntityListener {
 		super();
 		preSelect = personId;
 		addAll(personId);
-		Person.addListener(this);
+		PersonenNotifier.getInstanz().addListener(this);
 	}
 
 	private void addAll(int personId) {
 		this.removeAllItems();
-		for (Person p : Person.getArray()) {
+		for (Person p : PersonenOrdner.getInstanz().getArray()) {
 			this.addItem(p);
 			if (p.getId() == personId) {
 				super.setSelectedItem(p);
@@ -69,7 +71,7 @@ public class PersonChooser extends JComboBox<Person> implements EntityListener {
 	}
 
 	public void close() {
-		Person.removeListener(this);
+		PersonenNotifier.getInstanz().removeListener(this);
 	}
 
 }

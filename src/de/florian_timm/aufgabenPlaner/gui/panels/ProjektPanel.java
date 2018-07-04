@@ -4,6 +4,7 @@ import de.florian_timm.aufgabenPlaner.entity.Kostentraeger;
 import de.florian_timm.aufgabenPlaner.entity.Person;
 import de.florian_timm.aufgabenPlaner.entity.Prioritaet;
 import de.florian_timm.aufgabenPlaner.entity.Projekt;
+import de.florian_timm.aufgabenPlaner.entity.ordner.ProjektOrdner;
 import de.florian_timm.aufgabenPlaner.gui.PersonGUI;
 import de.florian_timm.aufgabenPlaner.gui.comp.PersonChooser;
 
@@ -125,7 +126,7 @@ public class ProjektPanel extends JPanel implements ActionListener {
 		Person auftraggeber = (Person) this.auftraggeberField.getSelectedItem();
 		Kostentraeger kostentraeger = (Kostentraeger) this.kostentraegerField.getSelectedItem();
 		Date faelligkeit = (Date) this.faelligkeitField.getModel().getValue();
-		Projekt.makeProjekt(titel, beschreibung, prio, zustaendig, kostentraeger, faelligkeit, auftraggeber);
+		ProjektOrdner.getInstanz().makeProjekt(titel, beschreibung, prio, zustaendig, kostentraeger, faelligkeit, auftraggeber);
 	}
 
 	public void setWindow2Close(Window window) {
@@ -158,7 +159,7 @@ public class ProjektPanel extends JPanel implements ActionListener {
 		Person auftraggeber = (Person) this.auftraggeberField.getSelectedItem();
 		Kostentraeger kostentraeger = (Kostentraeger) this.kostentraegerField.getSelectedItem();
 		Date faelligkeit = (Date) this.faelligkeitField.getModel().getValue();
-		projekt.update(titel, beschreibung, prio, zustaendig, kostentraeger, faelligkeit, auftraggeber);
+		projekt.updateDB(titel, beschreibung, prio, zustaendig, kostentraeger, faelligkeit, auftraggeber);
 
 	}
 

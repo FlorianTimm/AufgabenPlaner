@@ -23,7 +23,7 @@ import java.net.UnknownHostException;
 import javax.imageio.ImageIO;
 
 import de.florian_timm.aufgabenPlaner.gui.AufgabenPlanerGUI;
-import de.florian_timm.aufgabenPlaner.kontroll.ErrorHub;
+import de.florian_timm.aufgabenPlaner.kontroll.ErrorNotifier;
 
 public class AufgabenPlaner implements ActionListener, WindowListener {
 	private static AufgabenPlanerGUI gui;
@@ -134,7 +134,7 @@ public class AufgabenPlaner implements ActionListener, WindowListener {
 			thread.interrupt();
 			serverSocket.close();
 		} catch (IOException e) {
-			ErrorHub.log(e);
+			ErrorNotifier.log(e);
 		}
 		System.exit(0);
 	}
