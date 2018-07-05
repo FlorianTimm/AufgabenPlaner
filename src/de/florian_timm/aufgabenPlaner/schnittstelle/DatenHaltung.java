@@ -4,6 +4,7 @@ import de.florian_timm.aufgabenPlaner.entity.*;
 import de.florian_timm.aufgabenPlaner.entity.ordner.AufgabenOrdner;
 import de.florian_timm.aufgabenPlaner.entity.ordner.PersonenOrdner;
 import de.florian_timm.aufgabenPlaner.entity.ordner.ProjektOrdner;
+import de.florian_timm.aufgabenPlaner.entity.ordner.StatusOrdner;
 import de.florian_timm.aufgabenPlaner.kontroll.ErrorNotifier;
 
 import java.io.File;
@@ -48,7 +49,7 @@ public class DatenHaltung {
 
 		try {
 			stmt = c.createStatement();
-			stmt.execute(sql);
+			stmt.executeUpdate(sql);
 		} catch (SQLException e) {
 			ErrorNotifier.log(e);
 		} finally {
@@ -252,7 +253,7 @@ public class DatenHaltung {
 					Kostentraeger.createTable();
 					Prioritaet.createTable();
 					PersonenOrdner.createTable();
-					Status.createTable();
+					StatusOrdner.createTable();
 					ProjektOrdner.createTable();
 					AufgabenOrdner.createTable();
 				} catch (SQLException e) {

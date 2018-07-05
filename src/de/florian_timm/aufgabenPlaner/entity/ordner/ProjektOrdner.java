@@ -13,6 +13,7 @@ import de.florian_timm.aufgabenPlaner.entity.Person;
 import de.florian_timm.aufgabenPlaner.entity.Prioritaet;
 import de.florian_timm.aufgabenPlaner.entity.Projekt;
 import de.florian_timm.aufgabenPlaner.entity.Entity;
+import de.florian_timm.aufgabenPlaner.kontroll.AufgabenNotifier;
 import de.florian_timm.aufgabenPlaner.kontroll.ProjektNotifier;
 import de.florian_timm.aufgabenPlaner.schnittstelle.DatenHaltung;
 
@@ -50,7 +51,7 @@ public class ProjektOrdner extends Ordner {
 	}
 
 	public Projekt get(int projektId) {
-		checkLoading();
+		loadData(true);
 		return (Projekt) alle.get(projektId);
 	}
 
@@ -67,19 +68,30 @@ public class ProjektOrdner extends Ordner {
 	}
 
 	public Projekt[] getArray() {
-		checkLoading();
+		loadData(true);
 		Projekt[] p = alle.values().toArray(new Projekt[0]);
-		// Arrays.sort(k);
 		return p;
 	}
 
-	public boolean loadData() {
+	public boolean loadData(boolean reload) {
 		boolean dataChanged = false;
 		DatenHaltung d = new DatenHaltung();
-		d.prepareStatement("SELECT p.*, AVG(s.sortierung) as status FROM projekt as p LEFT JOIN aufgabe as a ON p.id = a.projekt LEFT JOIN status as s ON a.status = s.id WHERE p.bearbeitet > ? OR p.geloescht > ? OR p.archiviert > ? GROUP BY p.id;");
-		d.setLong(1, lastUpdate);
-		d.setLong(2, lastUpdate);
-		d.setLong(3, lastUpdate);
+		String sql = "SELECT p.*, AVG(s.sortierung) as status FROM projekt as p LEFT JOIN aufgabe as a ON p.id = a.projekt LEFT JOIN status as s ON a.status = s.id WHERE ";
+		if (reload) {
+			sql += "p.bearbeitet > ? OR p.geloescht > ? OR p.archiviert > ? ";
+
+		} else {
+			sql += "p.geloescht IS NULL AND p.archiviert IS NULL ";
+		}
+		sql += "GROUP BY p.id;";
+		d.prepareStatement(sql);
+
+		if (reload) {
+			d.setLong(1, lastUpdate);
+			d.setLong(2, lastUpdate);
+			d.setLong(3, lastUpdate);
+		}
+
 		while (d.next()) {
 			long geloescht = d.getLong("geloescht");
 			long archiviert = d.getLong("archiviert");
@@ -100,18 +112,17 @@ public class ProjektOrdner extends Ordner {
 			lastUpdate = Math.max(Math.max(lastUpdate, geloescht), Math.max(bearbeitet, archiviert));
 
 		}
-		if (dataChanged) {
+		if (dataChanged && reload) {
 			notifier.informListener();
+		} else if (dataChanged) {
 			return true;
 		}
-		return false;
+		return dataChanged;
 	}
-
-
 
 	public void makeProjekt(String titel, String beschreibung, Prioritaet prio, Person zustaendig,
 			Kostentraeger kostentraeger, Date faelligkeit, Person auftraggeber) {
-		String sql = "INSERT INTO projekt (titel, beschreibung, prioritaet, zustaendig, kostentraeger, faelligkeit, auftraggeber, erstellt, bearbeitet) VALUES (?,?,?,?,?,?,?,?);";
+		String sql = "INSERT INTO projekt (titel, beschreibung, prioritaet, zustaendig, kostentraeger, faelligkeit, auftraggeber, erstellt, bearbeitet) VALUES (?,?,?,?,?,?,?,?,?);";
 
 		DatenHaltung c = new DatenHaltung(true);
 		c.prepareStatement(sql);
@@ -127,11 +138,10 @@ public class ProjektOrdner extends Ordner {
 		c.setLong(9, time);
 		c.update();
 
-		loadData();
+		loadData(true);
 		ProjektNotifier.getInstanz().informListener();
 	}
 
-	
 	private static Entity getEntityFromResult(DatenHaltung rs) {
 		int dbId = rs.getInt("id");
 		String titel = rs.getString("titel");
@@ -175,6 +185,25 @@ public class ProjektOrdner extends Ordner {
 		d.setLong(8, Instant.now().getEpochSecond());
 		d.setInt(9, projekt.getId());
 		d.update();
+		ProjektNotifier.getInstanz().informListener();
+	}
+
+	@Override
+	public void removeFromDB(int id) {
+		long time = Instant.now().getEpochSecond();
+		DatenHaltung d1 = new DatenHaltung();
+		d1.prepareStatement("UPDATE aufgaben SET geloescht = ? WHERE projekt = ?;");
+		d1.setLong(1, time);
+		d1.setInt(2, id);
+		d1.update();
+
+		DatenHaltung d2 = new DatenHaltung();
+		d2.prepareStatement("UPDATE person SET geloescht = ? WHERE id = ?;");
+		d2.setLong(1, time);
+		d2.setInt(2, id);
+		d2.update();
+
+		AufgabenNotifier.getInstanz().informListener();
 		ProjektNotifier.getInstanz().informListener();
 	}
 }

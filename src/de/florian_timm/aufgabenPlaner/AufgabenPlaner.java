@@ -19,11 +19,19 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
 
+import de.florian_timm.aufgabenPlaner.entity.ordner.AufgabenOrdner;
+import de.florian_timm.aufgabenPlaner.entity.ordner.PersonenOrdner;
+import de.florian_timm.aufgabenPlaner.entity.ordner.ProjektOrdner;
+import de.florian_timm.aufgabenPlaner.entity.ordner.StatusOrdner;
 import de.florian_timm.aufgabenPlaner.gui.AufgabenPlanerGUI;
 import de.florian_timm.aufgabenPlaner.kontroll.ErrorNotifier;
+import de.florian_timm.aufgabenPlaner.schnittstelle.DatenHaltung;
 
 public class AufgabenPlaner implements ActionListener, WindowListener {
 	private static AufgabenPlanerGUI gui;
@@ -46,7 +54,12 @@ public class AufgabenPlaner implements ActionListener, WindowListener {
 
 	public AufgabenPlaner(String dateiname) {
 		pruefeZweite();
-		gui = new AufgabenPlanerGUI(this, dateiname);
+
+		DatenHaltung.setSourceFile(dateiname);
+
+		autoReload(false);
+
+		gui = new AufgabenPlanerGUI(this);
 		gui.addWindowListener(this);
 
 		trayIconImage = null;
@@ -58,6 +71,27 @@ public class AufgabenPlaner implements ActionListener, WindowListener {
 			ioe.printStackTrace();
 		}
 		gui.setIconImage(trayIconImage);
+
+		autoReload(false);
+		Timer t = new Timer();
+		t.schedule(new TimerTask() {
+			public void run() {
+				autoReload(true);
+			}
+		}, 20000, 20000);
+
+	}
+
+	private void autoReload(boolean reload) {
+		System.out.println("AutoReload");
+		StatusOrdner.getInstanz().loadData(reload);
+		PersonenOrdner.getInstanz().loadData(reload);
+		ProjektOrdner.getInstanz().loadData(reload);
+		Map<Integer, AufgabenOrdner> aufgabenListen = AufgabenOrdner.getAllAufgabenListen();
+		for (AufgabenOrdner a : aufgabenListen.values()) {
+			a.loadData(reload);
+		}
+
 	}
 
 	private void makeTrayIcon() {
@@ -105,12 +139,14 @@ public class AufgabenPlaner implements ActionListener, WindowListener {
 	}
 
 	private void removeTrayIcon() {
-		if (!inTray)
-			return;
-		gui.setState(Frame.NORMAL);
-		tray.remove(trayIcon);
-		gui.setVisible(true);
-		inTray = false;
+		if (inTray) {
+			gui.setState(Frame.NORMAL);
+			tray.remove(trayIcon);
+			gui.setVisible(true);
+			inTray = false;
+		}
+		if (gui != null)
+			gui.requestFocus();
 	}
 
 	@Override
@@ -128,10 +164,12 @@ public class AufgabenPlaner implements ActionListener, WindowListener {
 
 	public void close() {
 		removeTrayIcon();
-		gui.close();
+		if (gui != null)
+			gui.close();
 		try {
 			running = false;
-			thread.interrupt();
+			if (thread != null)
+				thread.interrupt();
 			serverSocket.close();
 		} catch (IOException e) {
 			ErrorNotifier.log(e);
@@ -141,7 +179,7 @@ public class AufgabenPlaner implements ActionListener, WindowListener {
 
 	@Override
 	public void windowActivated(WindowEvent arg0) {
-		//removeTrayIcon();
+		// removeTrayIcon();
 	}
 
 	@Override
@@ -157,7 +195,7 @@ public class AufgabenPlaner implements ActionListener, WindowListener {
 
 	@Override
 	public void windowDeactivated(WindowEvent arg0) {
-		//makeTrayIcon();
+		// makeTrayIcon();
 	}
 
 	@Override
@@ -208,7 +246,7 @@ public class AufgabenPlaner implements ActionListener, WindowListener {
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
-			System.exit(0);
+			// System.exit(0);
 		}
 	}
 }

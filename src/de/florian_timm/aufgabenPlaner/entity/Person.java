@@ -103,7 +103,10 @@ public class Person extends Entity implements Comparable<Person> {
 
 	@Override
 	public void update(Entity neu) {
-		// TODO Auto-generated method stub
+		Person p = (Person) neu;
+		this.vorname = p.getVorname();
+		this.name = p.getNachName();
+		this.email = p.getEmail();
 	}
 
 }

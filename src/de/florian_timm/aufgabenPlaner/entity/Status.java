@@ -1,14 +1,6 @@
 package de.florian_timm.aufgabenPlaner.entity;
 
-import de.florian_timm.aufgabenPlaner.schnittstelle.DatenHaltung;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
 public class Status extends EntitySortierung {
-	private static Map<Integer, Status> alle = new HashMap<Integer, Status>();
 	private String bezeichnung;
 	private int sortierung;
 
@@ -18,53 +10,6 @@ public class Status extends EntitySortierung {
 		this.sortierung = sortierung;
 	}
 
-	public static Status getStatus(int id) {
-		checkStatus();
-		return alle.get(id);
-	}
-
-	private static void checkStatus() {
-		if (alle.size() == 0) {
-			loadStatus();
-		}
-	}
-
-	private static void loadStatus() {
-		alle.clear();
-
-		DatenHaltung d = new DatenHaltung();
-		d.query("SELECT * FROM status;");
-
-		while (d.next()) {
-			int dbId = d.getInt("id");
-			String bezeichnung = d.getString("bezeichnung");
-			int sortierung = d.getInt("sortierung");
-
-			alle.put(dbId, new Status(dbId, bezeichnung, sortierung));
-		}
-	}
-
-	public static void createTable() {
-		new DatenHaltung(true).update("CREATE TABLE IF NOT EXISTS status (id INTEGER PRIMARY KEY, "
-				+ "bezeichnung TEXT UNIQUE NOT NULL, sortierung INTEGER);");
-
-		new DatenHaltung(true).update(
-				"INSERT INTO status (bezeichnung, sortierung) VALUES ('fertig', 100), ('nicht angefangen', 0), ('halbfertig',50);");
-	}
-
-	public static Status[] getArray() {
-		checkStatus();
-		Status[] a = new Status[alle.size()];
-		int i = 0;
-		Iterator<?> it = alle.entrySet().iterator();
-		while (it.hasNext()) {
-			@SuppressWarnings("unchecked")
-			Map.Entry<Integer, Status> pair = (Map.Entry<Integer, Status>) it.next();
-			a[i++] = pair.getValue();
-		}
-		Arrays.sort(a);
-		return a;
-	}
 
 	public String toString() {
 		return bezeichnung;

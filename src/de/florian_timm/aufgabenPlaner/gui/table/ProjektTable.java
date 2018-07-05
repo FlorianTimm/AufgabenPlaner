@@ -65,6 +65,7 @@ public class ProjektTable extends Table implements MouseListener, EntityListener
 
 	private void openProjekt(Projekt projekt) {
 		Window topFrame = SwingUtilities.windowForComponent(this);
+		System.out.println(projekt.getTitel());
 		new ProjektViewGUI(topFrame, projekt);
 	}
 

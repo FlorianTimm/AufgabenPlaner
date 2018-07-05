@@ -2,7 +2,6 @@ package de.florian_timm.aufgabenPlaner.entity.ordner;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import de.florian_timm.aufgabenPlaner.entity.Entity;
 import de.florian_timm.aufgabenPlaner.kontroll.OrdnerNotifier;
 
@@ -19,7 +18,9 @@ public abstract class Ordner {
 		return false;
 	}
 	
-	protected abstract boolean loadData();
+	protected abstract boolean loadData(boolean reload);
+	
+	abstract public void removeFromDB(int id);
 	
 	//protected abstract Entity getEntityFromResult(DatenHaltung d);
 
@@ -43,14 +44,6 @@ public abstract class Ordner {
 			return false;
 		}
 		alt.update(neu);
-		return true;
-	}
-	
-	protected boolean checkLoading() {
-		if (lastUpdate == 0) {
-			loadData();
-			return false;
-		}
 		return true;
 	}
 

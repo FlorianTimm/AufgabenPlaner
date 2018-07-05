@@ -2,7 +2,6 @@ package de.florian_timm.aufgabenPlaner.gui;
 
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.event.WindowListener;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -17,7 +16,6 @@ import de.florian_timm.aufgabenPlaner.gui.panels.ProjektUebersichtPanel;
 import de.florian_timm.aufgabenPlaner.gui.table.Table;
 import de.florian_timm.aufgabenPlaner.kontroll.ErrorNotifier;
 import de.florian_timm.aufgabenPlaner.kontroll.ErrorListener;
-import de.florian_timm.aufgabenPlaner.schnittstelle.DatenHaltung;
 
 public class AufgabenPlanerGUI extends JFrame implements ErrorListener {
 
@@ -31,14 +29,11 @@ public class AufgabenPlanerGUI extends JFrame implements ErrorListener {
 	private OffeneAufgabenPanel offeneAufgabenPanel;
 	private AufgabenPlaner ap;
 
-
-	public AufgabenPlanerGUI(AufgabenPlaner ap, String dateiname) {
+	public AufgabenPlanerGUI(AufgabenPlaner ap) {
 
 		super("AufgabenPlaner");
 		this.ap = ap;
 		ErrorNotifier.addListener(this);
-
-		DatenHaltung.setSourceFile(dateiname);
 
 		String username = System.getProperty("user.name");
 		int counter = 0;
@@ -49,7 +44,7 @@ public class AufgabenPlanerGUI extends JFrame implements ErrorListener {
 			pgui.setVisible(true);
 			counter++;
 			if (counter > 2) {
-				close();
+				ap.close();
 			}
 		}
 		PersonenOrdner.getInstanz().setNutzer(nutzer);
@@ -75,15 +70,19 @@ public class AufgabenPlanerGUI extends JFrame implements ErrorListener {
 		this.setVisible(true);
 
 	}
-	
+
 	public void exit() {
 		ap.close();
 	}
 
 	public void close() {
-		projektUerbersichtPanel.close();
-		projektMeinePanel.close();
-		offeneAufgabenPanel.close();
+
+		if (projektUerbersichtPanel != null)
+			projektUerbersichtPanel.close();
+		if (projektMeinePanel != null)
+			projektMeinePanel.close();
+		if (offeneAufgabenPanel != null)
+			offeneAufgabenPanel.close();
 	}
 
 	@Override

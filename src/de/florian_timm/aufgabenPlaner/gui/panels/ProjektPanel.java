@@ -66,7 +66,7 @@ public class ProjektPanel extends JPanel implements ActionListener {
 
 		JLabel zustaendigLabel = new JLabel("Zuständig");
 		zustaendigField = new PersonChooser();
-		
+
 		JButton neuPerson = new JButton("neu...");
 		neuPerson.addActionListener(this);
 		neuPerson.setActionCommand("neuePerson");
@@ -83,6 +83,8 @@ public class ProjektPanel extends JPanel implements ActionListener {
 
 		JButton okButton = new JButton("Speichern");
 		okButton.addActionListener(this);
+		JButton delButton = new JButton("Löschen");
+		delButton.addActionListener(this);
 
 		GroupLayout layout = new GroupLayout(this);
 		layout.setAutoCreateGaps(true);
@@ -92,12 +94,12 @@ public class ProjektPanel extends JPanel implements ActionListener {
 		layout.setHorizontalGroup(layout.createSequentialGroup()
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(titelLabel)
 						.addComponent(beschreibungLabel).addComponent(prioLabel).addComponent(zustaendigLabel)
-						.addComponent(auftraggeberLabel).addComponent(kostentraegerLabel)
-						.addComponent(faelligkeitLabel))
+						.addComponent(auftraggeberLabel).addComponent(kostentraegerLabel).addComponent(faelligkeitLabel)
+						.addComponent(okButton))
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(titelField)
 						.addComponent(jsp).addComponent(prioField).addComponent(zustaendigField)
 						.addComponent(auftraggeberField).addComponent(kostentraegerField).addComponent(faelligkeitField)
-						.addComponent(okButton))
+						.addComponent(delButton))
 				.addComponent(neuPerson));
 
 		layout.setVerticalGroup(layout.createSequentialGroup()
@@ -115,7 +117,8 @@ public class ProjektPanel extends JPanel implements ActionListener {
 						.addComponent(kostentraegerField))
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(faelligkeitLabel)
 						.addComponent(faelligkeitField))
-				.addComponent(okButton));
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(okButton)
+						.addComponent(delButton)));
 	}
 
 	public void makeProjekt() {
@@ -126,7 +129,8 @@ public class ProjektPanel extends JPanel implements ActionListener {
 		Person auftraggeber = (Person) this.auftraggeberField.getSelectedItem();
 		Kostentraeger kostentraeger = (Kostentraeger) this.kostentraegerField.getSelectedItem();
 		Date faelligkeit = (Date) this.faelligkeitField.getModel().getValue();
-		ProjektOrdner.getInstanz().makeProjekt(titel, beschreibung, prio, zustaendig, kostentraeger, faelligkeit, auftraggeber);
+		ProjektOrdner.getInstanz().makeProjekt(titel, beschreibung, prio, zustaendig, kostentraeger, faelligkeit,
+				auftraggeber);
 	}
 
 	public void setWindow2Close(Window window) {
@@ -166,6 +170,6 @@ public class ProjektPanel extends JPanel implements ActionListener {
 	public void close() {
 		auftraggeberField.close();
 		zustaendigField.close();
-		
+
 	}
 }

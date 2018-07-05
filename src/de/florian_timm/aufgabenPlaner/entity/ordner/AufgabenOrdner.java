@@ -3,6 +3,7 @@ package de.florian_timm.aufgabenPlaner.entity.ordner;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -16,18 +17,25 @@ import de.florian_timm.aufgabenPlaner.entity.Projekt;
 import de.florian_timm.aufgabenPlaner.entity.Status;
 import de.florian_timm.aufgabenPlaner.kontroll.AufgabenNotifier;
 import de.florian_timm.aufgabenPlaner.kontroll.ErrorNotifier;
+import de.florian_timm.aufgabenPlaner.kontroll.ProjektNotifier;
 import de.florian_timm.aufgabenPlaner.schnittstelle.DatenHaltung;
 
 public class AufgabenOrdner extends Ordner {
 	private Projekt projekt;
 	private static Map<Integer, AufgabenOrdner> aufgabenListen = new HashMap<Integer, AufgabenOrdner>();
 
+	public static Map<Integer, AufgabenOrdner> getAllAufgabenListen() {
+		return aufgabenListen;
+	}
+
 	private AufgabenOrdner(Projekt projekt) {
 		alle = new HashMap<Integer, Entity>();
+		notifier = AufgabenNotifier.getInstanz();
 		this.projekt = projekt;
 	}
 
 	public static AufgabenOrdner getInstanz(Projekt projekt) {
+		projekt.getId();
 		if (aufgabenListen.containsKey(projekt.getId())) {
 			return aufgabenListen.get(projekt.getId());
 		} else {
@@ -38,44 +46,55 @@ public class AufgabenOrdner extends Ordner {
 	}
 
 	public Map<Integer, Entity> getAufgaben() {
-		loadData();
+		loadData(true);
 		return alle;
 	}
 
-	public boolean loadData() {
-		String sql = "SELECT * FROM aufgabe where projekt = ?;";
+	public boolean loadData(boolean reload) {
+		String sql = "SELECT * FROM aufgabe where projekt = ? AND ";
+		if (reload) {
+			sql += "(bearbeitet > ? OR geloescht > ? OR storniert > ?);";
+		} else {
+			sql += "geloescht IS NULL AND storniert IS NULL;";
+		}
 		DatenHaltung d = new DatenHaltung();
 		d.prepareStatement(sql);
 		d.setInt(1, projekt.getId());
+		if (reload) {
+			d.setLong(2, lastUpdate);
+			d.setLong(3, lastUpdate);
+			d.setLong(4, lastUpdate);
+		}
 		boolean dataChanged = false;
-		
+
 		while (d.next()) {
 			long geloescht = d.getLong("geloescht");
-			long archiviert = d.getLong("archiviert");
+			long storniert = d.getLong("storniert");
 			long bearbeitet = d.getLong("bearbeitet");
 			int id = d.getInt("id");
-			System.out.println(d.getString("titel"));
 
-			if (geloescht > 0 || archiviert > 0) {
+			if (geloescht > 0 || storniert > 0) {
 				if (alle.containsKey(id)) {
 					if (this.remove(id))
 						dataChanged = true;
 				}
 			} else {
-				Projekt p = (Projekt) getEntityFromResult(d);
+				Aufgabe p = (Aufgabe) getEntityFromResult(d);
 				if (this.add(p)) {
 					dataChanged = true;
 				}
 			}
-			lastUpdate = Math.max(Math.max(lastUpdate, geloescht), Math.max(bearbeitet, archiviert));
+			lastUpdate = Math.max(Math.max(lastUpdate, geloescht), Math.max(bearbeitet, storniert));
 		}
+
 		System.out.println("Anzahl Aufgaben: " + alle.size());
-		
-		if (dataChanged) {
+
+		if (dataChanged && reload) {
 			notifier.informListener();
+		} else if (dataChanged) {
 			return true;
 		}
-		return false;
+		return dataChanged;
 	}
 
 	public static List<Aufgabe> getOffeneAufgaben(Person person) {
@@ -88,6 +107,7 @@ public class AufgabenOrdner extends Ordner {
 		while (c.next()) {
 			int projektId = c.getInt("projekt");
 			Projekt projekt = ProjektOrdner.getInstanz().get(projektId);
+			projekt.getId();
 			Aufgabe a = (Aufgabe) getEntityFromResult(c);
 			AufgabenOrdner.getInstanz(projekt).add(a);
 			aufgaben.add(a);
@@ -110,7 +130,7 @@ public class AufgabenOrdner extends Ordner {
 		} catch (NullPointerException | ParseException e) {
 			ErrorNotifier.log(e);
 		}
-		Status status = Status.getStatus(rs.getInt("status"));
+		Status status = StatusOrdner.getInstanz().getStatus(rs.getInt("status"));
 
 		Aufgabe a = new Aufgabe(dbId, bearbeiter, titel, beschreibung, faelligkeit, status,
 				ProjektOrdner.getInstanz().get(projektId));
@@ -120,16 +140,16 @@ public class AufgabenOrdner extends Ordner {
 
 	public static void createTable() {
 		new DatenHaltung(true).update("CREATE TABLE IF NOT EXISTS aufgabe (" + "id INTEGER PRIMARY KEY, "
-				+ "projekt INTEGER NOT NULL," + "person INTEGER NOT NULL," + "titel	TEXT NOT NULL, "
-				+ "beschreibung TEXT NOT NULL, " + "faelligkeit DATE," + "erstellt DATE NOT NULL,"
-				+ "status INTEGER NOT NULL," + "storniert BOOLEAN," + "FOREIGN KEY (person) REFERENCES person(id),"
-				+ "FOREIGN KEY (projekt) REFERENCES projekt(id)," + "FOREIGN KEY (status) REFERENCES status(id)"
-				+ ");");
+				+ "projekt INTEGER NOT NULL, person INTEGER NOT NULL, titel	TEXT NOT NULL, "
+				+ "beschreibung TEXT NOT NULL, faelligkeit DATE, erstellt INTEGER, bearbeitet INTEGER, "
+				+ "geloescht INTEGER, storniert INTEGER, status INTEGER NOT NULL, "
+				+ "PRIMARY KEY(`id`), FOREIGN KEY (person) REFERENCES person(id),"
+				+ "FOREIGN KEY (projekt) REFERENCES projekt(id), FOREIGN KEY (status) REFERENCES status(id)" + ");");
 	}
 
 	public void makeAufgabe(Projekt projekt, String titel, String beschreibung, Person bearbeiter, Date faelligkeit,
 			Status status) {
-		String sql = "INSERT INTO aufgabe (titel, beschreibung, person, faelligkeit, status, projekt, erstellt) VALUES (?,?,?,?,?, ?, ?);";
+		String sql = "INSERT INTO aufgabe (titel, beschreibung, person, faelligkeit, status, projekt, erstellt, bearbeitet) VALUES (?,?,?,?,?, ?, ?, ?);";
 
 		DatenHaltung d = new DatenHaltung(true);
 		d.prepareStatement(sql);
@@ -139,14 +159,16 @@ public class AufgabenOrdner extends Ordner {
 		d.setString(4, new SimpleDateFormat("yyyy-MM-dd").format(faelligkeit));
 		d.setInt(5, status.getId());
 		d.setInt(6, projekt.getId());
-		d.setString(7, new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
+		long time = Instant.now().getEpochSecond();
+		d.setLong(7, time);
+		d.setLong(8, time);
 		d.update();
 
 		AufgabenNotifier.getInstanz().informListener();
 	}
 
 	public void update(Aufgabe aufgabe) {
-		String sql = "UPDATE aufgabe SET titel = ?, beschreibung = ?, person = ?, faelligkeit = ?, status = ? WHERE id = ?;";
+		String sql = "UPDATE aufgabe SET titel = ?, beschreibung = ?, person = ?, faelligkeit = ?, status = ?, bearbeitet = ? WHERE id = ?;";
 
 		DatenHaltung d = new DatenHaltung(true);
 		d.prepareStatement(sql);
@@ -156,8 +178,22 @@ public class AufgabenOrdner extends Ordner {
 		d.setString(4, new SimpleDateFormat("yyyy-MM-dd").format(aufgabe.getFaelligkeit()));
 		d.setInt(5, aufgabe.getStatus().getId());
 		d.setInt(6, aufgabe.getId());
+		long time = Instant.now().getEpochSecond();
+		d.setLong(7, time);
 		d.update();
 		AufgabenNotifier.getInstanz().informListener();
 	}
 
+	@Override
+	public void removeFromDB(int id) {
+		long time = Instant.now().getEpochSecond();
+		DatenHaltung d1 = new DatenHaltung();
+		d1.prepareStatement("UPDATE aufgaben SET geloescht = ? WHERE id = ?;");
+		d1.setLong(1, time);
+		d1.setInt(2, id);
+		d1.update();
+
+		AufgabenNotifier.getInstanz().informListener();
+		ProjektNotifier.getInstanz().informListener();
+	}
 }

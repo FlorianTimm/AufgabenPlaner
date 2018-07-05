@@ -5,6 +5,7 @@ import de.florian_timm.aufgabenPlaner.entity.Person;
 import de.florian_timm.aufgabenPlaner.entity.Projekt;
 import de.florian_timm.aufgabenPlaner.entity.Status;
 import de.florian_timm.aufgabenPlaner.entity.ordner.AufgabenOrdner;
+import de.florian_timm.aufgabenPlaner.entity.ordner.StatusOrdner;
 import de.florian_timm.aufgabenPlaner.gui.comp.PersonChooser;
 import de.florian_timm.aufgabenPlaner.kontroll.PersonenNotifier;
 
@@ -38,8 +39,8 @@ public class AufgabenGUI extends JDialog implements ActionListener {
 	public AufgabenGUI(Window window, Aufgabe aufgabe) {
 		super(window, "Aufgabe bearbeiten");
 		makeWindow(window);
-		this.aufgabe = aufgabe;	
-		
+		this.aufgabe = aufgabe;
+
 		System.out.println(aufgabe);
 
 		titelField.setText(aufgabe.toString());
@@ -77,7 +78,7 @@ public class AufgabenGUI extends JDialog implements ActionListener {
 		faelligkeitField = new JDatePicker(eineWoche);
 
 		JLabel statusLabel = new JLabel("Status");
-		statusField = new JComboBox<Status>(Status.getArray());
+		statusField = new JComboBox<Status>(StatusOrdner.getInstanz().getArray());
 
 		JButton okButton = new JButton("Speichern");
 		okButton.addActionListener(this);

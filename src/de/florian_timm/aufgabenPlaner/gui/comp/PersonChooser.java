@@ -1,7 +1,6 @@
 package de.florian_timm.aufgabenPlaner.gui.comp;
 
 import java.awt.Window;
-import javax.swing.ComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.SwingUtilities;
 
@@ -56,18 +55,6 @@ public class PersonChooser extends JComboBox<Person> implements EntityListener {
 			close();
 		}
 
-	}
-
-	public void setSelectedItem(Person s) {
-		preSelect = s.getId();
-		ComboBoxModel<Person> model = this.getModel();
-		for (int i = 0; i < model.getSize(); i++) {
-			Person p = model.getElementAt(i);
-			if (p.getId() == s.getId()) {
-				this.setSelectedIndex(i);
-				return;
-			}
-		}
 	}
 
 	public void close() {
