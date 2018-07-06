@@ -1,6 +1,8 @@
 package de.florian_timm.aufgabenPlaner.entity;
 
 import de.florian_timm.aufgabenPlaner.entity.ordner.AufgabenOrdner;
+import de.florian_timm.aufgabenPlaner.entity.ordner.PersonenOrdner;
+
 import java.util.Date;
 
 public class Aufgabe extends Entity {
@@ -11,9 +13,10 @@ public class Aufgabe extends Entity {
 	private Date faelligkeit;
 	private Status status;
 	private Projekt projekt;
+	private Person bearbeitetVon;
 
 	public Aufgabe(int dbId, Person bearbeiter, String titel, String beschreibung, Date faelligkeit, Status status,
-			Projekt projekt) {
+			Projekt projekt, Person bearbeitetVon) {
 		this.dbId = dbId;
 		this.bearbeiter = bearbeiter;
 		this.titel = titel;
@@ -22,6 +25,7 @@ public class Aufgabe extends Entity {
 		this.faelligkeit = faelligkeit;
 		this.status = status;
 		this.projekt = projekt;
+		this.bearbeitetVon = bearbeitetVon;
 	}
 
 	public String getTitel() {
@@ -63,13 +67,19 @@ public class Aufgabe extends Entity {
 	public Projekt getProjekt() {
 		return projekt;
 	}
+	
+	public Person getBearbeitetVon() {
+		return bearbeitetVon;
+	}
 
-	public void update(Aufgabe aufgabe) {
-		this.bearbeiter = aufgabe.getBearbeiter();
-		this.titel = aufgabe.getTitel();
-		this.beschreibung = aufgabe.getBeschreibung();
-		this.faelligkeit = aufgabe.getFaelligkeit();
-		this.status = aufgabe.getStatus();
+	public void update(Entity aufgabe) {
+		Aufgabe aufgabeC = (Aufgabe) aufgabe;
+		this.bearbeiter = aufgabeC.getBearbeiter();
+		this.titel = aufgabeC.getTitel();
+		this.beschreibung = aufgabeC.getBeschreibung();
+		this.faelligkeit = aufgabeC.getFaelligkeit();
+		this.status = aufgabeC.getStatus();
+		this.bearbeitetVon = aufgabeC.getBearbeitetVon();
 	}
 
 	public void updateDB(String titel, String beschreibung, Person bearbeiter, Date faelligkeit, Status status) {
@@ -78,6 +88,7 @@ public class Aufgabe extends Entity {
 		this.beschreibung = beschreibung;
 		this.faelligkeit = faelligkeit;
 		this.status = status;
+		this.bearbeitetVon = PersonenOrdner.getInstanz().getNutzer();
 		AufgabenOrdner.getInstanz(projekt).update(this);
 	}
 
@@ -86,6 +97,7 @@ public class Aufgabe extends Entity {
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + ((bearbeiter == null) ? 0 : bearbeiter.hashCode());
+		result = prime * result + ((bearbeitetVon == null) ? 0 : bearbeitetVon.hashCode());
 		result = prime * result + ((beschreibung == null) ? 0 : beschreibung.hashCode());
 		result = prime * result + ((erstellt == null) ? 0 : erstellt.hashCode());
 		result = prime * result + ((faelligkeit == null) ? 0 : faelligkeit.hashCode());
@@ -108,6 +120,11 @@ public class Aufgabe extends Entity {
 			if (other.bearbeiter != null)
 				return false;
 		} else if (!bearbeiter.equals(other.bearbeiter))
+			return false;
+		if (bearbeitetVon == null) {
+			if (other.bearbeitetVon != null)
+				return false;
+		} else if (!bearbeitetVon.equals(other.bearbeitetVon))
 			return false;
 		if (beschreibung == null) {
 			if (other.beschreibung != null)
@@ -142,12 +159,5 @@ public class Aufgabe extends Entity {
 		return true;
 	}
 
-	@Override
-	public void update(Entity neu) {
-		// TODO Auto-generated method stub
-		
-	}
-
-
-
+	
 }

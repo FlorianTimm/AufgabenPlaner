@@ -18,9 +18,10 @@ public class Projekt extends Entity {
 	private Person auftraggeber;
 	private int status;
 	private AufgabenOrdner aufgaben;
+	private Person bearbeitetVon;
 
 	public Projekt(int dbId, String titel, String beschreibung, Person zustaendig, Prioritaet prioritaet, Date erstellt,
-			Date faelligkeit, Kostentraeger kostentraeger, boolean archiviert, Person auftraggeber, int status) {
+			Date faelligkeit, Kostentraeger kostentraeger, boolean archiviert, Person auftraggeber, int status, Person bearbeitetVon) {
 		this.dbId = dbId;
 		this.titel = titel;
 		this.auftraggeber = auftraggeber;
@@ -32,6 +33,7 @@ public class Projekt extends Entity {
 		this.faelligkeit = faelligkeit;
 		this.status = status;
 		this.aufgaben = AufgabenOrdner.getInstanz(this);
+		this.bearbeitetVon = bearbeitetVon;
 	}
 
 	public String getTitel() {
@@ -73,6 +75,10 @@ public class Projekt extends Entity {
 	public int getStatus() {
 		return status;
 	}
+	
+	public Person getBearbeitetVon() {
+		return bearbeitetVon;
+	}
 
 
 
@@ -87,6 +93,7 @@ public class Projekt extends Entity {
 		this.erstellt = p.erstellt;
 		this.faelligkeit = p.faelligkeit;
 		this.status = p.status;
+		this.bearbeitetVon = p.bearbeitetVon;
 	}
 
 	public Map<Integer, Entity> getAufgaben() {
@@ -94,7 +101,7 @@ public class Projekt extends Entity {
 	}
 
 	public void updateDB(String titel, String beschreibung, Prioritaet prio, Person zustaendig,
-			Kostentraeger kostentraeger, Date faelligkeit, Person auftraggeber) {
+			Kostentraeger kostentraeger, Date faelligkeit, Person auftraggeber, Person bearbeitetVon) {
 		this.titel = titel;
 		this.beschreibung = beschreibung;
 		this.zustaendig = zustaendig;
@@ -102,6 +109,7 @@ public class Projekt extends Entity {
 		this.prioritaet = prio;
 		this.faelligkeit = faelligkeit;
 		this.auftraggeber = auftraggeber;
+		this.bearbeitetVon = bearbeitetVon;
 		ProjektOrdner.getInstanz().updateDB(this);
 		
 	}
@@ -116,7 +124,9 @@ public class Projekt extends Entity {
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + (archiviert ? 1231 : 1237);
+		result = prime * result + ((aufgaben == null) ? 0 : aufgaben.hashCode());
 		result = prime * result + ((auftraggeber == null) ? 0 : auftraggeber.hashCode());
+		result = prime * result + ((bearbeitetVon == null) ? 0 : bearbeitetVon.hashCode());
 		result = prime * result + ((beschreibung == null) ? 0 : beschreibung.hashCode());
 		result = prime * result + ((erstellt == null) ? 0 : erstellt.hashCode());
 		result = prime * result + ((faelligkeit == null) ? 0 : faelligkeit.hashCode());
@@ -139,10 +149,20 @@ public class Projekt extends Entity {
 		Projekt other = (Projekt) obj;
 		if (archiviert != other.archiviert)
 			return false;
+		if (aufgaben == null) {
+			if (other.aufgaben != null)
+				return false;
+		} else if (!aufgaben.equals(other.aufgaben))
+			return false;
 		if (auftraggeber == null) {
 			if (other.auftraggeber != null)
 				return false;
 		} else if (!auftraggeber.equals(other.auftraggeber))
+			return false;
+		if (bearbeitetVon == null) {
+			if (other.bearbeitetVon != null)
+				return false;
+		} else if (!bearbeitetVon.equals(other.bearbeitetVon))
 			return false;
 		if (beschreibung == null) {
 			if (other.beschreibung != null)
@@ -183,4 +203,6 @@ public class Projekt extends Entity {
 			return false;
 		return true;
 	}
+
+	
 }

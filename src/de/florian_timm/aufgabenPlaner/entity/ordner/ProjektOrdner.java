@@ -12,6 +12,7 @@ import de.florian_timm.aufgabenPlaner.entity.Kostentraeger;
 import de.florian_timm.aufgabenPlaner.entity.Person;
 import de.florian_timm.aufgabenPlaner.entity.Prioritaet;
 import de.florian_timm.aufgabenPlaner.entity.Projekt;
+import de.florian_timm.aufgabenPlaner.SystemLeistenIcon;
 import de.florian_timm.aufgabenPlaner.entity.Entity;
 import de.florian_timm.aufgabenPlaner.kontroll.AufgabenNotifier;
 import de.florian_timm.aufgabenPlaner.kontroll.ProjektNotifier;
@@ -34,7 +35,7 @@ public class ProjektOrdner extends Ordner {
 
 	public static Projekt[] getByUser(Person person) {
 		List<Projekt> projekte = new ArrayList<Projekt>();
-		String sql = "SELECT p.*, AVG(s.sortierung) as status FROM projekt as p LEFT JOIN aufgabe as a ON p.id = a.projekt LEFT JOIN status as s ON a.status = s.id WHERE p.auftraggeber = ? OR p.zustaendig = ? GROUP BY p.id;";
+		String sql = "SELECT p.*, AVG(s.sortierung) as status FROM projekt as p LEFT JOIN aufgabe as a ON a.geloescht IS NULL AND a.storniert IS NULL AND p.id = a.projekt LEFT JOIN status as s ON a.status = s.id WHERE p.geloescht IS NULL AND p.archiviert IS NULL AND (p.auftraggeber = ? OR p.zustaendig = ?) GROUP BY p.id;";
 
 		DatenHaltung d = new DatenHaltung();
 		d.prepareStatement(sql);
@@ -51,33 +52,34 @@ public class ProjektOrdner extends Ordner {
 	}
 
 	public Projekt get(int projektId) {
-		loadData(true);
+		loadData();
 		return (Projekt) alle.get(projektId);
 	}
 
 	public static void createTable() {
-		new DatenHaltung(true).update("CREATE TABLE `projekt` (" + "	`id`	INTEGER," + "	`titel`	TEXT NOT NULL,"
-				+ "	`beschreibung`	TEXT NOT NULL," + "	`zustaendig`	INTEGER," + "	`prioritaet`	INTEGER,"
-				+ "	`faelligkeit`	DATE," + "	`kostentraeger`	INTEGER," + "	`auftraggeber`	INTEGER,"
-				+ "	`erstellt`	INTEGER," + "	`bearbeitet`	INTEGER," + "	`geloescht`	INTEGER,"
-				+ "	`archiviert`	INTEGER," + "	PRIMARY KEY(`id`),"
-				+ "	FOREIGN KEY(`auftraggeber`) REFERENCES `person`(`id`),"
-				+ "	FOREIGN KEY(`kostentraeger`) REFERENCES `kostentraeger`(`id`),"
-				+ "	FOREIGN KEY(`zustaendig`) REFERENCES `person`(`id`),"
-				+ "	FOREIGN KEY(`prioritaet`) REFERENCES `prioritaet`(`id`)" + ");");
+		new DatenHaltung(true).update("CREATE TABLE projekt (id INTEGER NOT NULL , titel TEXT NOT NULL,"
+				+ "	beschreibung TEXT, zustaendig INTEGER NOT NULL, prioritaet INTEGER NOT NULL,"
+				+ "	faelligkeit DATE, kostentraeger INTEGER, auftraggeber INTEGER,"
+				+ "	erstellt INTEGER NOT NULL, bearbeitet INTEGER NOT NULL, geloescht INTEGER,"
+				+ "	archiviert INTEGER, bearbeitetVon INTEGER NOT NULL, PRIMARY KEY(id),"
+				+ "	FOREIGN KEY(auftraggeber) REFERENCES person(id),"
+				+ "	FOREIGN KEY(kostentraeger) REFERENCES kostentraeger(id),"
+				+ "	FOREIGN KEY(zustaendig) REFERENCES person(id),"
+				+ "	FOREIGN KEY (prioritaet) REFERENCES prioritaet(id),"
+				+ " FOREIGN KEY(bearbeitetVon) REFERENCES person(id));");
 	}
 
 	public Projekt[] getArray() {
-		loadData(true);
+		loadData();
 		Projekt[] p = alle.values().toArray(new Projekt[0]);
 		return p;
 	}
 
-	public boolean loadData(boolean reload) {
+	public boolean loadData() {
 		boolean dataChanged = false;
 		DatenHaltung d = new DatenHaltung();
-		String sql = "SELECT p.*, AVG(s.sortierung) as status FROM projekt as p LEFT JOIN aufgabe as a ON p.id = a.projekt LEFT JOIN status as s ON a.status = s.id WHERE ";
-		if (reload) {
+		String sql = "SELECT p.*, AVG(s.sortierung) as status FROM projekt as p LEFT JOIN aufgabe as a ON a.geloescht IS NULL AND a.storniert IS NULL AND p.id = a.projekt LEFT JOIN status as s ON a.status = s.id WHERE ";
+		if (firstLoaded) {
 			sql += "p.bearbeitet > ? OR p.geloescht > ? OR p.archiviert > ? ";
 
 		} else {
@@ -86,7 +88,7 @@ public class ProjektOrdner extends Ordner {
 		sql += "GROUP BY p.id;";
 		d.prepareStatement(sql);
 
-		if (reload) {
+		if (firstLoaded) {
 			d.setLong(1, lastUpdate);
 			d.setLong(2, lastUpdate);
 			d.setLong(3, lastUpdate);
@@ -112,17 +114,16 @@ public class ProjektOrdner extends Ordner {
 			lastUpdate = Math.max(Math.max(lastUpdate, geloescht), Math.max(bearbeitet, archiviert));
 
 		}
-		if (dataChanged && reload) {
+		if (dataChanged && firstLoaded) {
 			notifier.informListener();
-		} else if (dataChanged) {
-			return true;
 		}
+		firstLoaded = true;
 		return dataChanged;
 	}
 
 	public void makeProjekt(String titel, String beschreibung, Prioritaet prio, Person zustaendig,
 			Kostentraeger kostentraeger, Date faelligkeit, Person auftraggeber) {
-		String sql = "INSERT INTO projekt (titel, beschreibung, prioritaet, zustaendig, kostentraeger, faelligkeit, auftraggeber, erstellt, bearbeitet) VALUES (?,?,?,?,?,?,?,?,?);";
+		String sql = "INSERT INTO projekt (titel, beschreibung, prioritaet, zustaendig, kostentraeger, faelligkeit, auftraggeber, erstellt, bearbeitet, bearbeitetVon) VALUES (?,?,?,?,?,?,?,?,?,?);";
 
 		DatenHaltung c = new DatenHaltung(true);
 		c.prepareStatement(sql);
@@ -136,9 +137,10 @@ public class ProjektOrdner extends Ordner {
 		long time = Instant.now().getEpochSecond();
 		c.setLong(8, time);
 		c.setLong(9, time);
+		c.setInt(10, PersonenOrdner.getInstanz().getNutzer().getId());
 		c.update();
 
-		loadData(true);
+		loadData();
 		ProjektNotifier.getInstanz().informListener();
 	}
 
@@ -164,14 +166,15 @@ public class ProjektOrdner extends Ordner {
 		boolean archiviert = rs.getBoolean("archiviert");
 		Person auftraggeber = PersonenOrdner.getInstanz().getPerson(rs.getInt("auftraggeber"));
 		int status = rs.getInt("status");
+		Person bearbeitetVon = PersonenOrdner.getInstanz().getPerson(rs.getInt("bearbeitetVon"));
 		Projekt p = new Projekt(dbId, titel, beschreibung, zustaendig, prioritaet, erstellt, faelligkeit, kostentraeger,
-				archiviert, auftraggeber, status);
+				archiviert, auftraggeber, status, bearbeitetVon);
 		return p;
 	}
 
 	public void updateDB(Projekt projekt) {
 
-		String sql = "UPDATE projekt SET titel = ?, beschreibung = ?, zustaendig = ?, prioritaet = ?, faelligkeit = ?, kostentraeger = ?, auftraggeber = ?, bearbeitet = ? WHERE id = ?;";
+		String sql = "UPDATE projekt SET titel = ?, beschreibung = ?, zustaendig = ?, prioritaet = ?, faelligkeit = ?, kostentraeger = ?, auftraggeber = ?, bearbeitet = ?, bearbeitetVon = ? WHERE id = ?;";
 
 		DatenHaltung d = new DatenHaltung(true);
 		d.prepareStatement(sql);
@@ -183,7 +186,8 @@ public class ProjektOrdner extends Ordner {
 		d.setInt(6, projekt.getKostentraeger().getId());
 		d.setInt(7, projekt.getAuftraggeber().getId());
 		d.setLong(8, Instant.now().getEpochSecond());
-		d.setInt(9, projekt.getId());
+		d.setInt(9, PersonenOrdner.getInstanz().getNutzer().getId());
+		d.setInt(10, projekt.getId());
 		d.update();
 		ProjektNotifier.getInstanz().informListener();
 	}
@@ -191,19 +195,45 @@ public class ProjektOrdner extends Ordner {
 	@Override
 	public void removeFromDB(int id) {
 		long time = Instant.now().getEpochSecond();
-		DatenHaltung d1 = new DatenHaltung();
-		d1.prepareStatement("UPDATE aufgaben SET geloescht = ? WHERE projekt = ?;");
+		DatenHaltung d1 = new DatenHaltung(true);
+		d1.prepareStatement("UPDATE aufgabe SET geloescht = ?, bearbeitetVon = ? WHERE projekt = ?;");
 		d1.setLong(1, time);
-		d1.setInt(2, id);
+		d1.setInt(2, PersonenOrdner.getInstanz().getNutzer().getId());
+		d1.setInt(3, id);
 		d1.update();
 
-		DatenHaltung d2 = new DatenHaltung();
-		d2.prepareStatement("UPDATE person SET geloescht = ? WHERE id = ?;");
+		DatenHaltung d2 = new DatenHaltung(true);
+		d2.prepareStatement("UPDATE projekt SET geloescht = ?, bearbeitetVon = ? WHERE id = ?;");
 		d2.setLong(1, time);
-		d2.setInt(2, id);
+		d2.setInt(2, PersonenOrdner.getInstanz().getNutzer().getId());
+		d2.setInt(3, id);
 		d2.update();
 
-		AufgabenNotifier.getInstanz().informListener();
+		AufgabenOrdner.removeListe(id);
+		this.remove(id);
+
 		ProjektNotifier.getInstanz().informListener();
+		AufgabenNotifier.getInstanz().informListener();
+	}
+
+	protected void alertNew(Entity p) {
+		Projekt a = (Projekt) p;
+		if ((a.getZustaendig().getId() == PersonenOrdner.getInstanz().getNutzer().getId()
+				|| a.getAuftraggeber().getId() == PersonenOrdner.getInstanz().getNutzer().getId())
+				&& a.getBearbeitetVon().getId() != PersonenOrdner.getInstanz().getNutzer().getId()) {
+			SystemLeistenIcon.getInstanz().makeAlert("Neues Projekt: " + a.getTitel(),
+					"Es wurde ein neues Projekt angelegt:\n" + a.getTitel() + "\n" + a.getBeschreibung());
+		}
+	}
+
+	@Override
+	protected void alertChanged(Entity p) {
+		Projekt a = (Projekt) p;
+		if ((a.getZustaendig().getId() == PersonenOrdner.getInstanz().getNutzer().getId()
+				|| a.getAuftraggeber().getId() == PersonenOrdner.getInstanz().getNutzer().getId())
+				&& a.getBearbeitetVon().getId() != PersonenOrdner.getInstanz().getNutzer().getId()) {
+			SystemLeistenIcon.getInstanz().makeAlert("Verändertes Projekt: " + a.getTitel(),
+					"Es wurde ein Projekt verändert:\n" + a.getTitel() + "\n" + a.getBeschreibung());
+		}
 	}
 }

@@ -25,12 +25,12 @@ public class StatusOrdner extends Ordner {
 
 	public Status getStatus(int id) {
 		if (!alle.containsKey(id)) {
-			loadData(true);
+			loadData();
 		}
 		return (Status) alle.get(id);
 	}
 
-	public boolean loadData(boolean reload) {
+	public boolean loadData() {
 		boolean dataChanged = false;
 		DatenHaltung d = new DatenHaltung();
 		d.prepareStatement("SELECT * FROM status WHERE bearbeitet > ? OR geloescht > ?;");
@@ -54,11 +54,10 @@ public class StatusOrdner extends Ordner {
 			lastUpdate = Math.max(Math.max(lastUpdate, geloescht), bearbeitet);
 
 		}
-		if (dataChanged && reload) {
+		if (dataChanged && firstLoaded) {
 			notifier.informListener();
-		} else if (dataChanged) {
-			return true;
 		}
+		firstLoaded = true;
 		return dataChanged;
 	}
 
@@ -79,11 +78,23 @@ public class StatusOrdner extends Ordner {
 		new DatenHaltung(true).update("CREATE TABLE IF NOT EXISTS status (id INTEGER PRIMARY KEY, "
 				+ "bezeichnung TEXT UNIQUE NOT NULL, sortierung INTEGER, bearbeitet INTEGER NOT NULL, geloescht INTEGER);");
 		new DatenHaltung(true).update(
-				"INSERT INTO status (bezeichnung, sortierung) VALUES ('fertig', 100), ('nicht angefangen', 0), ('halbfertig',50);");
+				"INSERT INTO status (bezeichnung, sortierung, bearbeitet) VALUES ('fertig', 100, 1), ('nicht angefangen', 0, 1), ('halbfertig',50, 1);");
 	}
 
 	@Override
 	public void removeFromDB(int id) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void alertNew(Entity p) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void alertChanged(Entity p) {
 		// TODO Auto-generated method stub
 		
 	}

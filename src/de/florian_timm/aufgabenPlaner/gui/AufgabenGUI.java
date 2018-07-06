@@ -115,15 +115,6 @@ public class AufgabenGUI extends JDialog implements ActionListener {
 		this.setVisible(true);
 	}
 
-	public void makeAufgabe() {
-		String titel = this.titelField.getText();
-		String beschreibung = this.beschreibungField.getText();
-		Person bearbeiter = (Person) this.bearbeiterField.getSelectedItem();
-		Date faelligkeit = (Date) this.faelligkeitField.getModel().getValue();
-		Status status = (Status) this.statusField.getSelectedItem();
-		AufgabenOrdner.getInstanz(projekt).makeAufgabe(projekt, titel, beschreibung, bearbeiter, faelligkeit, status);
-	}
-
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand().equals("Speichern")) {
@@ -139,6 +130,15 @@ public class AufgabenGUI extends JDialog implements ActionListener {
 			PersonGUI pgui = new PersonGUI(this);
 			pgui.setVisible(true);
 		}
+	}
+	
+	public void makeAufgabe() {
+		String titel = this.titelField.getText();
+		String beschreibung = this.beschreibungField.getText();
+		Person bearbeiter = (Person) this.bearbeiterField.getSelectedItem();
+		Date faelligkeit = (Date) this.faelligkeitField.getModel().getValue();
+		Status status = (Status) this.statusField.getSelectedItem();
+		AufgabenOrdner.getInstanz(projekt).makeAufgabe(projekt, titel, beschreibung, bearbeiter, faelligkeit, status);
 	}
 
 	private void updateAufgabe() {

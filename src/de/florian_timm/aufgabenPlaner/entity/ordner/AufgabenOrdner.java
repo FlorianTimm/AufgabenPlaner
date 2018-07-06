@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import de.florian_timm.aufgabenPlaner.SystemLeistenIcon;
 import de.florian_timm.aufgabenPlaner.entity.Aufgabe;
 import de.florian_timm.aufgabenPlaner.entity.Entity;
 import de.florian_timm.aufgabenPlaner.entity.Person;
@@ -45,14 +46,19 @@ public class AufgabenOrdner extends Ordner {
 		}
 	}
 
+	public static void removeListe(int id) {
+		aufgabenListen.get(id).removeAll();
+		aufgabenListen.remove(id);
+	}
+
 	public Map<Integer, Entity> getAufgaben() {
-		loadData(true);
+		loadData();
 		return alle;
 	}
 
-	public boolean loadData(boolean reload) {
+	public boolean loadData() {
 		String sql = "SELECT * FROM aufgabe where projekt = ? AND ";
-		if (reload) {
+		if (firstLoaded) {
 			sql += "(bearbeitet > ? OR geloescht > ? OR storniert > ?);";
 		} else {
 			sql += "geloescht IS NULL AND storniert IS NULL;";
@@ -60,7 +66,7 @@ public class AufgabenOrdner extends Ordner {
 		DatenHaltung d = new DatenHaltung();
 		d.prepareStatement(sql);
 		d.setInt(1, projekt.getId());
-		if (reload) {
+		if (firstLoaded) {
 			d.setLong(2, lastUpdate);
 			d.setLong(3, lastUpdate);
 			d.setLong(4, lastUpdate);
@@ -89,17 +95,16 @@ public class AufgabenOrdner extends Ordner {
 
 		System.out.println("Anzahl Aufgaben: " + alle.size());
 
-		if (dataChanged && reload) {
+		if (dataChanged && firstLoaded) {
 			notifier.informListener();
-		} else if (dataChanged) {
-			return true;
 		}
+		firstLoaded = true;
 		return dataChanged;
 	}
 
 	public static List<Aufgabe> getOffeneAufgaben(Person person) {
 		List<Aufgabe> aufgaben = new ArrayList<Aufgabe>();
-		String sql = "SELECT aufgabe.* FROM aufgabe LEFT JOIN status ON aufgabe.status = status.id where status.sortierung < 100 AND person = ?;";
+		String sql = "SELECT a.* FROM aufgabe a LEFT JOIN status ON a.status = status.id where a.geloescht IS NULL AND a.storniert IS NULL AND status.sortierung < 100 AND a.person = ?;";
 		DatenHaltung c = new DatenHaltung();
 		c.prepareStatement(sql);
 		c.setInt(1, person.getId());
@@ -112,13 +117,12 @@ public class AufgabenOrdner extends Ordner {
 			AufgabenOrdner.getInstanz(projekt).add(a);
 			aufgaben.add(a);
 		}
-		System.out.println("Anzahl Aufgaben: " + aufgaben.size());
 		return aufgaben;
 	}
 
 	private static Entity getEntityFromResult(DatenHaltung rs) {
 		int dbId = rs.getInt("id");
-		int projektId = rs.getInt("projekt");
+		Projekt projekt = ProjektOrdner.getInstanz().get(rs.getInt("projekt"));
 		Person bearbeiter = PersonenOrdner.getInstanz().getPerson(rs.getInt("person"));
 		String titel = rs.getString("titel");
 		String beschreibung = rs.getString("beschreibung");
@@ -131,9 +135,9 @@ public class AufgabenOrdner extends Ordner {
 			ErrorNotifier.log(e);
 		}
 		Status status = StatusOrdner.getInstanz().getStatus(rs.getInt("status"));
+		Person bearbeitetVon = PersonenOrdner.getInstanz().getPerson(rs.getInt("bearbeitetVon"));
 
-		Aufgabe a = new Aufgabe(dbId, bearbeiter, titel, beschreibung, faelligkeit, status,
-				ProjektOrdner.getInstanz().get(projektId));
+		Aufgabe a = new Aufgabe(dbId, bearbeiter, titel, beschreibung, faelligkeit, status, projekt, bearbeitetVon);
 		return a;
 
 	}
@@ -142,14 +146,14 @@ public class AufgabenOrdner extends Ordner {
 		new DatenHaltung(true).update("CREATE TABLE IF NOT EXISTS aufgabe (" + "id INTEGER PRIMARY KEY, "
 				+ "projekt INTEGER NOT NULL, person INTEGER NOT NULL, titel	TEXT NOT NULL, "
 				+ "beschreibung TEXT NOT NULL, faelligkeit DATE, erstellt INTEGER, bearbeitet INTEGER, "
-				+ "geloescht INTEGER, storniert INTEGER, status INTEGER NOT NULL, "
-				+ "PRIMARY KEY(`id`), FOREIGN KEY (person) REFERENCES person(id),"
-				+ "FOREIGN KEY (projekt) REFERENCES projekt(id), FOREIGN KEY (status) REFERENCES status(id)" + ");");
+				+ "geloescht INTEGER, storniert INTEGER, bearbeitetVon INTEGER, status INTEGER NOT NULL, "
+				+ "FOREIGN KEY (person) REFERENCES person(id),"
+				+ "FOREIGN KEY (projekt) REFERENCES projekt(id), FOREIGN KEY (status) REFERENCES status(id), FOREIGN KEY (bearbeitetVon) REFERENCES person(id));");
 	}
 
 	public void makeAufgabe(Projekt projekt, String titel, String beschreibung, Person bearbeiter, Date faelligkeit,
 			Status status) {
-		String sql = "INSERT INTO aufgabe (titel, beschreibung, person, faelligkeit, status, projekt, erstellt, bearbeitet) VALUES (?,?,?,?,?, ?, ?, ?);";
+		String sql = "INSERT INTO aufgabe (titel, beschreibung, person, faelligkeit, status, projekt, erstellt, bearbeitet, bearbeitetVon) VALUES (?,?,?,?,?, ?, ?, ?, ?);";
 
 		DatenHaltung d = new DatenHaltung(true);
 		d.prepareStatement(sql);
@@ -162,14 +166,15 @@ public class AufgabenOrdner extends Ordner {
 		long time = Instant.now().getEpochSecond();
 		d.setLong(7, time);
 		d.setLong(8, time);
+		d.setInt(9, PersonenOrdner.getInstanz().getNutzer().getId());
 		d.update();
 
 		AufgabenNotifier.getInstanz().informListener();
 	}
 
 	public void update(Aufgabe aufgabe) {
-		String sql = "UPDATE aufgabe SET titel = ?, beschreibung = ?, person = ?, faelligkeit = ?, status = ?, bearbeitet = ? WHERE id = ?;";
-
+		String sql = "UPDATE aufgabe SET titel = ?, beschreibung = ?, person = ?, faelligkeit = ?, status = ?, bearbeitet = ?, bearbeitetVon = ? WHERE id = ?;";
+		System.out.println("Aufgabenupdate");
 		DatenHaltung d = new DatenHaltung(true);
 		d.prepareStatement(sql);
 		d.setString(1, aufgabe.getTitel());
@@ -177,9 +182,10 @@ public class AufgabenOrdner extends Ordner {
 		d.setInt(3, aufgabe.getBearbeiter().getId());
 		d.setString(4, new SimpleDateFormat("yyyy-MM-dd").format(aufgabe.getFaelligkeit()));
 		d.setInt(5, aufgabe.getStatus().getId());
-		d.setInt(6, aufgabe.getId());
 		long time = Instant.now().getEpochSecond();
-		d.setLong(7, time);
+		d.setLong(6, time);
+		d.setInt(7, PersonenOrdner.getInstanz().getNutzer().getId());
+		d.setInt(8, aufgabe.getId());
 		d.update();
 		AufgabenNotifier.getInstanz().informListener();
 	}
@@ -188,12 +194,59 @@ public class AufgabenOrdner extends Ordner {
 	public void removeFromDB(int id) {
 		long time = Instant.now().getEpochSecond();
 		DatenHaltung d1 = new DatenHaltung();
-		d1.prepareStatement("UPDATE aufgaben SET geloescht = ? WHERE id = ?;");
+		d1.prepareStatement("UPDATE aufgaben SET geloescht = ?, bearbeitetVon =  WHERE id = ?;");
 		d1.setLong(1, time);
-		d1.setInt(2, id);
+		d1.setInt(2, PersonenOrdner.getInstanz().getNutzer().getId());
+		d1.setInt(3, id);
 		d1.update();
 
 		AufgabenNotifier.getInstanz().informListener();
 		ProjektNotifier.getInstanz().informListener();
 	}
+
+	protected void alertNew(Entity p) {
+		Aufgabe a = (Aufgabe) p;
+		int nid = PersonenOrdner.getInstanz().getNutzer().getId() + 1;
+		if (a.getBearbeiter().getId() == nid && a.getBearbeitetVon().getId() != nid) {
+			SystemLeistenIcon.getInstanz().makeAlert("Neue Aufgabe in " + a.getProjekt().getTitel(),
+					"Es wurde eine neue Aufgabe für Sie angelegt:\n" + a.getTitel() + "\n" + a.getBeschreibung());
+		}
+	}
+
+	@Override
+	protected void alertChanged(Entity p) {
+		Aufgabe a = (Aufgabe) p;
+		int nid = PersonenOrdner.getInstanz().getNutzer().getId() + 1;
+		if (a.getBearbeiter().getId() == nid && a.getBearbeitetVon().getId() != nid) {
+			SystemLeistenIcon.getInstanz().makeAlert("Veränderte Aufgabe in " + a.getProjekt().getTitel(),
+					"Es wurde eine ihrern Aufgabe verändert oder Ihnen neu zugewiesen:\n" + a.getTitel() + "\n"
+							+ a.getBeschreibung());
+		}
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((projekt == null) ? 0 : projekt.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AufgabenOrdner other = (AufgabenOrdner) obj;
+		if (projekt == null) {
+			if (other.projekt != null)
+				return false;
+		} else if (!projekt.equals(other.projekt))
+			return false;
+		return true;
+	}
+
 }

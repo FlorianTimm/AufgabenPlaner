@@ -4,6 +4,7 @@ import de.florian_timm.aufgabenPlaner.entity.Kostentraeger;
 import de.florian_timm.aufgabenPlaner.entity.Person;
 import de.florian_timm.aufgabenPlaner.entity.Prioritaet;
 import de.florian_timm.aufgabenPlaner.entity.Projekt;
+import de.florian_timm.aufgabenPlaner.entity.ordner.PersonenOrdner;
 import de.florian_timm.aufgabenPlaner.entity.ordner.ProjektOrdner;
 import de.florian_timm.aufgabenPlaner.gui.PersonGUI;
 import de.florian_timm.aufgabenPlaner.gui.comp.PersonChooser;
@@ -29,6 +30,7 @@ public class ProjektPanel extends JPanel implements ActionListener {
 	private Projekt projekt = null;
 	private Window window2Close = null;
 	private Window window;
+	private JButton delButton;
 
 	public ProjektPanel(Window window) {
 		this.window = window;
@@ -51,6 +53,8 @@ public class ProjektPanel extends JPanel implements ActionListener {
 		m.setYear(d.get(Calendar.YEAR));
 		m.setMonth(d.get(Calendar.MONTH));
 		m.setDay(d.get(Calendar.DATE));
+
+		delButton.setVisible(true);
 	}
 
 	private void makeWindow() {
@@ -83,8 +87,9 @@ public class ProjektPanel extends JPanel implements ActionListener {
 
 		JButton okButton = new JButton("Speichern");
 		okButton.addActionListener(this);
-		JButton delButton = new JButton("Löschen");
+		delButton = new JButton("Löschen");
 		delButton.addActionListener(this);
+		delButton.setVisible(false);
 
 		GroupLayout layout = new GroupLayout(this);
 		layout.setAutoCreateGaps(true);
@@ -139,19 +144,44 @@ public class ProjektPanel extends JPanel implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getActionCommand().equals("Speichern")) {
-			if (projekt == null) {
-				makeProjekt();
-			} else {
-				updateProjekt();
-			}
-			if (window2Close != null) {
-				window2Close.setVisible(false);
-				window2Close.dispose();
-			}
+		switch (e.getActionCommand()) {
+		case "Speichern":
+			speichern();
+			break;
+		case "neuePerson":
+			neuePerson();
+			break;
+		case "Löschen":
+			löschen();
+			break;
+		}
+	}
+
+	private void löschen() {
+		int ans = JOptionPane.showConfirmDialog(window, "Löschen", "Möchten Sie das Projekt wirklich löschen?",
+				JOptionPane.OK_CANCEL_OPTION);
+		if (ans == JOptionPane.OK_OPTION) {
+			window.setVisible(false);
+			ProjektOrdner.getInstanz().removeFromDB(projekt.getId());
+		}
+	}
+
+	private void neuePerson() {
+		PersonGUI pgui = new PersonGUI(window);
+		pgui.setVisible(true);
+	}
+
+	private void speichern() {
+		if (projekt == null) {
+			makeProjekt();
 		} else {
-			PersonGUI pgui = new PersonGUI(window);
-			pgui.setVisible(true);
+			updateProjekt();
+		}
+		window.setVisible(false);
+		if (window2Close != null) {
+			
+			window2Close.setVisible(false);
+			window2Close.dispose();
 		}
 	}
 
@@ -163,13 +193,13 @@ public class ProjektPanel extends JPanel implements ActionListener {
 		Person auftraggeber = (Person) this.auftraggeberField.getSelectedItem();
 		Kostentraeger kostentraeger = (Kostentraeger) this.kostentraegerField.getSelectedItem();
 		Date faelligkeit = (Date) this.faelligkeitField.getModel().getValue();
-		projekt.updateDB(titel, beschreibung, prio, zustaendig, kostentraeger, faelligkeit, auftraggeber);
-
+		Person bearbeitetVon = PersonenOrdner.getInstanz().getNutzer();
+		projekt.updateDB(titel, beschreibung, prio, zustaendig, kostentraeger, faelligkeit, auftraggeber,
+				bearbeitetVon);
 	}
 
 	public void close() {
 		auftraggeberField.close();
 		zustaendigField.close();
-
 	}
 }

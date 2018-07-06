@@ -18,7 +18,7 @@ public class Table extends JTable {
     @Override
     protected void paintComponent(final Graphics g) {
         super.paintComponent(g);
-        this.resizeTable();
+        //this.resizeTable();
     }
 
     public void resizeTable() {

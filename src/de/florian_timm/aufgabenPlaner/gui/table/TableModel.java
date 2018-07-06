@@ -31,7 +31,10 @@ public abstract class TableModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int reihe, int spalte) {
-        return data[reihe][spalte];
+    	if (data.length > reihe && data[reihe].length > spalte)
+    		//System.out.println(data[reihe][spalte]);
+    		return data[reihe][spalte];
+    	return null;
     }
 
     public void setValueAt(Object value, int row, int column) {

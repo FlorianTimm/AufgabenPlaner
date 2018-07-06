@@ -37,7 +37,7 @@ public class PersonenOrdner extends Ordner {
 	}
 
 	public Person getPerson(String username) {
-		loadData(true);
+		loadData();
 		String sql = "SELECT id FROM person where upper(username) == upper(?) and geloescht IS null;";
 		DatenHaltung d = new DatenHaltung();
 		d.prepareStatement(sql);
@@ -47,14 +47,13 @@ public class PersonenOrdner extends Ordner {
 			int id = d.getInt("id");
 			return getPerson(id);
 		}
-
+		d.close();
 		return null;
 	}
 
 	public Person getPerson(int id) {
-		System.out.println("Nutzer: " + alle.containsKey(id));
 		if (!alle.containsKey(id)) {
-			loadData(true);
+			loadData();
 		}
 		return (Person) alle.get(id);
 	}
@@ -69,7 +68,7 @@ public class PersonenOrdner extends Ordner {
 		return p;
 	}
 
-	public boolean loadData(boolean reload) {
+	public boolean loadData() {
 		boolean dataChanged = false;
 		DatenHaltung d = new DatenHaltung();
 		d.prepareStatement("SELECT * FROM person WHERE bearbeitet > ? OR geloescht > ?;");
@@ -93,11 +92,11 @@ public class PersonenOrdner extends Ordner {
 			lastUpdate = Math.max(Math.max(lastUpdate, geloescht), bearbeitet);
 
 		}
-		if (dataChanged && reload) {
+		if (dataChanged && firstLoaded) {
 			notifier.informListener();
-		} else if (dataChanged) {
-			return true;
 		}
+		d.close();
+		firstLoaded = true;
 		return dataChanged;
 	}
 
@@ -144,5 +143,17 @@ public class PersonenOrdner extends Ordner {
 	@Override
 	public void removeFromDB(int id) {
 		// TODO Auto-generated method stub
+	}
+
+	@Override
+	protected void alertNew(Entity p) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	protected void alertChanged(Entity p) {
+		// TODO Auto-generated method stub
+
 	}
 }

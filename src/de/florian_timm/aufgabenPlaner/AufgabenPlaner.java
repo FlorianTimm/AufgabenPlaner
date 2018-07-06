@@ -1,14 +1,6 @@
 package de.florian_timm.aufgabenPlaner;
 
-import java.awt.AWTException;
 import java.awt.Frame;
-import java.awt.MenuItem;
-import java.awt.PopupMenu;
-import java.awt.SystemTray;
-import java.awt.TrayIcon;
-import java.awt.TrayIcon.MessageType;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
@@ -33,15 +25,14 @@ import de.florian_timm.aufgabenPlaner.gui.AufgabenPlanerGUI;
 import de.florian_timm.aufgabenPlaner.kontroll.ErrorNotifier;
 import de.florian_timm.aufgabenPlaner.schnittstelle.DatenHaltung;
 
-public class AufgabenPlaner implements ActionListener, WindowListener {
+public class AufgabenPlaner implements WindowListener {
 	private static AufgabenPlanerGUI gui;
-	private BufferedImage trayIconImage;
-	private TrayIcon trayIcon;
-	private SystemTray tray;
-	private boolean inTray = false;
 	private ServerSocket serverSocket;
 	private Thread thread;
 	protected boolean running;
+	private SystemLeistenIcon tray;
+	private Timer t;
+	private TimerTask task;
 
 	public static void main(String[] args) {
 		String dateiname = "aufgaben.db";
@@ -55,14 +46,7 @@ public class AufgabenPlaner implements ActionListener, WindowListener {
 	public AufgabenPlaner(String dateiname) {
 		pruefeZweite();
 
-		DatenHaltung.setSourceFile(dateiname);
-
-		autoReload(false);
-
-		gui = new AufgabenPlanerGUI(this);
-		gui.addWindowListener(this);
-
-		trayIconImage = null;
+		BufferedImage trayIconImage = null;
 		try {
 			URL url = AufgabenPlaner.class.getResource("icon.png");
 			System.out.println(url.toString());
@@ -70,111 +54,34 @@ public class AufgabenPlaner implements ActionListener, WindowListener {
 		} catch (IOException ioe) {
 			ioe.printStackTrace();
 		}
+
+		SystemLeistenIcon.makeInstanz(this, trayIconImage);
+		tray = SystemLeistenIcon.getInstanz();
+
+		DatenHaltung.setSourceFile(dateiname);
+
+		gui = new AufgabenPlanerGUI(this);
+		gui.addWindowListener(this);
 		gui.setIconImage(trayIconImage);
 
-		autoReload(false);
-		Timer t = new Timer();
-		t.schedule(new TimerTask() {
+		t = new Timer();
+		task = new TimerTask() {
 			public void run() {
-				autoReload(true);
+				autoReload();
 			}
-		}, 20000, 20000);
-
+		};
+		t.schedule(task, 0, 20000);
 	}
 
-	private void autoReload(boolean reload) {
+	private void autoReload() {
 		System.out.println("AutoReload");
-		StatusOrdner.getInstanz().loadData(reload);
-		PersonenOrdner.getInstanz().loadData(reload);
-		ProjektOrdner.getInstanz().loadData(reload);
+		StatusOrdner.getInstanz().loadData();
+		PersonenOrdner.getInstanz().loadData();
+		ProjektOrdner.getInstanz().loadData();
 		Map<Integer, AufgabenOrdner> aufgabenListen = AufgabenOrdner.getAllAufgabenListen();
 		for (AufgabenOrdner a : aufgabenListen.values()) {
-			a.loadData(reload);
+			a.loadData();
 		}
-
-	}
-
-	private void makeTrayIcon() {
-		if (inTray)
-			return;
-		if (!SystemTray.isSupported()) {
-			System.out.println("SystemTray is not supported");
-			return;
-		}
-		final PopupMenu popup = new PopupMenu();
-
-		trayIcon = new TrayIcon(trayIconImage, "AufgabenPlaner");
-
-		tray = SystemTray.getSystemTray();
-
-		// Create a pop-up menu components
-		MenuItem aboutItem = new MenuItem("Öffnen");
-		aboutItem.addActionListener(this);
-		aboutItem.setActionCommand("oeffnen");
-		MenuItem exitItem = new MenuItem("Beenden");
-		exitItem.addActionListener(this);
-		exitItem.setActionCommand("ende");
-
-		// Add components to pop-up menu
-		popup.add(aboutItem);
-		popup.addSeparator();
-		popup.add(exitItem);
-
-		trayIcon.setPopupMenu(popup);
-		trayIcon.setImageAutoSize(true);
-		trayIcon.addActionListener(this);
-		trayIcon.setActionCommand("oeffnen");
-
-		try {
-			tray.add(trayIcon);
-		} catch (AWTException e) {
-			System.out.println("TrayIcon could not be added.");
-		}
-		gui.setVisible(false);
-
-		trayIcon.displayMessage("AufgabenPlaner",
-				"Programm wurde minimiert, \nzum Schließen rechte Maustaste \nauf das Symbol", MessageType.INFO);
-
-		inTray = true;
-	}
-
-	private void removeTrayIcon() {
-		if (inTray) {
-			gui.setState(Frame.NORMAL);
-			tray.remove(trayIcon);
-			gui.setVisible(true);
-			inTray = false;
-		}
-		if (gui != null)
-			gui.requestFocus();
-	}
-
-	@Override
-	public void actionPerformed(ActionEvent ae) {
-		switch (ae.getActionCommand()) {
-		case "oeffnen":
-			removeTrayIcon();
-			break;
-		case "ende":
-			close();
-			break;
-		}
-		removeTrayIcon();
-	}
-
-	public void close() {
-		removeTrayIcon();
-		if (gui != null)
-			gui.close();
-		try {
-			running = false;
-			if (thread != null)
-				thread.interrupt();
-			serverSocket.close();
-		} catch (IOException e) {
-			ErrorNotifier.log(e);
-		}
-		System.exit(0);
 	}
 
 	@Override
@@ -184,12 +91,12 @@ public class AufgabenPlaner implements ActionListener, WindowListener {
 
 	@Override
 	public void windowClosed(WindowEvent arg0) {
-		makeTrayIcon();
+		tray.closeGUI();
 	}
 
 	@Override
 	public void windowClosing(WindowEvent arg0) {
-		makeTrayIcon();
+		tray.closeGUI();
 
 	}
 
@@ -200,17 +107,17 @@ public class AufgabenPlaner implements ActionListener, WindowListener {
 
 	@Override
 	public void windowDeiconified(WindowEvent arg0) {
-		removeTrayIcon();
+		tray.showGui();
 	}
 
 	@Override
 	public void windowIconified(WindowEvent arg0) {
-		makeTrayIcon();
+		tray.closeGUI();
 	}
 
 	@Override
 	public void windowOpened(WindowEvent arg0) {
-		removeTrayIcon();
+		tray.showGui();
 	}
 
 	private void pruefeZweite() {
@@ -224,7 +131,7 @@ public class AufgabenPlaner implements ActionListener, WindowListener {
 							Socket s = serverSocket.accept();
 							BufferedReader buffy = new BufferedReader(new InputStreamReader(s.getInputStream()));
 							if (buffy.readLine().equals("AufgabenPlaner")) {
-								removeTrayIcon();
+								tray.showGui();
 							}
 							buffy.close();
 							s.close();
@@ -248,5 +155,24 @@ public class AufgabenPlaner implements ActionListener, WindowListener {
 			}
 			// System.exit(0);
 		}
+	}
+
+	public Frame getGui() {
+		return gui;
+	}
+
+	public void close() {
+		tray.showGui();
+		if (gui != null)
+			gui.close();
+		try {
+			running = false;
+			if (thread != null)
+				thread.interrupt();
+			serverSocket.close();
+		} catch (IOException e) {
+			ErrorNotifier.log(e);
+		}
+		System.exit(0);
 	}
 }

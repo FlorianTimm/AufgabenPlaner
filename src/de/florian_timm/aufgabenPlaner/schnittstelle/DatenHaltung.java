@@ -32,21 +32,28 @@ public class DatenHaltung {
 
 	public DatenHaltung(boolean writable) {
 		this.writable = writable;
+		makeDBconnection();
+	}
+
+	private void makeDBconnection() {
 		try {
 			Class.forName("org.sqlite.JDBC");
+		} catch (ClassNotFoundException e) {
+			close();
+		}
 
-			SQLiteConfig config = new SQLiteConfig();
-			config.setReadOnly(!writable);
-			checkDB();
+		SQLiteConfig config = new SQLiteConfig();
+		config.setReadOnly(!writable);
+		checkDB();
+
+		try {
 			c = DriverManager.getConnection("jdbc:sqlite:" + sourceFile, config.toProperties());
-		} catch (ClassNotFoundException | SQLException e) {
-			// TODO Auto-generated catch block
+		} catch (SQLException e) {
 			ErrorNotifier.log(e);
 		}
 	}
 
 	public void update(String sql) {
-
 		try {
 			stmt = c.createStatement();
 			stmt.executeUpdate(sql);
@@ -57,8 +64,8 @@ public class DatenHaltung {
 		}
 
 	}
-	
-	public void update () {
+
+	public void update() {
 		try {
 			ppst.execute();
 		} catch (SQLException e) {
@@ -94,7 +101,7 @@ public class DatenHaltung {
 			close();
 		}
 	}
-	
+
 	public void setLong(int i, long zahl) {
 		try {
 			ppst.setLong(i, zahl);
@@ -103,7 +110,7 @@ public class DatenHaltung {
 			close();
 		}
 	}
-	
+
 	public void query(String sql) {
 		try {
 			stmt = c.createStatement();
@@ -117,7 +124,7 @@ public class DatenHaltung {
 		try {
 			if (resultset == null && !writable && ppst != null) {
 				resultset = ppst.executeQuery();
-			} 
+			}
 			boolean r = resultset.next();
 			if (!r) {
 				close();
@@ -129,7 +136,7 @@ public class DatenHaltung {
 			return false;
 		}
 	}
-	
+
 	public String getString(int i) {
 		try {
 			return resultset.getString(i);
@@ -139,7 +146,7 @@ public class DatenHaltung {
 			return null;
 		}
 	}
-	
+
 	public int getInt(int i) {
 		try {
 			return resultset.getInt(i);
@@ -149,7 +156,7 @@ public class DatenHaltung {
 			return -1;
 		}
 	}
-	
+
 	public double getDouble(int i) {
 		try {
 			return resultset.getDouble(i);
@@ -169,7 +176,7 @@ public class DatenHaltung {
 			return null;
 		}
 	}
-	
+
 	public int getInt(String s) {
 		try {
 			return resultset.getInt(s);
@@ -179,7 +186,7 @@ public class DatenHaltung {
 			return -1;
 		}
 	}
-	
+
 	public double getDouble(String s) {
 		try {
 			return resultset.getDouble(s);
@@ -189,7 +196,7 @@ public class DatenHaltung {
 			return -1;
 		}
 	}
-	
+
 	public boolean getBoolean(String s) {
 		try {
 			return resultset.getBoolean(s);
@@ -199,7 +206,7 @@ public class DatenHaltung {
 			return false;
 		}
 	}
-	
+
 	public long getLong(String string) {
 		try {
 			return resultset.getLong(string);
@@ -209,39 +216,44 @@ public class DatenHaltung {
 			return -1;
 		}
 	}
-	
+
 	public void close() {
-		if (ppst != null) {
-			try {
-				ppst.close();
-			} catch (SQLException e) {
-				ErrorNotifier.log(e);
+		try {
+			if (ppst != null && !c.isClosed()) {
+				try {
+					ppst.close();
+				} catch (SQLException e) {
+					ErrorNotifier.log(e);
+				}
 			}
-		}
 
-		if (stmt != null) {
-			try {
-				stmt.close();
-			} catch (SQLException e) {
-				ErrorNotifier.log(e);
+			if (stmt != null) {
+				try {
+					stmt.close();
+				} catch (SQLException e) {
+					ErrorNotifier.log(e);
+				}
 			}
-		}
 
-		if (resultset != null) {
-			try {
-				resultset.close();
-			} catch (SQLException e) {
-				ErrorNotifier.log(e);
+			if (resultset != null) {
+				try {
+					resultset.close();
+				} catch (SQLException e) {
+					ErrorNotifier.log(e);
+				}
 			}
-		}
 
-		if (c != null) {
-			try {
-				c.close();
-			} catch (SQLException e) {
+			if (c != null) {
+				try {
+					c.close();
+				} catch (SQLException e) {
 
-				ErrorNotifier.log(e);
+					ErrorNotifier.log(e);
+				}
 			}
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 	}
 
@@ -262,8 +274,5 @@ public class DatenHaltung {
 			}
 		}
 	}
-
-
-
 
 }
