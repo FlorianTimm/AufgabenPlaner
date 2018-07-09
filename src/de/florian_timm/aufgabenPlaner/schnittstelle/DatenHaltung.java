@@ -21,6 +21,7 @@ public class DatenHaltung {
 	private PreparedStatement ppst = null;
 	private ResultSet resultset = null;
 	private boolean writable = false;
+	//static int openConnections = 0;
 
 	public static void setSourceFile(String file) {
 		sourceFile = file;
@@ -48,6 +49,7 @@ public class DatenHaltung {
 
 		try {
 			c = DriverManager.getConnection("jdbc:sqlite:" + sourceFile, config.toProperties());
+			//openConnections++;
 		} catch (SQLException e) {
 			ErrorNotifier.log(e);
 		}
@@ -219,7 +221,7 @@ public class DatenHaltung {
 
 	public void close() {
 		try {
-			if (ppst != null && !c.isClosed()) {
+			if (ppst != null && !ppst.isClosed()) {
 				try {
 					ppst.close();
 				} catch (SQLException e) {
@@ -227,7 +229,7 @@ public class DatenHaltung {
 				}
 			}
 
-			if (stmt != null) {
+			if (stmt != null && !stmt.isClosed()) {
 				try {
 					stmt.close();
 				} catch (SQLException e) {
@@ -235,7 +237,7 @@ public class DatenHaltung {
 				}
 			}
 
-			if (resultset != null) {
+			if (resultset != null && !resultset.isClosed()) {
 				try {
 					resultset.close();
 				} catch (SQLException e) {
@@ -243,9 +245,11 @@ public class DatenHaltung {
 				}
 			}
 
-			if (c != null) {
+			if (c != null && !c.isClosed()) {
 				try {
 					c.close();
+					//openConnections--;
+					//System.out.println("Offene Verbindungen: " + openConnections);
 				} catch (SQLException e) {
 
 					ErrorNotifier.log(e);

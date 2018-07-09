@@ -93,7 +93,7 @@ public class AufgabenOrdner extends Ordner {
 			lastUpdate = Math.max(Math.max(lastUpdate, geloescht), Math.max(bearbeitet, storniert));
 		}
 
-		System.out.println("Anzahl Aufgaben: " + alle.size());
+		//System.out.println("Anzahl Aufgaben: " + alle.size());
 
 		if (dataChanged && firstLoaded) {
 			notifier.informListener();
@@ -193,8 +193,8 @@ public class AufgabenOrdner extends Ordner {
 	@Override
 	public void removeFromDB(int id) {
 		long time = Instant.now().getEpochSecond();
-		DatenHaltung d1 = new DatenHaltung();
-		d1.prepareStatement("UPDATE aufgaben SET geloescht = ?, bearbeitetVon =  WHERE id = ?;");
+		DatenHaltung d1 = new DatenHaltung(true);
+		d1.prepareStatement("UPDATE aufgabe SET geloescht = ?, bearbeitetVon = ? WHERE id = ?;");
 		d1.setLong(1, time);
 		d1.setInt(2, PersonenOrdner.getInstanz().getNutzer().getId());
 		d1.setInt(3, id);
@@ -206,7 +206,7 @@ public class AufgabenOrdner extends Ordner {
 
 	protected void alertNew(Entity p) {
 		Aufgabe a = (Aufgabe) p;
-		int nid = PersonenOrdner.getInstanz().getNutzer().getId() + 1;
+		int nid = PersonenOrdner.getInstanz().getNutzer().getId();
 		if (a.getBearbeiter().getId() == nid && a.getBearbeitetVon().getId() != nid) {
 			SystemLeistenIcon.getInstanz().makeAlert("Neue Aufgabe in " + a.getProjekt().getTitel(),
 					"Es wurde eine neue Aufgabe für Sie angelegt:\n" + a.getTitel() + "\n" + a.getBeschreibung());
@@ -216,14 +216,25 @@ public class AufgabenOrdner extends Ordner {
 	@Override
 	protected void alertChanged(Entity p) {
 		Aufgabe a = (Aufgabe) p;
-		int nid = PersonenOrdner.getInstanz().getNutzer().getId() + 1;
+		int nid = PersonenOrdner.getInstanz().getNutzer().getId();
 		if (a.getBearbeiter().getId() == nid && a.getBearbeitetVon().getId() != nid) {
 			SystemLeistenIcon.getInstanz().makeAlert("Veränderte Aufgabe in " + a.getProjekt().getTitel(),
-					"Es wurde eine ihrern Aufgabe verändert oder Ihnen neu zugewiesen:\n" + a.getTitel() + "\n"
+					"Es wurde eine ihrer Aufgabe verändert oder Ihnen neu zugewiesen:\n" + a.getTitel() + "\n"
 							+ a.getBeschreibung());
 		}
 	}
 
+	@Override
+	protected void alertRemoved(Entity p) {
+		Aufgabe a = (Aufgabe) p;
+		int nid = PersonenOrdner.getInstanz().getNutzer().getId();
+		if (a.getBearbeiter().getId() == nid && a.getBearbeitetVon().getId() != nid) {
+			SystemLeistenIcon.getInstanz().makeAlert("Gelöschte Aufgabe in " + a.getProjekt().getTitel(),
+					"Es wurde eine ihrer Aufgabe gelöscht:\n" + a.getTitel() + "\n"
+							+ a.getBeschreibung());
+		}
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -248,5 +259,7 @@ public class AufgabenOrdner extends Ordner {
 			return false;
 		return true;
 	}
+
+
 
 }

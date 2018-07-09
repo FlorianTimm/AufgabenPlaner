@@ -70,7 +70,7 @@ public class AufgabenPlaner implements WindowListener {
 				autoReload();
 			}
 		};
-		t.schedule(task, 0, 20000);
+		t.schedule(task, 0, 15000);
 	}
 
 	private void autoReload() {
@@ -153,7 +153,7 @@ public class AufgabenPlaner implements WindowListener {
 			} catch (IOException e1) {
 				e1.printStackTrace();
 			}
-			// System.exit(0);
+			close();
 		}
 	}
 
@@ -162,14 +162,17 @@ public class AufgabenPlaner implements WindowListener {
 	}
 
 	public void close() {
-		tray.showGui();
+		if (tray != null) {
+			tray.removeIcon();
+		}
 		if (gui != null)
 			gui.close();
 		try {
 			running = false;
 			if (thread != null)
 				thread.interrupt();
-			serverSocket.close();
+			if (serverSocket != null)
+				serverSocket.close();
 		} catch (IOException e) {
 			ErrorNotifier.log(e);
 		}

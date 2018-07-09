@@ -13,13 +13,12 @@ public abstract class OrdnerNotifier {
 
 	public void addListener(EntityListener newListener) {
 		listener.add(newListener);
-		System.out.println(
-				"AufgabenListener: " + listener.size() + " (neu: " + newListener.getClass().getSimpleName() + ")");
+		//System.out.println("AufgabenListener: " + listener.size() + " (neu: " + newListener.getClass().getSimpleName() + ")");
 	}
 
 	public void removeListener(EntityListener el) {
 		listener.remove(el);
-		System.out.println("AufgabenListener: " + listener.size() + " (entf: " + el.getClass().getSimpleName() + ")");
+		//System.out.println("AufgabenListener: " + listener.size() + " (entf: " + el.getClass().getSimpleName() + ")");
 	}
 
 	public void informListener() {

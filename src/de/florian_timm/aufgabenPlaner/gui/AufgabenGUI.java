@@ -5,6 +5,7 @@ import de.florian_timm.aufgabenPlaner.entity.Person;
 import de.florian_timm.aufgabenPlaner.entity.Projekt;
 import de.florian_timm.aufgabenPlaner.entity.Status;
 import de.florian_timm.aufgabenPlaner.entity.ordner.AufgabenOrdner;
+import de.florian_timm.aufgabenPlaner.entity.ordner.ProjektOrdner;
 import de.florian_timm.aufgabenPlaner.entity.ordner.StatusOrdner;
 import de.florian_timm.aufgabenPlaner.gui.comp.PersonChooser;
 import de.florian_timm.aufgabenPlaner.kontroll.PersonenNotifier;
@@ -38,10 +39,9 @@ public class AufgabenGUI extends JDialog implements ActionListener {
 
 	public AufgabenGUI(Window window, Aufgabe aufgabe) {
 		super(window, "Aufgabe bearbeiten");
-		makeWindow(window);
 		this.aufgabe = aufgabe;
-
-		System.out.println(aufgabe);
+		makeWindow(window);
+		// System.out.println(aufgabe);
 
 		titelField.setText(aufgabe.toString());
 		beschreibungField.setText(aufgabe.getBeschreibung());
@@ -83,6 +83,10 @@ public class AufgabenGUI extends JDialog implements ActionListener {
 		JButton okButton = new JButton("Speichern");
 		okButton.addActionListener(this);
 
+		JButton delButton = new JButton("Löschen");
+		delButton.addActionListener(this);
+		delButton.setVisible(aufgabe != null);
+
 		GroupLayout layout = new GroupLayout(cp);
 		cp.setLayout(layout);
 		layout.setAutoCreateGaps(true);
@@ -91,10 +95,10 @@ public class AufgabenGUI extends JDialog implements ActionListener {
 		layout.setHorizontalGroup(layout.createSequentialGroup()
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(titelLabel)
 						.addComponent(beschreibungLabel).addComponent(bearbeiterLabel).addComponent(faelligkeitLabel)
-						.addComponent(statusLabel))
+						.addComponent(statusLabel).addComponent(okButton))
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(titelField)
 						.addComponent(jsp).addComponent(bearbeiterField).addComponent(faelligkeitField)
-						.addComponent(statusField).addComponent(okButton))
+						.addComponent(statusField).addComponent(delButton))
 				.addComponent(neuPerson));
 
 		layout.setVerticalGroup(layout.createSequentialGroup()
@@ -108,7 +112,8 @@ public class AufgabenGUI extends JDialog implements ActionListener {
 						.addComponent(faelligkeitField))
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(statusLabel)
 						.addComponent(statusField))
-				.addComponent(okButton));
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(okButton)
+						.addComponent(delButton)));
 
 		this.pack();
 		this.setLocationRelativeTo(window);
@@ -117,21 +122,44 @@ public class AufgabenGUI extends JDialog implements ActionListener {
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		if (e.getActionCommand().equals("Speichern")) {
-			if (this.aufgabe == null)
-				makeAufgabe();
-			else
-				updateAufgabe();
-			this.setVisible(false);
-			this.dispose();
-			PersonenNotifier.getInstanz().removeListener(bearbeiterField);
-
-		} else {
-			PersonGUI pgui = new PersonGUI(this);
-			pgui.setVisible(true);
+		switch (e.getActionCommand()) {
+		case "Speichern":
+			speichern();
+			break;
+		case "Löschen":
+			loeschen();
+			break;
+		case "neuePerson":
+			newPerson();
+			break;
 		}
 	}
-	
+
+	private void loeschen() {
+		int ans = JOptionPane.showConfirmDialog(this, "Möchten Sie die Aufgabe wirklich löschen?", "Löschen",
+				JOptionPane.OK_CANCEL_OPTION);
+		if (ans == JOptionPane.OK_OPTION) {
+			this.setVisible(false);
+			this.dispose();
+			AufgabenOrdner.getInstanz(this.aufgabe.getProjekt()).removeFromDB(this.aufgabe.getId());
+		}
+	}
+
+	private void newPerson() {
+		PersonGUI pgui = new PersonGUI(this);
+		pgui.setVisible(true);
+	}
+
+	private void speichern() {
+		if (this.aufgabe == null)
+			makeAufgabe();
+		else
+			updateAufgabe();
+		this.setVisible(false);
+		this.dispose();
+		PersonenNotifier.getInstanz().removeListener(bearbeiterField);
+	}
+
 	public void makeAufgabe() {
 		String titel = this.titelField.getText();
 		String beschreibung = this.beschreibungField.getText();

@@ -33,9 +33,13 @@ public class StatusOrdner extends Ordner {
 	public boolean loadData() {
 		boolean dataChanged = false;
 		DatenHaltung d = new DatenHaltung();
-		d.prepareStatement("SELECT * FROM status WHERE bearbeitet > ? OR geloescht > ?;");
-		d.setLong(1, lastUpdate);
-		d.setLong(2, lastUpdate);
+		if (firstLoaded) {
+			d.prepareStatement("SELECT * FROM status WHERE bearbeitet > ? OR geloescht > ?;");
+			d.setLong(1, lastUpdate);
+			d.setLong(2, lastUpdate);
+		} else {
+			d.query("SELECT * FROM status WHERE bearbeitet IS NULL OR geloescht IS NULL;");
+		}
 		while (d.next()) {
 			long geloescht = d.getLong("geloescht");
 			long bearbeitet = d.getLong("bearbeitet");
@@ -54,6 +58,7 @@ public class StatusOrdner extends Ordner {
 			lastUpdate = Math.max(Math.max(lastUpdate, geloescht), bearbeitet);
 
 		}
+		d.close();
 		if (dataChanged && firstLoaded) {
 			notifier.informListener();
 		}
@@ -95,6 +100,12 @@ public class StatusOrdner extends Ordner {
 
 	@Override
 	protected void alertChanged(Entity p) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	protected void alertRemoved(Entity p) {
 		// TODO Auto-generated method stub
 		
 	}

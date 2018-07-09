@@ -82,6 +82,10 @@ public class SystemLeistenIcon extends java.awt.TrayIcon implements ActionListen
 		if (ap.getGui() != null)
 			ap.getGui().requestFocus();
 	}
+	
+	void removeIcon() {
+		tray.remove(this);
+	}
 
 	@Override
 	public void actionPerformed(ActionEvent ae) {

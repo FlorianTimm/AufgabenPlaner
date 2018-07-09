@@ -3,8 +3,6 @@ package de.florian_timm.aufgabenPlaner.entity.ordner;
 import java.util.HashMap;
 import java.util.Map;
 import de.florian_timm.aufgabenPlaner.entity.Entity;
-import de.florian_timm.aufgabenPlaner.entity.Person;
-import de.florian_timm.aufgabenPlaner.entity.Projekt;
 import de.florian_timm.aufgabenPlaner.kontroll.OrdnerNotifier;
 
 public abstract class Ordner {
@@ -15,6 +13,7 @@ public abstract class Ordner {
 
 	public boolean remove(int id) {
 		if (alle.containsKey(id)) {
+			alertRemoved(alle.get(id));
 			alle.remove(id);
 			return true;
 		}
@@ -49,6 +48,7 @@ public abstract class Ordner {
 
 	protected abstract void alertNew(Entity p);
 	protected abstract void alertChanged(Entity p);
+	protected abstract void alertRemoved(Entity p);
 	
 
 	public boolean update(Entity neu) {

@@ -236,4 +236,15 @@ public class ProjektOrdner extends Ordner {
 					"Es wurde ein Projekt verändert:\n" + a.getTitel() + "\n" + a.getBeschreibung());
 		}
 	}
+
+	@Override
+	protected void alertRemoved(Entity p) {
+		Projekt a = (Projekt) p;
+		if ((a.getZustaendig().getId() == PersonenOrdner.getInstanz().getNutzer().getId()
+				|| a.getAuftraggeber().getId() == PersonenOrdner.getInstanz().getNutzer().getId())
+				&& a.getBearbeitetVon().getId() != PersonenOrdner.getInstanz().getNutzer().getId()) {
+			SystemLeistenIcon.getInstanz().makeAlert("Gelöschtes Projekt: " + a.getTitel(),
+					"Es wurde ein Projekt gelöscht:\n" + a.getTitel() + "\n" + a.getBeschreibung());
+		}
+	}
 }

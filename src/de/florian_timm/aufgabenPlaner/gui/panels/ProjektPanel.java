@@ -152,13 +152,13 @@ public class ProjektPanel extends JPanel implements ActionListener {
 			neuePerson();
 			break;
 		case "Löschen":
-			löschen();
+			loeschen();
 			break;
 		}
 	}
 
-	private void löschen() {
-		int ans = JOptionPane.showConfirmDialog(window, "Löschen", "Möchten Sie das Projekt wirklich löschen?",
+	private void loeschen() {
+		int ans = JOptionPane.showConfirmDialog(window, "Möchten Sie das Projekt wirklich löschen?", "Löschen",
 				JOptionPane.OK_CANCEL_OPTION);
 		if (ans == JOptionPane.OK_OPTION) {
 			window.setVisible(false);

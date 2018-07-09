@@ -45,6 +45,7 @@ public class PersonenOrdner extends Ordner {
 
 		if (d.next()) {
 			int id = d.getInt("id");
+			d.close();
 			return getPerson(id);
 		}
 		d.close();
@@ -155,5 +156,11 @@ public class PersonenOrdner extends Ordner {
 	protected void alertChanged(Entity p) {
 		// TODO Auto-generated method stub
 
+	}
+
+	@Override
+	protected void alertRemoved(Entity p) {
+		// TODO Auto-generated method stub
+		
 	}
 }
