@@ -109,7 +109,6 @@ public class PersonGUI extends JDialog implements ActionListener {
 	}
 
 	private void updatePerson() {
-		String username = this.usernameField.getText();
 		String name = this.nameField.getText();
 		String vorname = this.vornameField.getText();
 		String email = this.nameField.getText();

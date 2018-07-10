@@ -5,7 +5,6 @@ import de.florian_timm.aufgabenPlaner.entity.Person;
 import de.florian_timm.aufgabenPlaner.entity.Projekt;
 import de.florian_timm.aufgabenPlaner.entity.Status;
 import de.florian_timm.aufgabenPlaner.entity.ordner.AufgabenOrdner;
-import de.florian_timm.aufgabenPlaner.entity.ordner.ProjektOrdner;
 import de.florian_timm.aufgabenPlaner.entity.ordner.StatusOrdner;
 import de.florian_timm.aufgabenPlaner.gui.comp.PersonChooser;
 import de.florian_timm.aufgabenPlaner.kontroll.PersonenNotifier;

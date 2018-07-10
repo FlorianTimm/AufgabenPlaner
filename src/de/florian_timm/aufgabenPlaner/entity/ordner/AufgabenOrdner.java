@@ -102,9 +102,15 @@ public class AufgabenOrdner extends Ordner {
 		return dataChanged;
 	}
 
-	public static List<Aufgabe> getOffeneAufgaben(Person person) {
+	public static List<Aufgabe> getOffeneAufgaben(Person person, int limit) {
 		List<Aufgabe> aufgaben = new ArrayList<Aufgabe>();
-		String sql = "SELECT a.* FROM aufgabe a LEFT JOIN status ON a.status = status.id where a.geloescht IS NULL AND a.storniert IS NULL AND status.sortierung < 100 AND a.person = ?;";
+		String sql = "SELECT a.* FROM aufgabe a LEFT JOIN status ON a.status = status.id where a.geloescht IS NULL AND a.storniert IS NULL AND status.sortierung < 100 AND a.person = ? ORDER BY faelligkeit ASC";
+		if (limit != -1) {
+			sql += " LIMIT " + limit;
+		}
+		sql += ";";
+		
+		
 		DatenHaltung c = new DatenHaltung();
 		c.prepareStatement(sql);
 		c.setInt(1, person.getId());

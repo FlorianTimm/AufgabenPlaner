@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Kostentraeger extends Entity {
+public class Kostentraeger extends Entity implements Comparable<Kostentraeger> {
 	private static Map<Integer, Kostentraeger> alle = new HashMap<Integer, Kostentraeger>();
 	private String bezeichnung;
 	private String sapName;
@@ -73,7 +73,10 @@ public class Kostentraeger extends Entity {
 	}
 
 	public String toString() {
-		return bezeichnung;
+		if (sapName == null || sapName.equals(""))
+			return bezeichnung;
+		else
+			return bezeichnung + " (" + sapName + ")";
 	}
 
 	@Override
@@ -110,8 +113,17 @@ public class Kostentraeger extends Entity {
 	@Override
 	public void update(Entity neu) {
 		// TODO Auto-generated method stub
-		
+
 	}
-	
-	
+
+	public int compareTo(Kostentraeger other) {
+		int c = 0;
+		if ((c = this.getBezeichnung().compareTo(other.getBezeichnung())) != 0) {
+			return c;
+		} else if ((c = this.getSapName().compareTo(other.getSapName())) != 0) {
+			return c;
+		}
+		return 0;
+	}
+
 }

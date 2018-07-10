@@ -19,13 +19,13 @@ public class ProjektUebersichtPanel extends JPanel implements ActionListener {
 
 	public ProjektUebersichtPanel(Window window) {
 		super();
-		projektTable = new ProjektTable();
+		projektTable = new ProjektTable(window);
 		makePanel(window);
 	}
 
 	public ProjektUebersichtPanel(Window window, Person person) {
 		super();
-		projektTable = new ProjektTable(person);
+		projektTable = new ProjektTable(window, person);
 		makePanel(window);
 	}
 

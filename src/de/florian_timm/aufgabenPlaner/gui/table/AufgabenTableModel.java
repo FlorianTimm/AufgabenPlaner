@@ -11,17 +11,16 @@ import java.text.DateFormat;
 public class AufgabenTableModel extends TableModel {
 	private Projekt projekt = null;
 	private Person person = null;
-
 	public AufgabenTableModel(Projekt projekt) {
 		this.projekt = projekt;
 		makeModel();
 		this.setDataSource(projekt.getAufgaben().values().toArray(new Entity[0]));
 	}
 
-	public AufgabenTableModel(Person person) {
+	public AufgabenTableModel(Person person, int limit) {
 		this.person = person;
 		makeModel();
-		this.setDataSource(person.getAufgaben());
+		this.setDataSource(person.getAufgaben(limit));
 	}
 
 	private void makeModel() {

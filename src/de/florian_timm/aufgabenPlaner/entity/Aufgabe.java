@@ -3,6 +3,7 @@ package de.florian_timm.aufgabenPlaner.entity;
 import de.florian_timm.aufgabenPlaner.entity.ordner.AufgabenOrdner;
 import de.florian_timm.aufgabenPlaner.entity.ordner.PersonenOrdner;
 
+import java.util.Calendar;
 import java.util.Date;
 
 public class Aufgabe extends Entity {
@@ -88,6 +89,10 @@ public class Aufgabe extends Entity {
 		this.beschreibung = beschreibung;
 		this.faelligkeit = faelligkeit;
 		this.status = status;
+		updateDB();
+	}
+	
+	public void updateDB() {
 		this.bearbeitetVon = PersonenOrdner.getInstanz().getNutzer();
 		AufgabenOrdner.getInstanz(projekt).update(this);
 	}
@@ -157,6 +162,14 @@ public class Aufgabe extends Entity {
 		} else if (!titel.equals(other.titel))
 			return false;
 		return true;
+	}
+
+	public void plus(int tage) {
+		Calendar cal = Calendar.getInstance();
+        cal.setTime(this.getFaelligkeit());
+        cal.add(Calendar.DATE, tage);
+        this.faelligkeit = cal.getTime();
+        updateDB();
 	}
 
 	

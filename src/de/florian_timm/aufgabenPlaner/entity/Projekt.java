@@ -1,5 +1,6 @@
 package de.florian_timm.aufgabenPlaner.entity;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
@@ -110,8 +111,19 @@ public class Projekt extends Entity {
 		this.faelligkeit = faelligkeit;
 		this.auftraggeber = auftraggeber;
 		this.bearbeitetVon = bearbeitetVon;
+		updateDB();
+	}
+
+	private void updateDB() {
 		ProjektOrdner.getInstanz().updateDB(this);
-		
+	}
+	
+	public void plus(int tage) {
+		Calendar cal = Calendar.getInstance();
+        cal.setTime(this.getFaelligkeit());
+        cal.add(Calendar.DATE, tage);
+        this.faelligkeit = cal.getTime();
+        updateDB();
 	}
 
 	@Override

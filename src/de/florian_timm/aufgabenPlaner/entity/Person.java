@@ -53,8 +53,8 @@ public class Person extends Entity implements Comparable<Person> {
 		PersonenOrdner.getInstanz().update(this);
 	}
 
-	public Aufgabe[] getAufgaben() {
-		List<Aufgabe> list = AufgabenOrdner.getOffeneAufgaben(this);
+	public Aufgabe[] getAufgaben(int limit) {
+		List<Aufgabe> list = AufgabenOrdner.getOffeneAufgaben(this, limit);
 		return list.toArray(new Aufgabe[0]);
 	}
 

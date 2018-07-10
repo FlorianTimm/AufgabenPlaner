@@ -62,7 +62,7 @@ public class ProjektPanel extends JPanel implements ActionListener {
 		titelField = new JTextField();
 
 		JLabel beschreibungLabel = new JLabel("Beschreibung");
-		beschreibungField = new JTextArea(3, 20);
+		beschreibungField = new JTextArea(5, 20);
 		JScrollPane jsp = new JScrollPane(beschreibungField);
 
 		JLabel prioLabel = new JLabel("Prio");

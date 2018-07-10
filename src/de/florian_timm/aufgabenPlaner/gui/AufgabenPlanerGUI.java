@@ -4,13 +4,13 @@ import java.awt.Container;
 import java.awt.Dimension;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
 import de.florian_timm.aufgabenPlaner.AufgabenPlaner;
 import de.florian_timm.aufgabenPlaner.entity.Person;
 import de.florian_timm.aufgabenPlaner.entity.ordner.PersonenOrdner;
 import de.florian_timm.aufgabenPlaner.gui.comp.MenuBar;
+import de.florian_timm.aufgabenPlaner.gui.panels.DashboardPanel;
 import de.florian_timm.aufgabenPlaner.gui.panels.OffeneAufgabenPanel;
 import de.florian_timm.aufgabenPlaner.gui.panels.ProjektUebersichtPanel;
 import de.florian_timm.aufgabenPlaner.gui.table.Table;
@@ -28,6 +28,7 @@ public class AufgabenPlanerGUI extends JFrame implements ErrorListener {
 	private ProjektUebersichtPanel projektMeinePanel;
 	private OffeneAufgabenPanel offeneAufgabenPanel;
 	private AufgabenPlaner ap;
+	private DashboardPanel dashboard;
 
 	public AufgabenPlanerGUI(AufgabenPlaner ap) {
 
@@ -52,12 +53,13 @@ public class AufgabenPlanerGUI extends JFrame implements ErrorListener {
 		this.setJMenuBar(new MenuBar(this));
 
 		Container cp = this.getContentPane();
+		dashboard = new DashboardPanel(this);
 		projektUerbersichtPanel = new ProjektUebersichtPanel(this);
 		projektMeinePanel = new ProjektUebersichtPanel(this, PersonenOrdner.getInstanz().getNutzer());
 		offeneAufgabenPanel = new OffeneAufgabenPanel(this, PersonenOrdner.getInstanz().getNutzer());
 
 		JTabbedPane tabbedPane = new JTabbedPane();
-		tabbedPane.addTab("Aktuelles", new JPanel());
+		tabbedPane.addTab("Aktuelles", dashboard);
 		tabbedPane.addTab("Offene Aufgaben", offeneAufgabenPanel);
 		tabbedPane.addTab("Meine Projekte", projektMeinePanel);
 		tabbedPane.addTab("Alle Projekte", projektUerbersichtPanel);
@@ -76,7 +78,8 @@ public class AufgabenPlanerGUI extends JFrame implements ErrorListener {
 	}
 
 	public void close() {
-
+		if (dashboard != null)
+			dashboard.close();
 		if (projektUerbersichtPanel != null)
 			projektUerbersichtPanel.close();
 		if (projektMeinePanel != null)

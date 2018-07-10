@@ -34,7 +34,7 @@ public class ProjektViewGUI extends JDialog implements ActionListener, WindowLis
 		neu.addActionListener(this);
 		cp.add(neu, BorderLayout.SOUTH);
 
-		this.setPreferredSize(new Dimension(500, 500));
+		this.setPreferredSize(new Dimension(600, 600));
 		this.pack();
 		this.setLocationRelativeTo(window);
 		this.setVisible(true);

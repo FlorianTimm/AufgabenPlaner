@@ -1,35 +1,54 @@
 package de.florian_timm.aufgabenPlaner.gui.table;
 
-import java.awt.Point;
 import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-import javax.swing.JTable;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.table.TableRowSorter;
 
 import de.florian_timm.aufgabenPlaner.entity.Person;
 import de.florian_timm.aufgabenPlaner.entity.Projekt;
+import de.florian_timm.aufgabenPlaner.entity.ordner.ProjektOrdner;
 import de.florian_timm.aufgabenPlaner.gui.ProjektViewGUI;
 import de.florian_timm.aufgabenPlaner.kontroll.AufgabenNotifier;
 import de.florian_timm.aufgabenPlaner.kontroll.EntityListener;
 import de.florian_timm.aufgabenPlaner.kontroll.ProjektNotifier;
 
 @SuppressWarnings("serial")
-public class ProjektTable extends Table implements MouseListener, EntityListener {
-
+public class ProjektTable extends Table implements MouseListener, EntityListener, ActionListener {
 	private Person person = null;
 	private TableRowSorter<ProjektTableModel> sorter;
+	private int limit = -1;
+	private JMenuItem miLoeschen;
+	private JMenuItem miDetails;
+	private JPopupMenu popup;
+	private JMenuItem miPlus1;
+	private JMenuItem miPlus7;
+	private Window window;
 
-	public ProjektTable() {
+	public ProjektTable(Window window) {
 		super();
 		makeTable();
 	}
 
-	public ProjektTable(Person person) {
+	public ProjektTable(Window window, Person person) {
+		super();
+		this.window = window;
+		this.person = person;
+		makeTable();
+	}
+
+	public ProjektTable(Window window, Person person, int limit) {
 		super();
 		this.person = person;
+		this.limit = limit;
+		this.window = window;
 		makeTable();
 	}
 
@@ -38,23 +57,40 @@ public class ProjektTable extends Table implements MouseListener, EntityListener
 
 		ProjektNotifier.getInstanz().addListener(this);
 		AufgabenNotifier.getInstanz().addListener(this);
-		
+
 		sorter = new TableRowSorter<ProjektTableModel>();
 		this.setRowSorter(sorter);
 		dataChanged();
+
+		popup = new JPopupMenu();
+
+		miDetails = new JMenuItem("Details...");
+		miDetails.addActionListener(this);
+		popup.add(miDetails);
+
+		popup.addSeparator();
+
+		miPlus1 = new JMenuItem("+ 1 Tag");
+		miPlus1.addActionListener(this);
+		popup.add(miPlus1);
+
+		miPlus7 = new JMenuItem("+ 7 Tage");
+		miPlus7.addActionListener(this);
+		popup.add(miPlus7);
+
+		popup.addSeparator();
+
+		miLoeschen = new JMenuItem("Löschen...");
+		miLoeschen.addActionListener(this);
+		popup.add(miLoeschen);
 	}
 
 	@Override
 	public void mousePressed(MouseEvent mouseEvent) {
-
-		JTable table = (JTable) mouseEvent.getSource();
-		Point point = mouseEvent.getPoint();
-		int row = table.rowAtPoint(point);
-		if (mouseEvent.getClickCount() == 2 && table.getSelectedRow() != -1) {
-			Projekt p = (Projekt) this.getData(row);
-			System.out.println("Zeile:" + row + "(" + p.toString() + ")");
-			openProjekt(p);
-
+		if (mouseEvent.getClickCount() == 2 && this.getSelectedRow() != -1) {
+			int row = this.rowAtPoint(mouseEvent.getPoint());
+			Projekt projekt = (Projekt) this.getData(row);
+			openProjekt(projekt);
 		}
 	}
 
@@ -70,12 +106,11 @@ public class ProjektTable extends Table implements MouseListener, EntityListener
 	}
 
 	public void dataChanged() {
-		// System.out.println("dataChanged AufgabenPlanerGUI");
 		ProjektTableModel model = null;
 		if (person == null)
 			model = new ProjektTableModel();
-		else 
-			model = new ProjektTableModel(person);
+		else
+			model = new ProjektTableModel(person, limit);
 		this.setModel(model);
 		sorter.setModel(model);
 		this.getColumn("Status").setCellRenderer(new ProgressCellRender());
@@ -100,9 +135,44 @@ public class ProjektTable extends Table implements MouseListener, EntityListener
 	}
 
 	@Override
-	public void mouseReleased(MouseEvent arg0) {
-		// TODO Auto-generated method stub
+	public void mouseReleased(MouseEvent e) {
+		if (e.isPopupTrigger()) {
+			int row = this.rowAtPoint(e.getPoint());
+			int column = this.columnAtPoint(e.getPoint());
 
+			if (!this.isRowSelected(row))
+				this.changeSelection(row, column, false, false);
+
+			popup.show(e.getComponent(), e.getX(), e.getY());
+		}
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent event) {
+		if (this.getSelectedRow() != -1) {
+			int row = this.getSelectedRow();
+			Projekt projekt = (Projekt) this.getData(row);
+			JMenuItem menu = (JMenuItem) event.getSource();
+			if (menu == miLoeschen) {
+				loeschen(projekt);
+			} else if (menu == miDetails) {
+				openProjekt(projekt);
+			} else if (menu == miPlus7) {
+				projekt.plus(7);
+			} else if (menu == miPlus1) {
+				projekt.plus(1);
+			}
+		}
+	}
+
+	private void loeschen(Projekt projekt) {
+		int ans = JOptionPane.showConfirmDialog(window,
+				"Möchten Sie das Projekt \"" + projekt.getTitel() + "\" wirklich löschen?", "Löschen",
+				JOptionPane.OK_CANCEL_OPTION);
+		if (ans == JOptionPane.OK_OPTION) {
+			window.setVisible(false);
+			ProjektOrdner.getInstanz().removeFromDB(projekt.getId());
+		}
 	}
 
 }
