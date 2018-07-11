@@ -1,12 +1,16 @@
 package de.florian_timm.aufgabenPlaner.entity;
 
 import de.florian_timm.aufgabenPlaner.entity.ordner.AufgabenOrdner;
+import de.florian_timm.aufgabenPlaner.entity.ordner.BearbeitungOrdner;
 import de.florian_timm.aufgabenPlaner.entity.ordner.PersonenOrdner;
+import de.florian_timm.aufgabenPlaner.entity.ordner.StatusOrdner;
+import de.florian_timm.aufgabenPlaner.gui.table.DateRenderable;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Map;
 
-public class Aufgabe extends Entity {
+public class Aufgabe extends Entity implements DateRenderable {
 	private Person bearbeiter;
 	private String titel;
 	private String beschreibung;
@@ -15,6 +19,7 @@ public class Aufgabe extends Entity {
 	private Status status;
 	private Projekt projekt;
 	private Person bearbeitetVon;
+	private BearbeitungOrdner bearbeitungen;
 
 	public Aufgabe(int dbId, Person bearbeiter, String titel, String beschreibung, Date faelligkeit, Status status,
 			Projekt projekt, Person bearbeitetVon) {
@@ -27,6 +32,7 @@ public class Aufgabe extends Entity {
 		this.status = status;
 		this.projekt = projekt;
 		this.bearbeitetVon = bearbeitetVon;
+		this.bearbeitungen = BearbeitungOrdner.getInstanz(this);
 	}
 
 	public String getTitel() {
@@ -68,7 +74,7 @@ public class Aufgabe extends Entity {
 	public Projekt getProjekt() {
 		return projekt;
 	}
-	
+
 	public Person getBearbeitetVon() {
 		return bearbeitetVon;
 	}
@@ -91,7 +97,7 @@ public class Aufgabe extends Entity {
 		this.status = status;
 		updateDB();
 	}
-	
+
 	public void updateDB() {
 		this.bearbeitetVon = PersonenOrdner.getInstanz().getNutzer();
 		AufgabenOrdner.getInstanz(projekt).update(this);
@@ -166,11 +172,36 @@ public class Aufgabe extends Entity {
 
 	public void plus(int tage) {
 		Calendar cal = Calendar.getInstance();
-        cal.setTime(this.getFaelligkeit());
-        cal.add(Calendar.DATE, tage);
-        this.faelligkeit = cal.getTime();
-        updateDB();
+		cal.setTime(this.getFaelligkeit());
+		cal.add(Calendar.DATE, tage);
+		this.faelligkeit = cal.getTime();
+		updateDB();
 	}
 
-	
+	public Map<Integer, Entity> getBearbeitungen() {
+		return bearbeitungen.getBearbeitungen();
+	}
+
+	public void setFertig() {
+		this.status = StatusOrdner.getFertig();
+		updateDB();
+	}
+
+	@Override
+	public Calendar getCalendar() {
+		Calendar datum = Calendar.getInstance();
+		datum.setTime(this.getFaelligkeit());
+		return datum;
+	}
+
+	@Override
+	public int getStatusAsZahl() {
+		return this.getStatus().getSortierung();
+	}
+
+	@Override
+	public Date getDate() {
+		return getFaelligkeit();
+	}
+
 }

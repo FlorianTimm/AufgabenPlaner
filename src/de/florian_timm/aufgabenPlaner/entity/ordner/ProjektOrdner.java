@@ -1,5 +1,6 @@
 package de.florian_timm.aufgabenPlaner.entity.ordner;
 
+import java.io.File;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -63,7 +64,7 @@ public class ProjektOrdner extends Ordner {
 	public static void createTable() {
 		new DatenHaltung(true).update("CREATE TABLE projekt (id INTEGER NOT NULL , titel TEXT NOT NULL,"
 				+ "	beschreibung TEXT, zustaendig INTEGER NOT NULL, prioritaet INTEGER NOT NULL,"
-				+ "	faelligkeit DATE, kostentraeger INTEGER, auftraggeber INTEGER,"
+				+ "	faelligkeit DATE, kostentraeger INTEGER, auftraggeber INTEGER, ordner TEXT,"
 				+ "	erstellt INTEGER NOT NULL, bearbeitet INTEGER NOT NULL, geloescht INTEGER,"
 				+ "	archiviert INTEGER, bearbeitetVon INTEGER NOT NULL, PRIMARY KEY(id),"
 				+ "	FOREIGN KEY(auftraggeber) REFERENCES person(id),"
@@ -126,8 +127,8 @@ public class ProjektOrdner extends Ordner {
 	}
 
 	public void makeProjekt(String titel, String beschreibung, Prioritaet prio, Person zustaendig,
-			Kostentraeger kostentraeger, Date faelligkeit, Person auftraggeber) {
-		String sql = "INSERT INTO projekt (titel, beschreibung, prioritaet, zustaendig, kostentraeger, faelligkeit, auftraggeber, erstellt, bearbeitet, bearbeitetVon) VALUES (?,?,?,?,?,?,?,?,?,?);";
+			Kostentraeger kostentraeger, Date faelligkeit, Person auftraggeber, File ordner) {
+		String sql = "INSERT INTO projekt (titel, beschreibung, prioritaet, zustaendig, kostentraeger, faelligkeit, auftraggeber, ordner, erstellt, bearbeitet, bearbeitetVon) VALUES (?,?,?,?,?,?,?,?,?,?,?);";
 
 		DatenHaltung c = new DatenHaltung(true);
 		c.prepareStatement(sql);
@@ -138,10 +139,13 @@ public class ProjektOrdner extends Ordner {
 		c.setInt(5, kostentraeger.getId());
 		c.setString(6, new SimpleDateFormat("yyyy-MM-dd").format(faelligkeit));
 		c.setInt(7, auftraggeber.getId());
+		if (ordner != null) {
+			c.setString(8, ordner.getAbsolutePath());
+		}
 		long time = Instant.now().getEpochSecond();
-		c.setLong(8, time);
 		c.setLong(9, time);
-		c.setInt(10, PersonenOrdner.getInstanz().getNutzer().getId());
+		c.setLong(10, time);
+		c.setInt(11, PersonenOrdner.getInstanz().getNutzer().getId());
 		c.update();
 
 		loadData();
@@ -171,14 +175,19 @@ public class ProjektOrdner extends Ordner {
 		Person auftraggeber = PersonenOrdner.getInstanz().getPerson(rs.getInt("auftraggeber"));
 		int status = rs.getInt("status");
 		Person bearbeitetVon = PersonenOrdner.getInstanz().getPerson(rs.getInt("bearbeitetVon"));
+		String ordnerpfad = rs.getString("ordner");
+		File ordner = null;
+		if (ordnerpfad != null) {
+			ordner = new File(ordnerpfad);
+		}
 		Projekt p = new Projekt(dbId, titel, beschreibung, zustaendig, prioritaet, erstellt, faelligkeit, kostentraeger,
-				archiviert, auftraggeber, status, bearbeitetVon);
+				archiviert, ordner, auftraggeber, status, bearbeitetVon);
 		return p;
 	}
 
 	public void updateDB(Projekt projekt) {
 
-		String sql = "UPDATE projekt SET titel = ?, beschreibung = ?, zustaendig = ?, prioritaet = ?, faelligkeit = ?, kostentraeger = ?, auftraggeber = ?, bearbeitet = ?, bearbeitetVon = ? WHERE id = ?;";
+		String sql = "UPDATE projekt SET titel = ?, beschreibung = ?, zustaendig = ?, prioritaet = ?, faelligkeit = ?, kostentraeger = ?, auftraggeber = ?, bearbeitet = ?, bearbeitetVon = ?, ordner = ? WHERE id = ?;";
 
 		DatenHaltung d = new DatenHaltung(true);
 		d.prepareStatement(sql);
@@ -191,7 +200,9 @@ public class ProjektOrdner extends Ordner {
 		d.setInt(7, projekt.getAuftraggeber().getId());
 		d.setLong(8, Instant.now().getEpochSecond());
 		d.setInt(9, PersonenOrdner.getInstanz().getNutzer().getId());
-		d.setInt(10, projekt.getId());
+		if (projekt.getProjektordner() != null)
+			d.setString(10, projekt.getProjektordner().getAbsolutePath());
+		d.setInt(11, projekt.getId());
 		d.update();
 		ProjektNotifier.getInstanz().informListener();
 	}

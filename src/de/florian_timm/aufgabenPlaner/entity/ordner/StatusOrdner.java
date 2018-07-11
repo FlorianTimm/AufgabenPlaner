@@ -10,6 +10,7 @@ import de.florian_timm.aufgabenPlaner.schnittstelle.DatenHaltung;
 public class StatusOrdner extends Ordner {
 	private long lastUpdate = 0;
 	private static StatusOrdner instanz = null;
+	private static Status fertig = null;
 
 	private StatusOrdner() {
 		alle = new HashMap<Integer, Entity>();
@@ -51,6 +52,9 @@ public class StatusOrdner extends Ordner {
 				}
 			} else {
 				Status p = getStatusFromResult(d);
+				if (p.getSortierung() == 100) {
+					fertig = p;
+				}
 				if (this.add(p)) {
 					dataChanged = true;
 				}
@@ -89,26 +93,29 @@ public class StatusOrdner extends Ordner {
 	@Override
 	public void removeFromDB(int id) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	protected void alertNew(Entity p) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	protected void alertChanged(Entity p) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	protected void alertRemoved(Entity p) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
+	public static Status getFertig() {
+		return fertig;
+	}
 
 }

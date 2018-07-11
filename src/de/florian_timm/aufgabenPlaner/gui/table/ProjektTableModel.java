@@ -5,8 +5,6 @@ import de.florian_timm.aufgabenPlaner.entity.Person;
 import de.florian_timm.aufgabenPlaner.entity.Projekt;
 import de.florian_timm.aufgabenPlaner.entity.ordner.ProjektOrdner;
 
-import java.text.DateFormat;
-
 public class ProjektTableModel extends TableModel {
 	private static final long serialVersionUID = 1L;
 
@@ -41,8 +39,7 @@ public class ProjektTableModel extends TableModel {
 				this.data[i][1] = projekt.getAuftraggeber();
 			this.data[i][2] = projekt.getTitel();
 			this.data[i][3] = projekt.getZustaendig();
-			if (projekt.getFaelligkeit() != null)
-				this.data[i][4] = DateFormat.getDateInstance().format(projekt.getFaelligkeit());
+			this.data[i][4] = projekt;
 			this.data[i][5] = projekt.getStatus();
 		}
 	}

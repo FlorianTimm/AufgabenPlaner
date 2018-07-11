@@ -36,7 +36,6 @@ public class AufgabenOrdner extends Ordner {
 	}
 
 	public static AufgabenOrdner getInstanz(Projekt projekt) {
-		projekt.getId();
 		if (aufgabenListen.containsKey(projekt.getId())) {
 			return aufgabenListen.get(projekt.getId());
 		} else {

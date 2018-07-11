@@ -66,7 +66,7 @@ public class AufgabenPlanerGUI extends JFrame implements ErrorListener {
 		cp.add(tabbedPane);
 
 		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		this.setPreferredSize(new Dimension(700, 600));
+		this.setPreferredSize(new Dimension(800, 800));
 		this.pack();
 		this.setLocationRelativeTo(null);
 		this.setVisible(true);

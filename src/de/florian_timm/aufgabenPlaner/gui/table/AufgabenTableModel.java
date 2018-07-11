@@ -5,19 +5,20 @@ import de.florian_timm.aufgabenPlaner.entity.Entity;
 import de.florian_timm.aufgabenPlaner.entity.Person;
 import de.florian_timm.aufgabenPlaner.entity.Projekt;
 
-import java.text.DateFormat;
-
 @SuppressWarnings("serial")
 public class AufgabenTableModel extends TableModel {
 	private Projekt projekt = null;
 	private Person person = null;
+	
 	public AufgabenTableModel(Projekt projekt) {
+		super();
 		this.projekt = projekt;
 		makeModel();
 		this.setDataSource(projekt.getAufgaben().values().toArray(new Entity[0]));
 	}
 
 	public AufgabenTableModel(Person person, int limit) {
+		super();
 		this.person = person;
 		makeModel();
 		this.setDataSource(person.getAufgaben(limit));
@@ -51,9 +52,8 @@ public class AufgabenTableModel extends TableModel {
 				this.data[i][a++] = aufgabe.getProjekt().getTitel();
 				this.data[i][a++] = aufgabe.getProjekt().getPrioritaet();
 			}
+			this.data[i][a++] = aufgabe.getTitel();
 			this.data[i][a++] = aufgabe;
-			if (aufgabe.getFaelligkeit() != null)
-				this.data[i][a++] = DateFormat.getDateInstance().format(aufgabe.getFaelligkeit());
 			this.data[i][a++] = aufgabe.getStatus();
 		}
 	}

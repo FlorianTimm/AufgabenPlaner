@@ -2,6 +2,7 @@ package de.florian_timm.aufgabenPlaner.schnittstelle;
 
 import de.florian_timm.aufgabenPlaner.entity.*;
 import de.florian_timm.aufgabenPlaner.entity.ordner.AufgabenOrdner;
+import de.florian_timm.aufgabenPlaner.entity.ordner.BearbeitungOrdner;
 import de.florian_timm.aufgabenPlaner.entity.ordner.PersonenOrdner;
 import de.florian_timm.aufgabenPlaner.entity.ordner.ProjektOrdner;
 import de.florian_timm.aufgabenPlaner.entity.ordner.StatusOrdner;
@@ -21,7 +22,7 @@ public class DatenHaltung {
 	private PreparedStatement ppst = null;
 	private ResultSet resultset = null;
 	private boolean writable = false;
-	//static int openConnections = 0;
+	// static int openConnections = 0;
 
 	public static void setSourceFile(String file) {
 		sourceFile = file;
@@ -47,11 +48,25 @@ public class DatenHaltung {
 		config.setReadOnly(!writable);
 		checkDB();
 
-		try {
-			c = DriverManager.getConnection("jdbc:sqlite:" + sourceFile, config.toProperties());
-			//openConnections++;
-		} catch (SQLException e) {
-			ErrorNotifier.log(e);
+		int i = 0;
+		while (c == null) {
+			try {
+				c = DriverManager.getConnection("jdbc:sqlite:" + sourceFile, config.toProperties());
+				break;
+			} catch (SQLException e) {
+				ErrorNotifier.log(e);
+			}
+
+			if (i > 3) {
+				break;
+			}
+			i++;
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -248,8 +263,8 @@ public class DatenHaltung {
 			if (c != null && !c.isClosed()) {
 				try {
 					c.close();
-					//openConnections--;
-					//System.out.println("Offene Verbindungen: " + openConnections);
+					// openConnections--;
+					// System.out.println("Offene Verbindungen: " + openConnections);
 				} catch (SQLException e) {
 
 					ErrorNotifier.log(e);
@@ -272,6 +287,7 @@ public class DatenHaltung {
 					StatusOrdner.createTable();
 					ProjektOrdner.createTable();
 					AufgabenOrdner.createTable();
+					BearbeitungOrdner.createTable();
 				} catch (SQLException e) {
 					ErrorNotifier.log(e);
 				}

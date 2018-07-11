@@ -1,13 +1,15 @@
 package de.florian_timm.aufgabenPlaner.entity;
 
+import java.io.File;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
 import de.florian_timm.aufgabenPlaner.entity.ordner.AufgabenOrdner;
 import de.florian_timm.aufgabenPlaner.entity.ordner.ProjektOrdner;
+import de.florian_timm.aufgabenPlaner.gui.table.DateRenderable;
 
-public class Projekt extends Entity {
+public class Projekt extends Entity implements DateRenderable {
 	private String titel;
 	private String beschreibung;
 	private Person zustaendig;
@@ -20,9 +22,10 @@ public class Projekt extends Entity {
 	private int status;
 	private AufgabenOrdner aufgaben;
 	private Person bearbeitetVon;
+	private File ordner;
 
 	public Projekt(int dbId, String titel, String beschreibung, Person zustaendig, Prioritaet prioritaet, Date erstellt,
-			Date faelligkeit, Kostentraeger kostentraeger, boolean archiviert, Person auftraggeber, int status, Person bearbeitetVon) {
+			Date faelligkeit, Kostentraeger kostentraeger, boolean archiviert, File ordner, Person auftraggeber, int status, Person bearbeitetVon) {
 		this.dbId = dbId;
 		this.titel = titel;
 		this.auftraggeber = auftraggeber;
@@ -35,6 +38,7 @@ public class Projekt extends Entity {
 		this.status = status;
 		this.aufgaben = AufgabenOrdner.getInstanz(this);
 		this.bearbeitetVon = bearbeitetVon;
+		this.ordner = ordner;
 	}
 
 	public String getTitel() {
@@ -80,6 +84,10 @@ public class Projekt extends Entity {
 	public Person getBearbeitetVon() {
 		return bearbeitetVon;
 	}
+	
+	public File getProjektordner() {
+		return ordner;
+	}
 
 
 
@@ -95,6 +103,7 @@ public class Projekt extends Entity {
 		this.faelligkeit = p.faelligkeit;
 		this.status = p.status;
 		this.bearbeitetVon = p.bearbeitetVon;
+		this.ordner = p.ordner;
 	}
 
 	public Map<Integer, Entity> getAufgaben() {
@@ -102,7 +111,7 @@ public class Projekt extends Entity {
 	}
 
 	public void updateDB(String titel, String beschreibung, Prioritaet prio, Person zustaendig,
-			Kostentraeger kostentraeger, Date faelligkeit, Person auftraggeber, Person bearbeitetVon) {
+			Kostentraeger kostentraeger, Date faelligkeit, Person auftraggeber, File ordner, Person bearbeitetVon) {
 		this.titel = titel;
 		this.beschreibung = beschreibung;
 		this.zustaendig = zustaendig;
@@ -111,6 +120,7 @@ public class Projekt extends Entity {
 		this.faelligkeit = faelligkeit;
 		this.auftraggeber = auftraggeber;
 		this.bearbeitetVon = bearbeitetVon;
+		this.ordner = ordner;
 		updateDB();
 	}
 
@@ -136,7 +146,6 @@ public class Projekt extends Entity {
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + (archiviert ? 1231 : 1237);
-		result = prime * result + ((aufgaben == null) ? 0 : aufgaben.hashCode());
 		result = prime * result + ((auftraggeber == null) ? 0 : auftraggeber.hashCode());
 		result = prime * result + ((bearbeitetVon == null) ? 0 : bearbeitetVon.hashCode());
 		result = prime * result + ((beschreibung == null) ? 0 : beschreibung.hashCode());
@@ -144,6 +153,7 @@ public class Projekt extends Entity {
 		result = prime * result + ((faelligkeit == null) ? 0 : faelligkeit.hashCode());
 		result = prime * result + ((kostentraeger == null) ? 0 : kostentraeger.hashCode());
 		result = prime * result + ((prioritaet == null) ? 0 : prioritaet.hashCode());
+		result = prime * result + ((ordner == null) ? 0 : ordner.hashCode());
 		result = prime * result + status;
 		result = prime * result + ((titel == null) ? 0 : titel.hashCode());
 		result = prime * result + ((zustaendig == null) ? 0 : zustaendig.hashCode());
@@ -160,11 +170,6 @@ public class Projekt extends Entity {
 			return false;
 		Projekt other = (Projekt) obj;
 		if (archiviert != other.archiviert)
-			return false;
-		if (aufgaben == null) {
-			if (other.aufgaben != null)
-				return false;
-		} else if (!aufgaben.equals(other.aufgaben))
 			return false;
 		if (auftraggeber == null) {
 			if (other.auftraggeber != null)
@@ -201,6 +206,11 @@ public class Projekt extends Entity {
 				return false;
 		} else if (!prioritaet.equals(other.prioritaet))
 			return false;
+		if (ordner == null) {
+			if (other.ordner != null)
+				return false;
+		} else if (!ordner.equals(other.ordner))
+			return false;
 		if (status != other.status)
 			return false;
 		if (titel == null) {
@@ -215,6 +225,21 @@ public class Projekt extends Entity {
 			return false;
 		return true;
 	}
+	@Override
+	public Calendar getCalendar() {
+		Calendar datum = Calendar.getInstance();
+		datum.setTime(this.getFaelligkeit());
+		return datum;
+	}
 
+	@Override
+	public int getStatusAsZahl() {
+		return this.getStatus();
+	}
 	
+
+	@Override
+	public Date getDate() {
+		return getFaelligkeit();
+	}
 }

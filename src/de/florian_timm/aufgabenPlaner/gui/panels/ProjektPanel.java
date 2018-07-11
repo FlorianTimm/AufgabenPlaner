@@ -8,6 +8,7 @@ import de.florian_timm.aufgabenPlaner.entity.ordner.PersonenOrdner;
 import de.florian_timm.aufgabenPlaner.entity.ordner.ProjektOrdner;
 import de.florian_timm.aufgabenPlaner.gui.PersonGUI;
 import de.florian_timm.aufgabenPlaner.gui.comp.PersonChooser;
+import de.florian_timm.aufgabenPlaner.kontroll.ErrorNotifier;
 
 import org.jdatepicker.DateModel;
 import org.jdatepicker.JDatePicker;
@@ -16,6 +17,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -31,6 +34,11 @@ public class ProjektPanel extends JPanel implements ActionListener {
 	private Window window2Close = null;
 	private Window window;
 	private JButton delButton;
+	private JButton ordnerButton;
+	private JButton neuPerson;
+	private JButton okButton;
+	private JButton selectOrdnerButton;
+	private File ordner = null;
 
 	public ProjektPanel(Window window) {
 		this.window = window;
@@ -54,7 +62,24 @@ public class ProjektPanel extends JPanel implements ActionListener {
 		m.setMonth(d.get(Calendar.MONTH));
 		m.setDay(d.get(Calendar.DATE));
 
+		ordner = projekt.getProjektordner();
+		if (ordner != null) {
+			makeOrdnerButtonText();
+			ordnerButton.setEnabled(true);
+		}
+
 		delButton.setVisible(true);
+	}
+
+	private void makeOrdnerButtonText() {
+		String path = ordner.getAbsolutePath();
+		if (path.length() >= 50) {
+			ordnerButton.setText("..." + path.substring(path.length() - 50));
+			
+		} else {
+			ordnerButton.setText(path);
+		}
+		ordnerButton.setToolTipText(path);
 	}
 
 	private void makeWindow() {
@@ -62,7 +87,9 @@ public class ProjektPanel extends JPanel implements ActionListener {
 		titelField = new JTextField();
 
 		JLabel beschreibungLabel = new JLabel("Beschreibung");
-		beschreibungField = new JTextArea(5, 20);
+		beschreibungField = new JTextArea(8, 35);
+		beschreibungField.setLineWrap(true);
+		beschreibungField.setWrapStyleWord(true);
 		JScrollPane jsp = new JScrollPane(beschreibungField);
 
 		JLabel prioLabel = new JLabel("Prio");
@@ -71,7 +98,7 @@ public class ProjektPanel extends JPanel implements ActionListener {
 		JLabel zustaendigLabel = new JLabel("Zuständig");
 		zustaendigField = new PersonChooser();
 
-		JButton neuPerson = new JButton("neu...");
+		neuPerson = new JButton("neu...");
 		neuPerson.addActionListener(this);
 		neuPerson.setActionCommand("neuePerson");
 
@@ -85,8 +112,20 @@ public class ProjektPanel extends JPanel implements ActionListener {
 		Date eineWoche = new Date(System.currentTimeMillis() + 3600 * 1000 * 24 * 7);
 		faelligkeitField = new JDatePicker(eineWoche);
 
-		JButton okButton = new JButton("Speichern");
+		JLabel ordnerLabel = new JLabel("Projektordner");
+
+		ordnerButton = new JButton("                                  ");
+		ordnerButton.setEnabled(false);
+		ordnerButton.addActionListener(this);
+		ordnerButton.setActionCommand("ordnerButton");
+
+		selectOrdnerButton = new JButton("...");
+		selectOrdnerButton.addActionListener(this);
+		selectOrdnerButton.setActionCommand("selectOrdnerButton");
+
+		okButton = new JButton("Speichern");
 		okButton.addActionListener(this);
+
 		delButton = new JButton("Löschen");
 		delButton.addActionListener(this);
 		delButton.setVisible(false);
@@ -100,12 +139,13 @@ public class ProjektPanel extends JPanel implements ActionListener {
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(titelLabel)
 						.addComponent(beschreibungLabel).addComponent(prioLabel).addComponent(zustaendigLabel)
 						.addComponent(auftraggeberLabel).addComponent(kostentraegerLabel).addComponent(faelligkeitLabel)
-						.addComponent(okButton))
+						.addComponent(ordnerLabel).addComponent(okButton))
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(titelField)
 						.addComponent(jsp).addComponent(prioField).addComponent(zustaendigField)
 						.addComponent(auftraggeberField).addComponent(kostentraegerField).addComponent(faelligkeitField)
-						.addComponent(delButton))
-				.addComponent(neuPerson));
+						.addComponent(ordnerButton).addComponent(delButton))
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(neuPerson)
+						.addComponent(selectOrdnerButton)));
 
 		layout.setVerticalGroup(layout.createSequentialGroup()
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(titelLabel)
@@ -122,6 +162,8 @@ public class ProjektPanel extends JPanel implements ActionListener {
 						.addComponent(kostentraegerField))
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(faelligkeitLabel)
 						.addComponent(faelligkeitField))
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(ordnerLabel)
+						.addComponent(selectOrdnerButton).addComponent(ordnerButton))
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(okButton)
 						.addComponent(delButton)));
 	}
@@ -135,7 +177,7 @@ public class ProjektPanel extends JPanel implements ActionListener {
 		Kostentraeger kostentraeger = (Kostentraeger) this.kostentraegerField.getSelectedItem();
 		Date faelligkeit = (Date) this.faelligkeitField.getModel().getValue();
 		ProjektOrdner.getInstanz().makeProjekt(titel, beschreibung, prio, zustaendig, kostentraeger, faelligkeit,
-				auftraggeber);
+				auftraggeber, ordner);
 	}
 
 	public void setWindow2Close(Window window) {
@@ -154,6 +196,35 @@ public class ProjektPanel extends JPanel implements ActionListener {
 		case "Löschen":
 			loeschen();
 			break;
+		case "ordnerButton":
+			ordnerOeffnen();
+			break;
+		case "selectOrdnerButton":
+			selectOrdner();
+			break;
+		}
+	}
+
+	private void selectOrdner() {
+		JFileChooser chooser = new JFileChooser();
+		if (ordner != null)
+			chooser.setCurrentDirectory(ordner);
+		chooser.setDialogTitle("Projektordner wählen");
+		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		chooser.setAcceptAllFileFilterUsed(false);
+		if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+			ordner = chooser.getSelectedFile();
+			makeOrdnerButtonText();
+			ordnerButton.setEnabled(true);
+		}
+
+	}
+
+	private void ordnerOeffnen() {
+		try {
+			Runtime.getRuntime().exec("explorer.exe \"" + ordner.getAbsolutePath() + "\"");
+		} catch (IOException e) {
+			ErrorNotifier.log(e);
 		}
 	}
 
@@ -179,7 +250,7 @@ public class ProjektPanel extends JPanel implements ActionListener {
 		}
 		window.setVisible(false);
 		if (window2Close != null) {
-			
+
 			window2Close.setVisible(false);
 			window2Close.dispose();
 		}
@@ -194,7 +265,8 @@ public class ProjektPanel extends JPanel implements ActionListener {
 		Kostentraeger kostentraeger = (Kostentraeger) this.kostentraegerField.getSelectedItem();
 		Date faelligkeit = (Date) this.faelligkeitField.getModel().getValue();
 		Person bearbeitetVon = PersonenOrdner.getInstanz().getNutzer();
-		projekt.updateDB(titel, beschreibung, prio, zustaendig, kostentraeger, faelligkeit, auftraggeber,
+
+		projekt.updateDB(titel, beschreibung, prio, zustaendig, kostentraeger, faelligkeit, auftraggeber, ordner,
 				bearbeitetVon);
 	}
 

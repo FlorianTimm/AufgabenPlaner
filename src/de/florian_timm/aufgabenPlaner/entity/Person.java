@@ -1,6 +1,7 @@
 package de.florian_timm.aufgabenPlaner.entity;
 
 import de.florian_timm.aufgabenPlaner.entity.ordner.AufgabenOrdner;
+import de.florian_timm.aufgabenPlaner.entity.ordner.BearbeitungOrdner;
 import de.florian_timm.aufgabenPlaner.entity.ordner.PersonenOrdner;
 import java.util.List;
 
@@ -107,6 +108,11 @@ public class Person extends Entity implements Comparable<Person> {
 		this.vorname = p.getVorname();
 		this.name = p.getNachName();
 		this.email = p.getEmail();
+	}
+
+	public Entity[] getBearbeitungen(int limit) {
+		List<Bearbeitung> list = BearbeitungOrdner.getBearbeitungen(this, limit);
+		return list.toArray(new Bearbeitung[0]);
 	}
 
 }

@@ -17,6 +17,7 @@ import de.florian_timm.aufgabenPlaner.entity.Person;
 import de.florian_timm.aufgabenPlaner.entity.Projekt;
 import de.florian_timm.aufgabenPlaner.entity.ordner.AufgabenOrdner;
 import de.florian_timm.aufgabenPlaner.gui.AufgabenGUI;
+import de.florian_timm.aufgabenPlaner.gui.BearbeitungGUI;
 import de.florian_timm.aufgabenPlaner.gui.ProjektViewGUI;
 import de.florian_timm.aufgabenPlaner.kontroll.AufgabenNotifier;
 import de.florian_timm.aufgabenPlaner.kontroll.EntityListener;
@@ -36,6 +37,8 @@ public class AufgabenTable extends Table implements MouseListener, EntityListene
 	private JMenuItem miDetails;
 	private JMenuItem miPlus7;
 	private JMenuItem miPlus1;
+	private JMenuItem miProjektDetails;
+	private JMenuItem miFertig;
 
 	public AufgabenTable(Window window, Projekt projekt) {
 		super();
@@ -68,13 +71,23 @@ public class AufgabenTable extends Table implements MouseListener, EntityListene
 
 		popup = new JPopupMenu();
 
-		miDetails = new JMenuItem("Details...");
+		miDetails = new JMenuItem("Aufgaben-Details...");
 		miDetails.addActionListener(this);
 		popup.add(miDetails);
+
+		miProjektDetails = new JMenuItem("Projekt-Details...");
+		miProjektDetails.addActionListener(this);
+		popup.add(miProjektDetails);
+
+		popup.addSeparator();
 
 		miBearbeiten = new JMenuItem("Bearbeitung beginnen...");
 		miBearbeiten.addActionListener(this);
 		popup.add(miBearbeiten);
+
+		miFertig = new JMenuItem("Fertig!");
+		miFertig.addActionListener(this);
+		popup.add(miFertig);
 
 		popup.addSeparator();
 
@@ -114,6 +127,7 @@ public class AufgabenTable extends Table implements MouseListener, EntityListene
 		this.setModel(model);
 		sorter.setModel(model);
 		this.getColumn("Status").setCellRenderer(new ProgressCellRender());
+		this.getColumn("Fälligkeit").setCellRenderer(new DateRender());
 	}
 
 	@Override
@@ -175,19 +189,25 @@ public class AufgabenTable extends Table implements MouseListener, EntityListene
 				loeschen(aufgabe);
 			} else if (menu == miDetails) {
 				openAufgabe(aufgabe);
+			} else if (menu == miProjektDetails) {
+				new ProjektViewGUI(window, aufgabe.getProjekt());
 			} else if (menu == miBearbeiten) {
 				bearbeiten(aufgabe);
 			} else if (menu == miPlus7) {
 				aufgabe.plus(7);
 			} else if (menu == miPlus1) {
 				aufgabe.plus(1);
+			} else if (menu == miFertig) {
+				aufgabe.setFertig();
 			}
 		}
 	}
 
 	private void bearbeiten(Aufgabe aufgabe) {
 		// TODO Auto-generated method stub
-		JOptionPane.showMessageDialog(window, "noch nicht implementiert", "Warnung", JOptionPane.INFORMATION_MESSAGE);
+		// JOptionPane.showMessageDialog(window, "noch nicht implementiert", "Warnung",
+		// JOptionPane.INFORMATION_MESSAGE);
+		new BearbeitungGUI(window, aufgabe);
 	}
 
 	private void loeschen(Aufgabe aufgabe) {

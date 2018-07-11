@@ -9,7 +9,6 @@ import java.awt.event.MouseListener;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
-import javax.swing.SwingUtilities;
 import javax.swing.table.TableRowSorter;
 
 import de.florian_timm.aufgabenPlaner.entity.Person;
@@ -100,9 +99,7 @@ public class ProjektTable extends Table implements MouseListener, EntityListener
 	}
 
 	private void openProjekt(Projekt projekt) {
-		Window topFrame = SwingUtilities.windowForComponent(this);
-		System.out.println(projekt.getTitel());
-		new ProjektViewGUI(topFrame, projekt);
+		new ProjektViewGUI(window, projekt);
 	}
 
 	public void dataChanged() {
@@ -114,6 +111,7 @@ public class ProjektTable extends Table implements MouseListener, EntityListener
 		this.setModel(model);
 		sorter.setModel(model);
 		this.getColumn("Status").setCellRenderer(new ProgressCellRender());
+		this.getColumn("Fälligkeit").setCellRenderer(new DateRender());
 	}
 
 	@Override
