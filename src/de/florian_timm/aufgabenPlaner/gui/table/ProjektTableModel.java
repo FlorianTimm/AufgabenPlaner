@@ -39,7 +39,7 @@ public class ProjektTableModel extends TableModel {
 				this.data[i][1] = projekt.getAuftraggeber();
 			this.data[i][2] = projekt.getTitel();
 			this.data[i][3] = projekt.getZustaendig();
-			this.data[i][4] = projekt;
+			this.data[i][4] = new DateRenderable(projekt.getFaelligkeit(), projekt.getStatus() == 100);
 			this.data[i][5] = projekt.getStatus();
 		}
 	}

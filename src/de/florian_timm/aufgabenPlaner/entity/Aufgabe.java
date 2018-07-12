@@ -4,13 +4,11 @@ import de.florian_timm.aufgabenPlaner.entity.ordner.AufgabenOrdner;
 import de.florian_timm.aufgabenPlaner.entity.ordner.BearbeitungOrdner;
 import de.florian_timm.aufgabenPlaner.entity.ordner.PersonenOrdner;
 import de.florian_timm.aufgabenPlaner.entity.ordner.StatusOrdner;
-import de.florian_timm.aufgabenPlaner.gui.table.DateRenderable;
-
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
 
-public class Aufgabe extends Entity implements DateRenderable {
+public class Aufgabe extends Entity {
 	private Person bearbeiter;
 	private String titel;
 	private String beschreibung;
@@ -186,22 +184,4 @@ public class Aufgabe extends Entity implements DateRenderable {
 		this.status = StatusOrdner.getFertig();
 		updateDB();
 	}
-
-	@Override
-	public Calendar getCalendar() {
-		Calendar datum = Calendar.getInstance();
-		datum.setTime(this.getFaelligkeit());
-		return datum;
-	}
-
-	@Override
-	public int getStatusAsZahl() {
-		return this.getStatus().getSortierung();
-	}
-
-	@Override
-	public Date getDate() {
-		return getFaelligkeit();
-	}
-
 }

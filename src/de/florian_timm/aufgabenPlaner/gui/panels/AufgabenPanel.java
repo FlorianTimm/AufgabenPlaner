@@ -3,6 +3,9 @@ package de.florian_timm.aufgabenPlaner.gui.panels;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -15,6 +18,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import org.jdatepicker.DateModel;
 import org.jdatepicker.JDatePicker;
@@ -27,10 +34,9 @@ import de.florian_timm.aufgabenPlaner.entity.ordner.AufgabenOrdner;
 import de.florian_timm.aufgabenPlaner.entity.ordner.StatusOrdner;
 import de.florian_timm.aufgabenPlaner.gui.PersonGUI;
 import de.florian_timm.aufgabenPlaner.gui.comp.PersonChooser;
-import de.florian_timm.aufgabenPlaner.kontroll.PersonenNotifier;
 
 @SuppressWarnings("serial")
-public class AufgabenPanel extends JPanel implements ActionListener {
+public class AufgabenPanel extends JPanel implements ActionListener, DocumentListener, ItemListener, ChangeListener {
 	private JTextField titelField;
 	private JTextArea beschreibungField;
 	private PersonChooser bearbeiterField;
@@ -39,8 +45,9 @@ public class AufgabenPanel extends JPanel implements ActionListener {
 	private Projekt projekt;
 	private Aufgabe aufgabe = null;
 	private Window window;
-	
-	
+	private JButton okButton;
+	private JButton delButton;
+
 	public AufgabenPanel(Window window, Projekt projekt) {
 		super();
 		makePanel(window);
@@ -64,21 +71,51 @@ public class AufgabenPanel extends JPanel implements ActionListener {
 		m.setMonth(d.get(Calendar.MONTH));
 		m.setDay(d.get(Calendar.DATE));
 	}
-	
+
+	public boolean isVeraendert() {
+		if (aufgabe != null) {
+			DateModel<?> m = faelligkeitField.getModel();
+			Date d = (Date) m.getValue();
+			SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
+			if (!titelField.getText().equals(aufgabe.toString())) {
+				return true;
+			} else if (!beschreibungField.getText().equals(aufgabe.getBeschreibung())) {
+				return true;
+			} else if (!bearbeiterField.getSelectedItem().equals(aufgabe.getBearbeiter())) {
+				return true;
+			} else if (!statusField.getSelectedItem().equals(aufgabe.getStatus())) {
+				return true;
+			} else if (!fmt.format(d).equals(fmt.format(aufgabe.getFaelligkeit()))) {
+				return true;
+			}
+		} else {
+			if (!titelField.getText().equals("")) {
+				return true;
+			} else if (!beschreibungField.getText().equals("")) {
+				return true;
+			}
+
+		}
+		return false;
+	}
 
 	private void makePanel(Window window) {
-		this.window= window;
+		this.window = window;
 		JLabel titelLabel = new JLabel("Titel");
 		titelField = new JTextField();
+		titelField.getDocument().addDocumentListener(this);
 
 		JLabel beschreibungLabel = new JLabel("Beschreibung");
 		beschreibungField = new JTextArea(8, 35);
 		beschreibungField.setLineWrap(true);
 		beschreibungField.setWrapStyleWord(true);
+		beschreibungField.getDocument().addDocumentListener(this);
 		JScrollPane jsp = new JScrollPane(beschreibungField);
 
 		JLabel bearbeiterLabel = new JLabel("Bearbeiter");
 		bearbeiterField = new PersonChooser();
+		bearbeiterField.addItemListener(this);
+
 		JButton neuPerson = new JButton("neu...");
 		neuPerson.addActionListener(this);
 		neuPerson.setActionCommand("neuePerson");
@@ -86,14 +123,17 @@ public class AufgabenPanel extends JPanel implements ActionListener {
 		JLabel faelligkeitLabel = new JLabel("Fällig am");
 		Date eineWoche = new Date(System.currentTimeMillis() + 3600 * 1000 * 24 * 7);
 		faelligkeitField = new JDatePicker(eineWoche);
+		faelligkeitField.getModel().addChangeListener(this);
 
 		JLabel statusLabel = new JLabel("Status");
 		statusField = new JComboBox<Status>(StatusOrdner.getInstanz().getArray());
+		statusField.addItemListener(this);
 
-		JButton okButton = new JButton("Speichern");
+		okButton = new JButton("Speichern");
 		okButton.addActionListener(this);
+		okButton.setEnabled(false);
 
-		JButton delButton = new JButton("Löschen");
+		delButton = new JButton("Löschen");
 		delButton.addActionListener(this);
 		delButton.setVisible(aufgabe != null);
 
@@ -156,14 +196,15 @@ public class AufgabenPanel extends JPanel implements ActionListener {
 		pgui.setVisible(true);
 	}
 
-	private void speichern() {
-		if (this.aufgabe == null)
+	public void speichern() {
+		if (this.aufgabe == null) {
 			makeAufgabe();
-		else
+			close();
+			window.dispose();
+		} else {
 			updateAufgabe();
-		window.setVisible(false);
-		window.dispose();
-		PersonenNotifier.getInstanz().removeListener(bearbeiterField);
+			this.checkModified();
+		}
 	}
 
 	public void makeAufgabe() {
@@ -188,4 +229,36 @@ public class AufgabenPanel extends JPanel implements ActionListener {
 		bearbeiterField.close();
 	}
 
+	private void checkModified() {
+		if (isVeraendert()) {
+			okButton.setEnabled(true);
+		} else {
+			okButton.setEnabled(false);
+		}
+	}
+
+	@Override
+	public void changedUpdate(DocumentEvent arg0) {
+		checkModified();
+	}
+
+	@Override
+	public void insertUpdate(DocumentEvent arg0) {
+		checkModified();
+	}
+
+	@Override
+	public void removeUpdate(DocumentEvent arg0) {
+		checkModified();
+	}
+
+	@Override
+	public void itemStateChanged(ItemEvent arg0) {
+		checkModified();
+	}
+
+	@Override
+	public void stateChanged(ChangeEvent arg0) {
+		checkModified();
+	}
 }

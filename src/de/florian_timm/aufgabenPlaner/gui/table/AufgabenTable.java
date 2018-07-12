@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.Comparator;
 
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -15,6 +16,7 @@ import javax.swing.table.TableRowSorter;
 import de.florian_timm.aufgabenPlaner.entity.Aufgabe;
 import de.florian_timm.aufgabenPlaner.entity.Person;
 import de.florian_timm.aufgabenPlaner.entity.Projekt;
+import de.florian_timm.aufgabenPlaner.entity.Status;
 import de.florian_timm.aufgabenPlaner.entity.ordner.AufgabenOrdner;
 import de.florian_timm.aufgabenPlaner.gui.AufgabenGUI;
 import de.florian_timm.aufgabenPlaner.gui.BearbeitungGUI;
@@ -68,6 +70,19 @@ public class AufgabenTable extends Table implements MouseListener, EntityListene
 		sorter = new TableRowSorter<AufgabenTableModel>();
 		this.setRowSorter(sorter);
 		dataChanged();
+		sorter.setComparator(this.getColumn("Fälligkeit").getModelIndex(), new Comparator<DateRenderable>() {
+			public int compare(DateRenderable d1, DateRenderable d2) {
+				return d1.compareTo(d2);
+			}
+		});
+		sorter.setComparator(this.getColumn("Status").getModelIndex(), new Comparator<Status>() {
+			@Override
+			public int compare(Status s0, Status s1) {
+				Integer i0 = s0.getSortierung();
+				Integer i1 = s1.getSortierung();
+				return i0.compareTo(i1);
+			}
+		});
 
 		popup = new JPopupMenu();
 
@@ -126,8 +141,13 @@ public class AufgabenTable extends Table implements MouseListener, EntityListene
 		}
 		this.setModel(model);
 		sorter.setModel(model);
-		this.getColumn("Status").setCellRenderer(new ProgressCellRender());
-		this.getColumn("Fälligkeit").setCellRenderer(new DateRender());
+
+		try {
+			this.getColumn("Status").setCellRenderer(new ProgressCellRenderer());
+			this.getColumn("Fälligkeit").setCellRenderer(new DateRenderer());
+			this.getColumn("Prio").setCellRenderer(new PrioRenderer());
+		} catch (java.lang.IllegalArgumentException e) {
+		}
 	}
 
 	@Override
@@ -136,9 +156,7 @@ public class AufgabenTable extends Table implements MouseListener, EntityListene
 		if (e.getButton() == MouseEvent.BUTTON2) {
 			Point point = e.getPoint();
 			int currentRow = this.rowAtPoint(point);
-			System.out.println("Test");
 			this.setRowSelectionInterval(currentRow, currentRow);
-
 		}
 
 	}
@@ -160,9 +178,18 @@ public class AufgabenTable extends Table implements MouseListener, EntityListene
 
 		if (event.getClickCount() == 2 && this.getSelectedRow() != -1) {
 			int row = this.rowAtPoint(event.getPoint());
+			int col = this.columnAtPoint(event.getPoint());
 			Aufgabe aufgabe = (Aufgabe) this.getData(row);
-			openAufgabe(aufgabe);
+			if (person != null && col <= 2)
+				openProjekt(aufgabe.getProjekt());
+			else
+				openAufgabe(aufgabe);
+
 		}
+	}
+
+	private void openProjekt(Projekt projekt) {
+		new ProjektViewGUI(window, projekt);
 	}
 
 	@Override

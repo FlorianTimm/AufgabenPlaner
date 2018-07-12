@@ -5,11 +5,12 @@ import java.awt.Frame;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
 import java.awt.SystemTray;
+import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 
-public class SystemLeistenIcon extends java.awt.TrayIcon implements ActionListener {
+public class SystemLeistenIcon extends TrayIcon implements ActionListener {
 	private static SystemLeistenIcon instanz = null;
 	private SystemTray tray;
 	private boolean inTray = false;
@@ -32,14 +33,12 @@ public class SystemLeistenIcon extends java.awt.TrayIcon implements ActionListen
 		ap.getGui().setVisible(false);
 		makeAlert("AufgabenPlaner", "Programm wurde minimiert, \nzum Schließen rechte Maustaste \nauf das Symbol");
 	}
-	
-	
 
 	private SystemLeistenIcon(AufgabenPlaner ap, BufferedImage trayIconImage) {
 
 		super(trayIconImage, "AufgabenPlaner");
 		this.ap = ap;
-
+		
 		final PopupMenu popup = new PopupMenu();
 		tray = SystemTray.getSystemTray();
 
@@ -59,7 +58,7 @@ public class SystemLeistenIcon extends java.awt.TrayIcon implements ActionListen
 		this.setPopupMenu(popup);
 		this.setImageAutoSize(true);
 		this.addActionListener(this);
-		this.setActionCommand("oeffnen");
+		this.setActionCommand("tooltip");
 
 		try {
 			tray.add(this);
@@ -82,7 +81,7 @@ public class SystemLeistenIcon extends java.awt.TrayIcon implements ActionListen
 		if (ap.getGui() != null)
 			ap.getGui().requestFocus();
 	}
-	
+
 	void removeIcon() {
 		tray.remove(this);
 	}
@@ -96,7 +95,9 @@ public class SystemLeistenIcon extends java.awt.TrayIcon implements ActionListen
 		case "ende":
 			ap.close();
 			break;
+		case "tooltip":
+			showGui();
+			break;
 		}
-		showGui();
 	}
 }

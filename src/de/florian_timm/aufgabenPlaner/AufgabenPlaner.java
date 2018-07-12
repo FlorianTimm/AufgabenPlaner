@@ -16,7 +16,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
-
 import de.florian_timm.aufgabenPlaner.entity.ordner.AufgabenOrdner;
 import de.florian_timm.aufgabenPlaner.entity.ordner.PersonenOrdner;
 import de.florian_timm.aufgabenPlaner.entity.ordner.ProjektOrdner;
@@ -59,7 +58,7 @@ public class AufgabenPlaner implements WindowListener {
 		tray = SystemLeistenIcon.getInstanz();
 
 		DatenHaltung.setSourceFile(dateiname);
-
+		
 		gui = new AufgabenPlanerGUI(this);
 		gui.addWindowListener(this);
 		gui.setIconImage(trayIconImage);
@@ -72,9 +71,9 @@ public class AufgabenPlaner implements WindowListener {
 		};
 		t.schedule(task, 0, 15000);
 	}
-
+	
 	private void autoReload() {
-		System.out.println("AutoReload");
+		//System.out.println("AutoReload");
 		StatusOrdner.getInstanz().loadData();
 		PersonenOrdner.getInstanz().loadData();
 		ProjektOrdner.getInstanz().loadData();

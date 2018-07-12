@@ -1,6 +1,7 @@
 package de.florian_timm.aufgabenPlaner.gui;
 
 import de.florian_timm.aufgabenPlaner.entity.Projekt;
+import de.florian_timm.aufgabenPlaner.gui.comp.ClosableComponent;
 import de.florian_timm.aufgabenPlaner.gui.panels.ProjektPanel;
 import de.florian_timm.aufgabenPlaner.gui.table.AufgabenTable;
 
@@ -8,15 +9,18 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class ProjektViewGUI extends JDialog implements ActionListener, WindowListener {
+public class ProjektViewGUI extends JDialog implements ActionListener, WindowListener, ClosableComponent {
 	private static final long serialVersionUID = 1L;
 	private Projekt projekt;
 	private AufgabenTable aufgabenTable;
 	private ProjektPanel projektPanel;
 
 	public ProjektViewGUI(Window window, Projekt projekt) {
-		super(window, projekt.toString(), Dialog.ModalityType.DOCUMENT_MODAL);
-		this.setTitle(projekt.getTitel());
+		super(window, projekt.getTitel(), ModalityType.APPLICATION_MODAL);
+		this.setModal(true);
+		this.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+		this.addWindowListener(this);
+		
 		this.projekt = projekt;
 
 		Container cp = this.getContentPane();
@@ -29,23 +33,21 @@ public class ProjektViewGUI extends JDialog implements ActionListener, WindowLis
 		JScrollPane jsp = new JScrollPane(aufgabenTable);
 		cp.add(jsp, BorderLayout.CENTER);
 		
-
 		JButton neu = new JButton("neue Aufgabe");
 		neu.addActionListener(this);
 		cp.add(neu, BorderLayout.SOUTH);
 
-		this.setPreferredSize(new Dimension(600, 600));
+		this.setPreferredSize(new Dimension(700, 800));
 		this.pack();
 		this.setLocationRelativeTo(window);
 		this.setVisible(true);
-
-
-		this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 	}
 	
 	public void close() {
 		aufgabenTable.close();
 		projektPanel.close();
+		this.setModal(false);
+		this.setVisible(false);
 	}
 	
 	@Override
@@ -67,12 +69,34 @@ public class ProjektViewGUI extends JDialog implements ActionListener, WindowLis
 
 	@Override
 	public void windowClosing(WindowEvent arg0) {
-		this.close();
+		System.out.println("Closing...");
+		if (projektPanel.isVeraendert()) {
+			System.out.println("verändert");
+			int ans = JOptionPane.showConfirmDialog(this,
+					"Sie haben die Daten verändert. Möchten Sie die Veränderung speichern?", "Daten wurden verändert",
+					JOptionPane.YES_NO_CANCEL_OPTION);
+
+			if (ans == JOptionPane.YES_OPTION) {
+				System.out.println("YES");
+				projektPanel.speichern();
+				close();
+			} else if (ans == JOptionPane.NO_OPTION) {
+				System.out.println("NO");
+				close();
+			} else if (ans == JOptionPane.CANCEL_OPTION) {
+				System.out.println("CANCEL");
+				return;
+			}
+
+		} else {
+			System.out.println("unverändert");
+			close();
+		}
 	}
 
 	@Override
 	public void windowDeactivated(WindowEvent arg0) {
-		this.close();
+		//this.close();
 	}
 
 	@Override

@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.Comparator;
 
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -56,10 +57,21 @@ public class ProjektTable extends Table implements MouseListener, EntityListener
 
 		ProjektNotifier.getInstanz().addListener(this);
 		AufgabenNotifier.getInstanz().addListener(this);
-
+		
 		sorter = new TableRowSorter<ProjektTableModel>();
 		this.setRowSorter(sorter);
 		dataChanged();
+		sorter.setComparator(this.getColumn("Fälligkeit").getModelIndex(), new Comparator<DateRenderable>() {
+			public int compare(DateRenderable d1, DateRenderable d2) {
+				return d1.compareTo(d2);
+			}
+		});
+		sorter.setComparator(this.getColumn("Status").getModelIndex(), new Comparator<Integer>() {
+			@Override
+			public int compare(Integer i0, Integer i1) {
+				return i0.compareTo(i1);
+			}
+		});
 
 		popup = new JPopupMenu();
 
@@ -108,10 +120,15 @@ public class ProjektTable extends Table implements MouseListener, EntityListener
 			model = new ProjektTableModel();
 		else
 			model = new ProjektTableModel(person, limit);
+		
+		
 		this.setModel(model);
 		sorter.setModel(model);
-		this.getColumn("Status").setCellRenderer(new ProgressCellRender());
-		this.getColumn("Fälligkeit").setCellRenderer(new DateRender());
+		try {		
+			this.getColumn("Status").setCellRenderer(new ProgressCellRenderer());
+			this.getColumn("Fälligkeit").setCellRenderer(new DateRenderer());
+			this.getColumn("Prio").setCellRenderer(new PrioRenderer());
+		} catch (java.lang.IllegalArgumentException e) {}
 	}
 
 	@Override

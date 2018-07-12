@@ -7,6 +7,7 @@ import de.florian_timm.aufgabenPlaner.entity.Projekt;
 import de.florian_timm.aufgabenPlaner.entity.ordner.PersonenOrdner;
 import de.florian_timm.aufgabenPlaner.entity.ordner.ProjektOrdner;
 import de.florian_timm.aufgabenPlaner.gui.PersonGUI;
+import de.florian_timm.aufgabenPlaner.gui.comp.ClosableComponent;
 import de.florian_timm.aufgabenPlaner.gui.comp.PersonChooser;
 import de.florian_timm.aufgabenPlaner.kontroll.ErrorNotifier;
 
@@ -14,16 +15,24 @@ import org.jdatepicker.DateModel;
 import org.jdatepicker.JDatePicker;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
 @SuppressWarnings("serial")
-public class ProjektPanel extends JPanel implements ActionListener {
+public class ProjektPanel extends JPanel implements ActionListener, DocumentListener, ItemListener, ChangeListener {
 	private JTextField titelField;
 	private JTextArea beschreibungField;
 	private JComboBox<Prioritaet> prioField;
@@ -31,7 +40,6 @@ public class ProjektPanel extends JPanel implements ActionListener {
 	private JComboBox<Kostentraeger> kostentraegerField;
 	private JDatePicker faelligkeitField;
 	private Projekt projekt = null;
-	private Window window2Close = null;
 	private Window window;
 	private JButton delButton;
 	private JButton ordnerButton;
@@ -75,7 +83,7 @@ public class ProjektPanel extends JPanel implements ActionListener {
 		String path = ordner.getAbsolutePath();
 		if (path.length() >= 50) {
 			ordnerButton.setText("..." + path.substring(path.length() - 50));
-			
+
 		} else {
 			ordnerButton.setText(path);
 		}
@@ -85,18 +93,22 @@ public class ProjektPanel extends JPanel implements ActionListener {
 	private void makeWindow() {
 		JLabel titelLabel = new JLabel("Titel");
 		titelField = new JTextField();
+		titelField.getDocument().addDocumentListener(this);
 
 		JLabel beschreibungLabel = new JLabel("Beschreibung");
 		beschreibungField = new JTextArea(8, 35);
 		beschreibungField.setLineWrap(true);
 		beschreibungField.setWrapStyleWord(true);
+		beschreibungField.getDocument().addDocumentListener(this);
 		JScrollPane jsp = new JScrollPane(beschreibungField);
 
 		JLabel prioLabel = new JLabel("Prio");
 		prioField = new JComboBox<Prioritaet>(Prioritaet.getArray());
+		prioField.addItemListener(this);
 
 		JLabel zustaendigLabel = new JLabel("Zuständig");
 		zustaendigField = new PersonChooser();
+		zustaendigField.addItemListener(this);
 
 		neuPerson = new JButton("neu...");
 		neuPerson.addActionListener(this);
@@ -104,13 +116,16 @@ public class ProjektPanel extends JPanel implements ActionListener {
 
 		JLabel auftraggeberLabel = new JLabel("Auftraggeber");
 		auftraggeberField = new PersonChooser();
+		auftraggeberField.addItemListener(this);
 
 		JLabel kostentraegerLabel = new JLabel("Kostenträger");
 		kostentraegerField = new JComboBox<Kostentraeger>(Kostentraeger.getArray());
+		kostentraegerField.addItemListener(this);
 
 		JLabel faelligkeitLabel = new JLabel("Fällig am");
 		Date eineWoche = new Date(System.currentTimeMillis() + 3600 * 1000 * 24 * 7);
 		faelligkeitField = new JDatePicker(eineWoche);
+		faelligkeitField.getModel().addChangeListener(this);
 
 		JLabel ordnerLabel = new JLabel("Projektordner");
 
@@ -125,6 +140,7 @@ public class ProjektPanel extends JPanel implements ActionListener {
 
 		okButton = new JButton("Speichern");
 		okButton.addActionListener(this);
+		okButton.setEnabled(false);
 
 		delButton = new JButton("Löschen");
 		delButton.addActionListener(this);
@@ -168,6 +184,40 @@ public class ProjektPanel extends JPanel implements ActionListener {
 						.addComponent(delButton)));
 	}
 
+	public boolean isVeraendert() {
+		if (projekt != null) {
+			DateModel<?> m = faelligkeitField.getModel();
+			Date d = (Date) m.getValue();
+			SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
+			if (!titelField.getText().equals(projekt.getTitel())) {
+				return true;
+			} else if (!beschreibungField.getText().equals(projekt.getBeschreibung())) {
+				return true;
+			} else if (!zustaendigField.getSelectedItem().equals(projekt.getZustaendig())) {
+				return true;
+			} else if (!auftraggeberField.getSelectedItem().equals(projekt.getAuftraggeber())) {
+				return true;
+			} else if (!prioField.getSelectedItem().equals(projekt.getPrioritaet())) {
+				return true;
+			} else if (!kostentraegerField.getSelectedItem().equals(projekt.getKostentraeger())) {
+				return true;
+			} else if (!fmt.format(d).equals(fmt.format(projekt.getFaelligkeit()))) {
+				return true;
+			} else if ((projekt.getProjektordner() == null && ordner != null)
+					|| (ordner != null && !ordner.equals(projekt.getProjektordner()))) {
+				return true;
+			}
+		} else {
+			if (!titelField.getText().equals("")) {
+				return true;
+			} else if (!beschreibungField.getText().equals("")) {
+				return true;
+			}
+
+		}
+		return false;
+	}
+
 	public void makeProjekt() {
 		String titel = this.titelField.getText();
 		String beschreibung = this.beschreibungField.getText();
@@ -178,10 +228,6 @@ public class ProjektPanel extends JPanel implements ActionListener {
 		Date faelligkeit = (Date) this.faelligkeitField.getModel().getValue();
 		ProjektOrdner.getInstanz().makeProjekt(titel, beschreibung, prio, zustaendig, kostentraeger, faelligkeit,
 				auftraggeber, ordner);
-	}
-
-	public void setWindow2Close(Window window) {
-		this.window2Close = window;
 	}
 
 	@Override
@@ -216,6 +262,7 @@ public class ProjektPanel extends JPanel implements ActionListener {
 			ordner = chooser.getSelectedFile();
 			makeOrdnerButtonText();
 			ordnerButton.setEnabled(true);
+			this.checkModified();
 		}
 
 	}
@@ -242,17 +289,13 @@ public class ProjektPanel extends JPanel implements ActionListener {
 		pgui.setVisible(true);
 	}
 
-	private void speichern() {
+	public void speichern() {
 		if (projekt == null) {
 			makeProjekt();
+			((ClosableComponent) window).close();
 		} else {
 			updateProjekt();
-		}
-		window.setVisible(false);
-		if (window2Close != null) {
-
-			window2Close.setVisible(false);
-			window2Close.dispose();
+			this.checkModified();
 		}
 	}
 
@@ -273,5 +316,38 @@ public class ProjektPanel extends JPanel implements ActionListener {
 	public void close() {
 		auftraggeberField.close();
 		zustaendigField.close();
+	}
+
+	private void checkModified() {
+		if (isVeraendert()) {
+			okButton.setEnabled(true);
+		} else {
+			okButton.setEnabled(false);
+		}
+	}
+
+	@Override
+	public void changedUpdate(DocumentEvent arg0) {
+		checkModified();
+	}
+
+	@Override
+	public void insertUpdate(DocumentEvent arg0) {
+		checkModified();
+	}
+
+	@Override
+	public void removeUpdate(DocumentEvent arg0) {
+		checkModified();
+	}
+
+	@Override
+	public void itemStateChanged(ItemEvent arg0) {
+		checkModified();
+	}
+
+	@Override
+	public void stateChanged(ChangeEvent arg0) {
+		checkModified();
 	}
 }

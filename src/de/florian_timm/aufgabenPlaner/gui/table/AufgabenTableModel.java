@@ -4,6 +4,7 @@ import de.florian_timm.aufgabenPlaner.entity.Aufgabe;
 import de.florian_timm.aufgabenPlaner.entity.Entity;
 import de.florian_timm.aufgabenPlaner.entity.Person;
 import de.florian_timm.aufgabenPlaner.entity.Projekt;
+import de.florian_timm.aufgabenPlaner.entity.ordner.StatusOrdner;
 
 @SuppressWarnings("serial")
 public class AufgabenTableModel extends TableModel {
@@ -53,7 +54,7 @@ public class AufgabenTableModel extends TableModel {
 				this.data[i][a++] = aufgabe.getProjekt().getPrioritaet();
 			}
 			this.data[i][a++] = aufgabe.getTitel();
-			this.data[i][a++] = aufgabe;
+			this.data[i][a++] = new DateRenderable(aufgabe.getFaelligkeit(), aufgabe.getStatus().equals(StatusOrdner.getFertig()));
 			this.data[i][a++] = aufgabe.getStatus();
 		}
 	}

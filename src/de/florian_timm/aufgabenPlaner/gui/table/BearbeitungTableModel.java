@@ -6,7 +6,6 @@ import de.florian_timm.aufgabenPlaner.entity.Entity;
 import de.florian_timm.aufgabenPlaner.entity.Person;
 
 import java.text.SimpleDateFormat;
-import java.time.temporal.ChronoUnit;
 
 @SuppressWarnings("serial")
 public class BearbeitungTableModel extends TableModel {

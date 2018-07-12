@@ -42,7 +42,8 @@ public class BearbeitungGUI extends JDialog implements ActionListener {
 		// System.out.println(aufgabe);
 
 		startField.setText(dateFormat.format(bearbeitung.getStart()));
-		dauerField.setText("" + bearbeitung.getDauer().getSeconds()/60);
+		if (bearbeitung.getDauer() != null)
+			dauerField.setText("" + bearbeitung.getDauer().getSeconds() / 60);
 		bemerkungField.setText(bearbeitung.getBemerkung());
 		bearbeiterField.setSelectedItem(bearbeitung.getBearbeiter());
 		bearbeiterField.setEnabled(false);
@@ -163,7 +164,7 @@ public class BearbeitungGUI extends JDialog implements ActionListener {
 		try {
 			dauer = Duration.ofMinutes(Long.parseLong(dauerField.getText()));
 		} catch (NumberFormatException e) {
-			
+
 		}
 		BearbeitungOrdner.getInstanz(aufgabe).makeAufgabe(aufgabe, bearbeiter, start, dauer, bemerkung);
 	}
@@ -182,7 +183,7 @@ public class BearbeitungGUI extends JDialog implements ActionListener {
 		try {
 			dauer = Duration.ofMinutes(Long.parseLong(dauerField.getText()));
 		} catch (NumberFormatException e) {
-			
+
 		}
 		bearbeitung.updateDB(start, dauer, bemerkung);
 	}

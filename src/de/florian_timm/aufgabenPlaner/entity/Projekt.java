@@ -7,9 +7,8 @@ import java.util.Map;
 
 import de.florian_timm.aufgabenPlaner.entity.ordner.AufgabenOrdner;
 import de.florian_timm.aufgabenPlaner.entity.ordner.ProjektOrdner;
-import de.florian_timm.aufgabenPlaner.gui.table.DateRenderable;
 
-public class Projekt extends Entity implements DateRenderable {
+public class Projekt extends Entity {
 	private String titel;
 	private String beschreibung;
 	private Person zustaendig;
@@ -225,21 +224,5 @@ public class Projekt extends Entity implements DateRenderable {
 			return false;
 		return true;
 	}
-	@Override
-	public Calendar getCalendar() {
-		Calendar datum = Calendar.getInstance();
-		datum.setTime(this.getFaelligkeit());
-		return datum;
-	}
 
-	@Override
-	public int getStatusAsZahl() {
-		return this.getStatus();
-	}
-	
-
-	@Override
-	public Date getDate() {
-		return getFaelligkeit();
-	}
 }
