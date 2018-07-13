@@ -14,12 +14,15 @@ public class PrioRenderer extends DefaultTableCellRenderer {
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
 			int row, int column) {
 		Prioritaet wert = (Prioritaet) value;
-
+		this.setHorizontalAlignment( JLabel.CENTER );
 		Component c = super.getTableCellRendererComponent(table, wert, isSelected, hasFocus, row, column);
 
 		int zahl = wert.getSortierung();
-		int r = 255 - zahl * 2;
-		c.setBackground(new Color(255, r, r));
+		int h = 255;
+		if (isSelected) 
+			h = 200;
+		int r = h - zahl * 2;
+		c.setBackground(new Color(h, r, r));
 		if (zahl > 80)
 			c.setFont(c.getFont().deriveFont(Font.BOLD));
 

@@ -65,6 +65,7 @@ public class AufgabenGUI extends JDialog implements ActionListener, WindowListen
 		}
 		this.setModal(false);
 		this.setVisible(false);
+		this.dispose();
 	}
 
 	@Override

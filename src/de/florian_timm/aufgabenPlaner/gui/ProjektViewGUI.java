@@ -52,8 +52,7 @@ public class ProjektViewGUI extends JDialog implements ActionListener, WindowLis
 	
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		AufgabenGUI agui = new AufgabenGUI(this, projekt);
-		agui.setVisible(true);
+		new AufgabenGUI(this, projekt);
 	}
 	
 	@Override

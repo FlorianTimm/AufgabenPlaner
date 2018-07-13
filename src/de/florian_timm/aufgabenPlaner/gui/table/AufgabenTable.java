@@ -31,7 +31,7 @@ public class AufgabenTable extends Table implements MouseListener, EntityListene
 	private Window window;
 	private Projekt projekt = null;
 	private Person person = null;
-	private TableRowSorter<AufgabenTableModel> sorter;
+	private TableRowSorter<TableModel> sorter;
 	private int limit = -1;
 	private JMenuItem miLoeschen;
 	private JMenuItem miBearbeiten;
@@ -67,7 +67,7 @@ public class AufgabenTable extends Table implements MouseListener, EntityListene
 		AufgabenNotifier.getInstanz().addListener(this);
 		ProjektNotifier.getInstanz().addListener(this);
 
-		sorter = new TableRowSorter<AufgabenTableModel>();
+		sorter = new TableRowSorter<TableModel>();
 		this.setRowSorter(sorter);
 		dataChanged();
 		sorter.setComparator(this.getColumn("Fälligkeit").getModelIndex(), new Comparator<DateRenderable>() {
@@ -133,11 +133,11 @@ public class AufgabenTable extends Table implements MouseListener, EntityListene
 	@Override
 	public void dataChanged() {
 		System.out.println("AufgabenTable dataChanged");
-		AufgabenTableModel model = null;
+		TableModel model = null;
 		if (projekt != null) {
-			model = new AufgabenTableModel(this.projekt);
+			model = new AufgabenProjektTableModel(this.projekt);
 		} else if (person != null) {
-			model = new AufgabenTableModel(this.person, this.limit);
+			model = new AufgabenPersonTableModel(this.person, this.limit);
 		}
 		this.setModel(model);
 		sorter.setModel(model);
@@ -180,7 +180,7 @@ public class AufgabenTable extends Table implements MouseListener, EntityListene
 			int row = this.rowAtPoint(event.getPoint());
 			int col = this.columnAtPoint(event.getPoint());
 			Aufgabe aufgabe = (Aufgabe) this.getData(row);
-			if (person != null && col <= 2)
+			if (person != null && col < 2)
 				openProjekt(aufgabe.getProjekt());
 			else
 				openAufgabe(aufgabe);
@@ -203,7 +203,6 @@ public class AufgabenTable extends Table implements MouseListener, EntityListene
 
 			popup.show(e.getComponent(), e.getX(), e.getY());
 		}
-
 	}
 
 	@Override

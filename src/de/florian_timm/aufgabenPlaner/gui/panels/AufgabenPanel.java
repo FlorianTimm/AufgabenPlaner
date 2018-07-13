@@ -32,7 +32,9 @@ import de.florian_timm.aufgabenPlaner.entity.Projekt;
 import de.florian_timm.aufgabenPlaner.entity.Status;
 import de.florian_timm.aufgabenPlaner.entity.ordner.AufgabenOrdner;
 import de.florian_timm.aufgabenPlaner.entity.ordner.StatusOrdner;
+import de.florian_timm.aufgabenPlaner.gui.AufgabenGUI;
 import de.florian_timm.aufgabenPlaner.gui.PersonGUI;
+import de.florian_timm.aufgabenPlaner.gui.ProjektViewGUI;
 import de.florian_timm.aufgabenPlaner.gui.comp.PersonChooser;
 
 @SuppressWarnings("serial")
@@ -47,11 +49,12 @@ public class AufgabenPanel extends JPanel implements ActionListener, DocumentLis
 	private Window window;
 	private JButton okButton;
 	private JButton delButton;
+	private JButton projektButton;
 
 	public AufgabenPanel(Window window, Projekt projekt) {
 		super();
-		makePanel(window);
 		this.projekt = projekt;
+		makePanel(window);
 	}
 
 	public AufgabenPanel(Window window, Aufgabe aufgabe) {
@@ -101,6 +104,16 @@ public class AufgabenPanel extends JPanel implements ActionListener, DocumentLis
 
 	private void makePanel(Window window) {
 		this.window = window;
+
+		JLabel projektLabel = new JLabel("Projekt");
+		projektButton = new JButton();
+		if (aufgabe != null)
+			projektButton.setText(aufgabe.getProjekt().getTitel());
+		else if (projekt != null)
+			projektButton.setText(projekt.getTitel());
+		projektButton.setActionCommand("projekt");
+		projektButton.addActionListener(this);
+
 		JLabel titelLabel = new JLabel("Titel");
 		titelField = new JTextField();
 		titelField.getDocument().addDocumentListener(this);
@@ -143,15 +156,17 @@ public class AufgabenPanel extends JPanel implements ActionListener, DocumentLis
 		layout.setAutoCreateContainerGaps(true);
 
 		layout.setHorizontalGroup(layout.createSequentialGroup()
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(titelLabel)
-						.addComponent(beschreibungLabel).addComponent(bearbeiterLabel).addComponent(faelligkeitLabel)
-						.addComponent(statusLabel).addComponent(okButton))
-				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(titelField)
-						.addComponent(jsp).addComponent(bearbeiterField).addComponent(faelligkeitField)
-						.addComponent(statusField).addComponent(delButton))
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(projektLabel)
+						.addComponent(titelLabel).addComponent(beschreibungLabel).addComponent(bearbeiterLabel)
+						.addComponent(faelligkeitLabel).addComponent(statusLabel).addComponent(okButton))
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(projektButton)
+						.addComponent(titelField).addComponent(jsp).addComponent(bearbeiterField)
+						.addComponent(faelligkeitField).addComponent(statusField).addComponent(delButton))
 				.addComponent(neuPerson));
 
 		layout.setVerticalGroup(layout.createSequentialGroup()
+				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(projektLabel)
+						.addComponent(projektButton))
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(titelLabel)
 						.addComponent(titelField))
 				.addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(beschreibungLabel)
@@ -178,6 +193,17 @@ public class AufgabenPanel extends JPanel implements ActionListener, DocumentLis
 		case "neuePerson":
 			newPerson();
 			break;
+		case "projekt":
+			openProjekt();
+			break;
+		}
+	}
+
+	private void openProjekt() {
+		if (projekt != null) {
+			new ProjektViewGUI(window, projekt);
+		} else if (aufgabe != null) {
+			new ProjektViewGUI(window, aufgabe.getProjekt());
 		}
 	}
 
@@ -199,8 +225,7 @@ public class AufgabenPanel extends JPanel implements ActionListener, DocumentLis
 	public void speichern() {
 		if (this.aufgabe == null) {
 			makeAufgabe();
-			close();
-			window.dispose();
+			((AufgabenGUI) window).close();
 		} else {
 			updateAufgabe();
 			this.checkModified();

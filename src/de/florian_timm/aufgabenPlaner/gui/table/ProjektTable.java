@@ -15,6 +15,7 @@ import javax.swing.table.TableRowSorter;
 import de.florian_timm.aufgabenPlaner.entity.Person;
 import de.florian_timm.aufgabenPlaner.entity.Projekt;
 import de.florian_timm.aufgabenPlaner.entity.ordner.ProjektOrdner;
+import de.florian_timm.aufgabenPlaner.gui.AufgabenGUI;
 import de.florian_timm.aufgabenPlaner.gui.ProjektViewGUI;
 import de.florian_timm.aufgabenPlaner.kontroll.AufgabenNotifier;
 import de.florian_timm.aufgabenPlaner.kontroll.EntityListener;
@@ -31,6 +32,7 @@ public class ProjektTable extends Table implements MouseListener, EntityListener
 	private JMenuItem miPlus1;
 	private JMenuItem miPlus7;
 	private Window window;
+	private JMenuItem miAufgabe;
 
 	public ProjektTable(Window window) {
 		super();
@@ -88,6 +90,12 @@ public class ProjektTable extends Table implements MouseListener, EntityListener
 		miPlus7 = new JMenuItem("+ 7 Tage");
 		miPlus7.addActionListener(this);
 		popup.add(miPlus7);
+
+		popup.addSeparator();
+		
+		miAufgabe = new JMenuItem("Neue Aufgabe...");
+		miAufgabe.addActionListener(this);
+		popup.add(miAufgabe);
 
 		popup.addSeparator();
 
@@ -176,6 +184,8 @@ public class ProjektTable extends Table implements MouseListener, EntityListener
 				projekt.plus(7);
 			} else if (menu == miPlus1) {
 				projekt.plus(1);
+			} else if (menu == miAufgabe) {
+				new AufgabenGUI(window,projekt);
 			}
 		}
 	}

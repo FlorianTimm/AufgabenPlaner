@@ -16,6 +16,7 @@ public class Table extends JTable {
 		this.setFont(this.getFont().deriveFont(this.getFont().getSize() + 3));
 		this.setRowHeight(this.getRowHeight() + 6);
 		//this.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
+		this.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 	}
 
 	@Override
