@@ -13,9 +13,9 @@ public class ProjektTableModel extends TableModel {
 		this.setDataSource(ProjektOrdner.getInstanz().getArray());
 	}
 
-	public ProjektTableModel(Person person, int limit) {
+	public ProjektTableModel(Person person, int limit, boolean showReady) {
 		makeColumns();
-		this.setDataSource(ProjektOrdner.getByUser(person, limit));
+		this.setDataSource(ProjektOrdner.getByUser(person, limit, showReady));
 	}
 
 	private void makeColumns() {

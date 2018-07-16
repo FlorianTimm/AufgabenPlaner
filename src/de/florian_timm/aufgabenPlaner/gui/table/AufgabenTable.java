@@ -177,7 +177,7 @@ public class AufgabenTable extends Table implements MouseListener, EntityListene
 	public void mousePressed(MouseEvent event) {
 
 		if (event.getClickCount() == 2 && this.getSelectedRow() != -1) {
-			int row = this.rowAtPoint(event.getPoint());
+			int row = this.convertRowIndexToModel(this.rowAtPoint(event.getPoint()));
 			int col = this.columnAtPoint(event.getPoint());
 			Aufgabe aufgabe = (Aufgabe) this.getData(row);
 			if (person != null && col < 2)
@@ -195,7 +195,7 @@ public class AufgabenTable extends Table implements MouseListener, EntityListene
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		if (e.isPopupTrigger()) {
-			int row = this.rowAtPoint(e.getPoint());
+			int row = this.convertRowIndexToModel(this.rowAtPoint(e.getPoint()));
 			int column = this.columnAtPoint(e.getPoint());
 
 			if (!this.isRowSelected(row))

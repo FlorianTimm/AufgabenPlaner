@@ -33,16 +33,18 @@ public class ProjektTable extends Table implements MouseListener, EntityListener
 	private JMenuItem miPlus7;
 	private Window window;
 	private JMenuItem miAufgabe;
+	private boolean showReady  = false;
 
 	public ProjektTable(Window window) {
 		super();
 		makeTable();
 	}
 
-	public ProjektTable(Window window, Person person) {
+	public ProjektTable(Window window, Person person, boolean showReady) {
 		super();
 		this.window = window;
 		this.person = person;
+		this.showReady = showReady;
 		makeTable();
 	}
 
@@ -107,7 +109,7 @@ public class ProjektTable extends Table implements MouseListener, EntityListener
 	@Override
 	public void mousePressed(MouseEvent mouseEvent) {
 		if (mouseEvent.getClickCount() == 2 && this.getSelectedRow() != -1) {
-			int row = this.rowAtPoint(mouseEvent.getPoint());
+			int row = this.convertRowIndexToModel(this.rowAtPoint(mouseEvent.getPoint()));
 			Projekt projekt = (Projekt) this.getData(row);
 			openProjekt(projekt);
 		}
@@ -127,7 +129,7 @@ public class ProjektTable extends Table implements MouseListener, EntityListener
 		if (person == null)
 			model = new ProjektTableModel();
 		else
-			model = new ProjektTableModel(person, limit);
+			model = new ProjektTableModel(person, limit, showReady);
 		
 		
 		this.setModel(model);
@@ -173,7 +175,7 @@ public class ProjektTable extends Table implements MouseListener, EntityListener
 	@Override
 	public void actionPerformed(ActionEvent event) {
 		if (this.getSelectedRow() != -1) {
-			int row = this.getSelectedRow();
+			int row = this.convertRowIndexToModel(this.getSelectedRow());
 			Projekt projekt = (Projekt) this.getData(row);
 			JMenuItem menu = (JMenuItem) event.getSource();
 			if (menu == miLoeschen) {

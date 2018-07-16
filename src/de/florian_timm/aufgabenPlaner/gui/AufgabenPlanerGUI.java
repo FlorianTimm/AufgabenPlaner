@@ -55,7 +55,7 @@ public class AufgabenPlanerGUI extends JFrame implements ErrorListener {
 		Container cp = this.getContentPane();
 		dashboard = new DashboardPanel(this);
 		projektUerbersichtPanel = new ProjektUebersichtPanel(this);
-		projektMeinePanel = new ProjektUebersichtPanel(this, PersonenOrdner.getInstanz().getNutzer());
+		projektMeinePanel = new ProjektUebersichtPanel(this, PersonenOrdner.getInstanz().getNutzer(), true);
 		offeneAufgabenPanel = new OffeneAufgabenPanel(this, PersonenOrdner.getInstanz().getNutzer());
 
 		JTabbedPane tabbedPane = new JTabbedPane();

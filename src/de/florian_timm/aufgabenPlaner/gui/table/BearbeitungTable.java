@@ -144,7 +144,7 @@ public class BearbeitungTable extends Table implements MouseListener, EntityList
 	public void mousePressed(MouseEvent event) {
 
 		if (event.getClickCount() == 2 && this.getSelectedRow() != -1) {
-			int row = this.rowAtPoint(event.getPoint());
+			int row = this.convertRowIndexToModel(this.rowAtPoint(event.getPoint()));
 			Bearbeitung bearbeitung = (Bearbeitung) this.getData(row);
 			bearbeiten(bearbeitung);
 		}
@@ -153,7 +153,7 @@ public class BearbeitungTable extends Table implements MouseListener, EntityList
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		if (e.isPopupTrigger()) {
-			int row = this.rowAtPoint(e.getPoint());
+			int row = this.convertRowIndexToModel(this.rowAtPoint(e.getPoint()));
 			int column = this.columnAtPoint(e.getPoint());
 
 			if (!this.isRowSelected(row))

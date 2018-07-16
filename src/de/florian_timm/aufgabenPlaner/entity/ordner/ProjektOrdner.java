@@ -34,9 +34,13 @@ public class ProjektOrdner extends Ordner {
 		return instanz;
 	}
 
-	public static Projekt[] getByUser(Person person, int limit) {
+	public static Projekt[] getByUser(Person person, int limit, boolean showReady) {
 		List<Projekt> projekte = new ArrayList<Projekt>();
-		String sql = "SELECT p.*, AVG(s.sortierung) as status FROM projekt as p LEFT JOIN aufgabe as a ON a.geloescht IS NULL AND a.storniert IS NULL AND p.id = a.projekt LEFT JOIN status as s ON a.status = s.id WHERE p.geloescht IS NULL AND p.archiviert IS NULL AND (p.auftraggeber = ? OR p.zustaendig = ?) GROUP BY p.id ORDER BY faelligkeit ASC";
+		String sql = "SELECT p.*, AVG(s.sortierung) as status FROM projekt as p LEFT JOIN aufgabe as a ON a.geloescht IS NULL AND a.storniert IS NULL AND p.id = a.projekt LEFT JOIN status as s ON a.status = s.id WHERE p.geloescht IS NULL AND p.archiviert IS NULL AND (p.auftraggeber = ? OR p.zustaendig = ?) GROUP BY p.id";
+		if (!showReady) {
+			sql += " HAVING AVG(s.sortierung) < 100 OR COUNT(s.sortierung) = 0";
+		}
+		sql += " ORDER BY faelligkeit ASC";
 
 		if (limit != -1) {
 			sql += " LIMIT " + limit;
